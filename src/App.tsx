@@ -130,6 +130,7 @@ export function App() {
   const handleInitAudio = async () => {
     await AudioContextManager.init();
     setIsAudioReady(true);
+    SonificationEngine.getInstance().syncObservations(observations, enabledPhenomena);
   };
 
   const handleStartListeningFromHero = async () => {

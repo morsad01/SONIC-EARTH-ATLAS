@@ -3,6 +3,7 @@ export class AudioContextManager {
   private static masterGain: GainNode | null = null;
   private static limiter: DynamicsCompressorNode | null = null;
   private static isInitialized = false;
+  private static isUnlocked = false;
 
   public static getContext(): AudioContext | null {
     return this.ctx;
@@ -13,11 +14,39 @@ export class AudioContextManager {
   }
 
   /**
+   * Unlocks Web Audio hardware on mobile browsers (iOS Safari & Android Chrome)
+   * by firing a 1-sample silent AudioBuffer pulse and calling ctx.resume().
+   */
+  public static async unlockMobileAudio(): Promise<void> {
+    if (!this.ctx) return;
+
+    try {
+      if (this.ctx.state === 'suspended') {
+        await this.ctx.resume();
+      }
+
+      // Play 1-sample silent buffer to unlock iOS Safari & Android Web Audio hardware
+      const buffer = this.ctx.createBuffer(1, 1, 22050);
+      const source = this.ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(this.ctx.destination);
+      source.start(0);
+
+      this.isUnlocked = true;
+    } catch (err) {
+      console.warn('[AudioContextManager] Mobile Web Audio unlock notice:', err);
+    }
+  }
+
+  /**
    * Initializes or resumes AudioContext strictly upon user interaction.
    */
   public static async init(): Promise<AudioContext> {
     if (!this.ctx) {
-      const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtxClass =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+
       this.ctx = new AudioCtxClass();
 
       // Dynamics compressor as brick-wall limiter to protect hearing and prevent digital clipping
@@ -36,13 +65,33 @@ export class AudioContextManager {
       this.masterGain.connect(this.ctx.destination);
 
       this.isInitialized = true;
+      this.setupGlobalTouchUnlock();
     }
 
-    if (this.ctx.state === 'suspended') {
-      await this.ctx.resume();
-    }
-
+    await this.unlockMobileAudio();
     return this.ctx;
+  }
+
+  /**
+   * Registers automatic touch listeners to unlock Web Audio on mobile Safari/Chrome on first touch.
+   */
+  private static setupGlobalTouchUnlock(): void {
+    if (typeof window === 'undefined' || this.isUnlocked) return;
+
+    const unlockHandler = async () => {
+      if (this.ctx) {
+        await this.unlockMobileAudio();
+        if (this.ctx.state === 'running') {
+          window.removeEventListener('touchstart', unlockHandler, true);
+          window.removeEventListener('touchend', unlockHandler, true);
+          window.removeEventListener('click', unlockHandler, true);
+        }
+      }
+    };
+
+    window.addEventListener('touchstart', unlockHandler, { capture: true, passive: true });
+    window.addEventListener('touchend', unlockHandler, { capture: true, passive: true });
+    window.addEventListener('click', unlockHandler, { capture: true, passive: true });
   }
 
   public static getMasterNode(): AudioNode | null {
