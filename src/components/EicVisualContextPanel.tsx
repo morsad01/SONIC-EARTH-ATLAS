@@ -64,7 +64,7 @@ export const EicVisualContextPanel: React.FC<EicVisualContextPanelProps> = ({
         </div>
         <div className="grid grid-cols-3 gap-1 text-center text-[9px] pt-1 border-t border-slate-800/80">
           <div className="p-1 bg-slate-950 rounded text-cyan-300 border border-slate-800 truncate">
-            1. EIC VISUAL
+            1. EIC CONTEXT
           </div>
           <div className="p-1 bg-slate-950 rounded text-amber-300 border border-slate-800 truncate">
             2. DATA VALUE
