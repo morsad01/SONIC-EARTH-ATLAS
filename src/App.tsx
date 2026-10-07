@@ -15,7 +15,7 @@ import { InfoModal } from './components/InfoModal';
 import { GuidedDemoModal } from './demo/GuidedDemoModal';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel';
 import { AuditoryLegend } from './legend/AuditoryLegend';
-import { RotateCw, Volume2, X } from 'lucide-react';
+import { RotateCw, Volume2, X, Layers } from 'lucide-react';
 
 export function App() {
   // --- Landing and App States ---
@@ -55,6 +55,7 @@ export function App() {
   const [infoModalTab, setInfoModalTab] = useState<'science' | 'provenance' | 'legend'>('science');
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
   const [isLegendOpen, setIsLegendOpen] = useState(true);
+  const [isMobileLayersOpen, setIsMobileLayersOpen] = useState(false);
 
   // --- Initial Data Loading ---
   const loadData = useCallback(async (mode: DataSourceMode) => {
@@ -99,60 +100,19 @@ export function App() {
     return counts;
   }, [observations]);
 
-  // --- Audio Initialization on User Gesture ---
-  const handleStartAudio = async () => {
-    try {
-      await AudioContextManager.init();
-      setIsAudioReady(true);
-      AudioContextManager.setMasterVolume(masterVolume);
-    } catch (e) {
-      console.warn('AudioContext initialization error:', e);
-    }
-  };
-
-  const handleStartListeningHero = async () => {
-    setEnabledPhenomena({
-      fire: true,
-      precipitation: false,
-      sst: false,
-    });
-    await handleStartAudio();
-    setShowLandingHero(false);
-    setShowAcousticCalibratedHint(true);
-  };
-
-  const handleStartGuidedTourHero = async () => {
-    await handleStartAudio();
-    setShowLandingHero(false);
-    setIsGuidedDemoOpen(true);
-  };
-
-  const handleExploreGlobeHero = () => {
-    setShowLandingHero(false);
-  };
-
-  // --- Sync Sonification Engine when Data or Layers change ---
+  // Update master volume
   useEffect(() => {
-    if (!isAudioReady || observations.length === 0) return;
-    const engine = SonificationEngine.getInstance();
-    engine.setHearChangeMode(hearChangeMode);
-    engine.syncObservations(observations, enabledPhenomena);
-  }, [isAudioReady, observations, enabledPhenomena, hearChangeMode]);
+    AudioContextManager.setMasterVolume(masterVolume);
+  }, [masterVolume]);
 
-  // Change volume
-  const handleChangeMasterVolume = (vol: number) => {
-    setMasterVolume(vol);
-    AudioContextManager.setMasterVolume(vol);
-  };
-
-  // Toggle HRTF vs Stereo
+  // Toggle Spatial HRTF vs Stereo
   const handleToggleSpatialMode = () => {
     const nextMode = spatialMode === 'spatial-hrtf' ? 'stereo-panning' : 'spatial-hrtf';
     setSpatialMode(nextMode);
     SonificationEngine.getInstance().setSpatialMode(nextMode);
   };
 
-  // Toggle Phenomenon Layer
+  // Toggle phenomenon layer
   const handleTogglePhenomenon = (phenomenon: PhenomenonType) => {
     setEnabledPhenomena((prev) => ({
       ...prev,
@@ -160,43 +120,59 @@ export function App() {
     }));
   };
 
-  // Toggle Live vs Demo
+  // Toggle data source mode
   const handleToggleDataSourceMode = () => {
-    const next = dataSourceMode === 'demo' ? 'live' : 'demo';
-    loadData(next);
+    const nextMode = dataSourceMode === 'demo' ? 'live' : 'demo';
+    loadData(nextMode);
   };
 
-  // Open specific tab in Info Modal
+  // Start Audio & enter app
+  const handleInitAudio = async () => {
+    await AudioContextManager.init();
+    setIsAudioReady(true);
+  };
+
+  const handleStartListeningFromHero = async () => {
+    await handleInitAudio();
+    setShowLandingHero(false);
+  };
+
+  const handleStartGuidedTourFromHero = async () => {
+    await handleInitAudio();
+    setShowLandingHero(false);
+    setIsGuidedDemoOpen(true);
+  };
+
+  // Modal helper
   const openInfoModal = (tab: 'science' | 'provenance' | 'legend') => {
     setInfoModalTab(tab);
     setIsInfoModalOpen(true);
   };
 
+  const activeLayersCount = Object.values(enabledPhenomena).filter(Boolean).length;
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 flex flex-col font-sans select-none">
-      {/* Landing Experience Hero Overlay */}
+    <div className="flex flex-col h-[100dvh] w-full max-w-[100vw] bg-slate-950 text-white font-sans overflow-hidden select-none">
+      {/* Landing Cinematic Hero */}
       {showLandingHero && (
         <LandingHero
-          onStartListening={handleStartListeningHero}
-          onExploreGlobe={handleExploreGlobeHero}
-          onStartGuidedTour={handleStartGuidedTourHero}
+          onStartListening={handleStartListeningFromHero}
+          onExploreGlobe={() => setShowLandingHero(false)}
+          onStartGuidedTour={handleStartGuidedTourFromHero}
         />
       )}
 
-      {/* Main Top Header */}
+      {/* Navigation & Telemetry Console */}
       <Header
         viewMode={viewMode}
         onChangeViewMode={setViewMode}
         spatialMode={spatialMode}
         onToggleSpatialMode={handleToggleSpatialMode}
         isAudioReady={isAudioReady}
-        onInitAudio={handleStartAudio}
+        onInitAudio={handleInitAudio}
         masterVolume={masterVolume}
-        onChangeMasterVolume={handleChangeMasterVolume}
-        onOpenDemo={() => {
-          if (!isAudioReady) handleStartAudio();
-          setIsGuidedDemoOpen(true);
-        }}
+        onChangeMasterVolume={setMasterVolume}
+        onOpenDemo={() => setIsGuidedDemoOpen(true)}
         onOpenProvenance={() => openInfoModal('provenance')}
         onOpenFormulas={() => openInfoModal('science')}
       />
@@ -238,8 +214,8 @@ export function App() {
         {/* Floating HUD Controls for 3D and 2D Views */}
         {viewMode !== 'audio-first' && (
           <>
-            {/* Left Drawer: Dataset Layers Selector */}
-            <div className="absolute top-4 left-4 z-20 w-64 max-w-[calc(100vw-32px)]">
+            {/* Desktop Left Drawer: Dataset Layers Selector */}
+            <div className="hidden md:block absolute top-4 left-4 z-20 w-64 max-w-[calc(100vw-32px)]">
               <DatasetSelector
                 enabledPhenomena={enabledPhenomena}
                 onTogglePhenomenon={handleTogglePhenomenon}
@@ -251,12 +227,53 @@ export function App() {
               />
             </div>
 
+            {/* Mobile Left Drawer Trigger Button */}
+            <div className="md:hidden absolute top-3 left-3 z-20">
+              <button
+                onClick={() => setIsMobileLayersOpen(true)}
+                className="px-3 py-1.5 min-h-[38px] rounded-lg bg-slate-950/90 border border-cyan-500/50 text-cyan-300 font-mono text-xs font-bold flex items-center gap-1.5 shadow-xl backdrop-blur-md cursor-pointer"
+              >
+                <Layers className="w-4 h-4 text-cyan-400" />
+                <span>LAYERS ({activeLayersCount})</span>
+              </button>
+            </div>
+
+            {/* Mobile Dataset Layers Bottom Drawer Sheet */}
+            {isMobileLayersOpen && (
+              <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+                <div className="bg-slate-950 border-t border-slate-800 rounded-t-2xl p-4 max-h-[80dvh] overflow-y-auto space-y-3 shadow-2xl safe-pb">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span className="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <Layers className="w-4 h-4" />
+                      DATASET OBSERVATION LAYERS
+                    </span>
+                    <button
+                      onClick={() => setIsMobileLayersOpen(false)}
+                      className="p-1 rounded text-slate-400 hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <DatasetSelector
+                    enabledPhenomena={enabledPhenomena}
+                    onTogglePhenomenon={handleTogglePhenomenon}
+                    dataSourceMode={dataSourceMode}
+                    onToggleDataSourceMode={handleToggleDataSourceMode}
+                    isFetchingLive={isFetchingLive}
+                    isFallback={isFallback}
+                    observationsCountByLayer={observationsCountByLayer}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Globe Quick Controls (Auto-Rotate toggle & View Reset) */}
             {viewMode === '3d-globe' && (
-              <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex flex-col gap-2">
                 <button
                   onClick={() => setAutoRotate(!autoRotate)}
-                  className={`p-2 rounded-lg border text-xs font-mono transition flex items-center gap-1.5 shadow-xl backdrop-blur-md ${
+                  className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border text-xs font-mono transition gap-1.5 shadow-xl backdrop-blur-md ${
                     autoRotate
                       ? 'bg-cyan-950 text-cyan-300 border-cyan-600'
                       : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:text-white'
@@ -264,20 +281,20 @@ export function App() {
                   title={autoRotate ? 'Pause Globe Auto-Rotation' : 'Auto-Rotate Globe'}
                   aria-label="Toggle Globe Rotation"
                 >
-                  <RotateCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin' : ''}`} />
+                  <RotateCw className={`w-4 h-4 ${autoRotate ? 'animate-spin' : ''}`} />
                   <span className="hidden sm:inline">{autoRotate ? 'Spinning' : 'Spin'}</span>
                 </button>
 
                 <button
                   onClick={() => setIsLegendOpen(!isLegendOpen)}
-                  className={`p-2 rounded-lg border text-xs font-mono transition flex items-center gap-1.5 shadow-xl backdrop-blur-md ${
+                  className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border text-xs font-mono transition gap-1.5 shadow-xl backdrop-blur-md ${
                     isLegendOpen
                       ? 'bg-slate-900/90 text-cyan-400 border-slate-700'
                       : 'bg-slate-900/60 text-slate-400 border-slate-800'
                   }`}
                   title="Toggle Auditory Legend Panel"
                 >
-                  <Volume2 className="w-3.5 h-3.5" />
+                  <Volume2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Legend</span>
                 </button>
               </div>
@@ -285,7 +302,7 @@ export function App() {
 
             {/* Right Side: Collapsible Auditory Legend */}
             {isLegendOpen && viewMode === '3d-globe' && (
-              <div className="absolute bottom-24 right-4 z-20 w-80 max-w-[calc(100vw-32px)] animate-fade-in hidden sm:block">
+              <div className="absolute bottom-24 right-4 z-20 w-80 max-w-[calc(100vw-32px)] animate-fade-in hidden md:block">
                 {showAcousticCalibratedHint && (
                   <div className="mb-2.5 p-3 rounded-xl bg-slate-900/95 border border-cyan-500/60 shadow-xl backdrop-blur-md text-white text-xs animate-fade-in">
                     <div className="flex items-center justify-between font-mono text-[11px] text-cyan-400 font-bold mb-1">
@@ -312,7 +329,7 @@ export function App() {
             )}
 
             {/* Bottom Center: Timeline Controls */}
-            <div className="absolute bottom-4 inset-x-4 max-w-4xl mx-auto z-20">
+            <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 max-w-4xl mx-auto z-20">
               <TimelineControls
                 currentTimestepIndex={currentTimestepIndex}
                 onChangeTimestep={setCurrentTimestepIndex}
