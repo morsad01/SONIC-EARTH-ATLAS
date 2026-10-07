@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
-import { createProceduralEarthTexture } from './earthTextureGenerator';
+import { createProceduralEarthTexture, createProceduralCloudTexture } from './earthTextureGenerator';
 import { SonificationEngine } from '../audio/sonificationEngine';
 
 interface GlobeCanvasProps {
@@ -30,6 +30,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const globeGroupRef = useRef<THREE.Group | null>(null);
+  const cloudMeshRef = useRef<THREE.Mesh | null>(null);
   const markersGroupRef = useRef<THREE.Group | null>(null);
   const soundWavesGroupRef = useRef<THREE.Group | null>(null);
   const markerMeshesRef = useRef<Map<string, THREE.Mesh>>(new Map());
@@ -63,37 +64,39 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.1;
+    renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // --- Starfield Background ---
+    // --- Deep Space & Cosmic Starfield Background ---
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 1200;
+    const starCount = 1800;
     const starPositions = new Float32Array(starCount * 3);
     const starColors = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount * 3; i += 3) {
-      starPositions[i] = (Math.random() - 0.5) * 90;
-      starPositions[i + 1] = (Math.random() - 0.5) * 90;
-      starPositions[i + 2] = -12 - Math.random() * 45;
+      starPositions[i] = (Math.random() - 0.5) * 110;
+      starPositions[i + 1] = (Math.random() - 0.5) * 110;
+      starPositions[i + 2] = -15 - Math.random() * 50;
 
-      // Color variation: deep space blues, cyan highlights, cool white
+      // Color variation: cyan, deep space blue, warm white, cosmic purple
       const c = Math.random();
-      if (c > 0.8) {
+      if (c > 0.85) {
         starColors[i] = 0.49; starColors[i + 1] = 0.83; starColors[i + 2] = 0.98; // Cyan
-      } else if (c > 0.5) {
-        starColors[i] = 0.25; starColors[i + 1] = 0.55; starColors[i + 2] = 0.95; // Deep Blue
+      } else if (c > 0.65) {
+        starColors[i] = 0.75; starColors[i + 1] = 0.52; starColors[i + 2] = 0.99; // Purple
+      } else if (c > 0.4) {
+        starColors[i] = 0.25; starColors[i + 1] = 0.55; starColors[i + 2] = 0.95; // Blue
       } else {
-        starColors[i] = 0.97; starColors[i + 1] = 0.98; starColors[i + 2] = 0.99; // Cool White
+        starColors[i] = 0.98; starColors[i + 1] = 0.96; starColors[i + 2] = 0.92; // Warm White
       }
     }
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
     starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
     const starMaterial = new THREE.PointsMaterial({
-      size: 0.16,
+      size: 0.18,
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.85,
     });
     const starField = new THREE.Points(starGeometry, starMaterial);
     scene.add(starField);
@@ -103,20 +106,33 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // Earth Sphere
+    // Realistic Earth Sphere
     const earthRadius = 2.0;
     const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
     const earthTexture = createProceduralEarthTexture();
     const earthMaterial = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.60,
-      metalness: 0.20,
+      roughness: 0.45,
+      metalness: 0.15,
     });
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
-    // Volumetric Atmospheric Glow Shader Layer
-    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.028, 64, 64);
+    // Revolving Atmospheric Cloud Sphere Layer
+    const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
+    const cloudTexture = createProceduralCloudTexture();
+    const cloudMaterial = new THREE.MeshStandardMaterial({
+      map: cloudTexture,
+      transparent: true,
+      opacity: 0.45,
+      roughness: 0.9,
+    });
+    const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+    globeGroup.add(cloudMesh);
+    cloudMeshRef.current = cloudMesh;
+
+    // Volumetric Atmospheric Horizon Glow Shader Layer
+    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.025, 64, 64);
     const atmosphereMaterial = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -128,8 +144,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.6);
-          gl_FragColor = vec4(0.12, 0.55, 0.95, 1.0) * intensity * 0.85;
+          float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+          gl_FragColor = vec4(0.22, 0.65, 0.98, 1.0) * intensity * 0.95;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -148,15 +164,18 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     globeGroup.add(soundWavesGroup);
     soundWavesGroupRef.current = soundWavesGroup;
 
-    // --- Planetarium Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.90);
+    // --- Planetarium Directional Sun Lighting ---
+    const ambientLight = new THREE.AmbientLight(0x071329, 0.65);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff8e7, 1.5);
+    const sunLight = new THREE.DirectionalLight(0xfff8e7, 2.2);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x0066ff, 0.75);
+    const fillLight = new THREE.HemisphereLight(0x38bdf8, 0x02040a, 0.4);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0x0088ff, 0.85);
     rimLight.position.set(-5, -2, -3);
     scene.add(rimLight);
 
@@ -165,6 +184,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+
+      // Revolving cloud layer rotation
+      if (cloudMeshRef.current) {
+        cloudMeshRef.current.rotation.y += 0.0003;
+      }
 
       // Smooth camera interpolation toward guided demo target region
       if (targetFocusRef.current && !isDraggingRef.current && globeGroupRef.current) {
@@ -182,104 +206,84 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         globeGroupRef.current.rotation.y += 0.0015;
       }
 
-      // Synchronize visual acoustic beacon rings and pin highlights with actively playing voices
-      const activeVoices = SonificationEngine.getInstance().getActiveVoiceDetails();
-      const now = performance.now();
+      // Synchronize visual acoustic emission beacons on Earth surface with Web Audio active voices
+      const voiceDetails = SonificationEngine.getInstance().getActiveVoiceDetails();
+      waveMeshesRef.current.forEach((mesh, obsId) => {
+        const voiceInfo = voiceDetails.get(obsId);
+        if (voiceInfo) {
+          mesh.visible = true;
+          const elapsedSec = (performance.now() - voiceInfo.startedAt) / 1000;
 
-      waveMeshesRef.current.forEach((ringMesh, obsId) => {
-        const voice = activeVoices.get(obsId);
-        const markerMesh = markerMeshesRef.current.get(obsId);
-        const isSelected = selectedObservationRef.current?.id === obsId;
+          // Pulse expansion rhythm based on intensity
+          const pulseScale = 1.0 + ((elapsedSec * (1.8 + voiceInfo.intensity * 2.0)) % 1.6);
+          const opacity = Math.max(0, 0.95 - (pulseScale - 1.0) / 1.6);
 
-        if (voice) {
-          // Actively producing sound: show synchronized pulsing acoustic wave
-          ringMesh.visible = true;
-          const elapsedSec = (now - voice.startedAt) * 0.001;
-
-          // Pulse rhythm tied to actual phenomenon dynamics:
-          // Fire: crackle burst rhythm (~2.4 Hz)
-          // Rain: precipitation droplet cadence (~1.9 Hz)
-          // Ocean: slow thermal glissando swell (~0.8 Hz)
-          const pulseFreq = voice.phenomenon === 'fire' ? 2.4 : voice.phenomenon === 'precipitation' ? 1.9 : 0.8;
-          const phase = (elapsedSec * pulseFreq) % 1.0;
-
-          // Expanding acoustic ring
-          const maxExpand = 1.5 + voice.intensity * 1.2;
-          const ringScale = 1.0 + phase * maxExpand;
-          ringMesh.scale.set(ringScale, ringScale, 1);
-          const ringMat = ringMesh.material as THREE.MeshBasicMaterial;
-          ringMat.opacity = Math.max(0, (0.75 + voice.intensity * 0.25) * (1.0 - phase));
-
-          // Highlight geographic pin beacon
-          if (markerMesh) {
-            const beaconPulse = Math.sin(phase * Math.PI * 2) * 0.25;
-            const baseScale = isSelected ? 1.8 : 1.0;
-            const pulseScale = baseScale * (1.1 + beaconPulse * (0.2 + voice.intensity * 0.35));
-            markerMesh.scale.setScalar(pulseScale);
-          }
+          mesh.scale.set(pulseScale, pulseScale, 1);
+          (mesh.material as THREE.MeshBasicMaterial).opacity = opacity;
         } else {
-          // Voice is silent/stopped: hide ring completely and return pin to resting scale
-          ringMesh.visible = false;
-          if (markerMesh) {
-            markerMesh.scale.setScalar(isSelected ? 1.8 : 1.0);
+          const isSelected = selectedObservationRef.current?.id === obsId;
+          if (isSelected) {
+            mesh.visible = true;
+            mesh.scale.set(1.4, 1.4, 1);
+            (mesh.material as THREE.MeshBasicMaterial).opacity = 0.8;
+          } else {
+            mesh.visible = false;
           }
         }
       });
 
-      renderer.render(scene, camera);
+      if (rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
+      }
     };
+
     animate();
 
-    // --- Resize Handler ---
+    // Resize Handler
     const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
+      if (!containerRef.current || !rendererRef.current || !cameraRef.current) return;
+      const w = containerRef.current.clientWidth;
+      const h = containerRef.current.clientHeight;
+      cameraRef.current.aspect = w / h;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(w, h);
     };
+
     window.addEventListener('resize', handleResize);
 
-    // --- Cleanup ---
     return () => {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener('resize', handleResize);
-      renderer.dispose();
+      if (rendererRef.current && rendererRef.current.domElement) {
+        container.removeChild(rendererRef.current.domElement);
+        rendererRef.current.dispose();
+      }
       earthGeometry.dispose();
       earthMaterial.dispose();
       earthTexture.dispose();
+      cloudGeometry.dispose();
+      cloudMaterial.dispose();
+      cloudTexture.dispose();
       atmosphereGeometry.dispose();
       atmosphereMaterial.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
+      starGeometry.dispose();
+      starMaterial.dispose();
     };
   }, []);
 
-  // Sync refs when props change
+  // --- Observation Markers & Wave Rings Re-rendering ---
   useEffect(() => {
-    targetFocusRef.current = targetFocus;
-  }, [targetFocus]);
-
-  useEffect(() => {
-    selectedObservationRef.current = selectedObservation;
-  }, [selectedObservation]);
-
-  // --- Update Markers & Sound Waves when Observations or Active Phenomena change ---
-  useEffect(() => {
+    if (!markersGroupRef.current || !soundWavesGroupRef.current) return;
     const markersGroup = markersGroupRef.current;
     const wavesGroup = soundWavesGroupRef.current;
-    if (!markersGroup || !wavesGroup) return;
 
-    // Clear old markers
+    // Clear existing markers and wave rings
     while (markersGroup.children.length > 0) {
       const obj = markersGroup.children[0];
       markersGroup.remove(obj);
       if (obj instanceof THREE.Mesh) {
         obj.geometry.dispose();
-        if (Array.isArray(obj.material)) obj.material.forEach((m) => m.dispose());
-        else obj.material.dispose();
+        (obj.material as THREE.Material).dispose();
       }
     }
     while (wavesGroup.children.length > 0) {
@@ -320,7 +324,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
       const isSelected = selectedObservation?.id === obs.id;
       const markerMesh = new THREE.Mesh(markerGeo, markerMat);
-      markerMesh.position.set(x * 1.015, y * 1.015, z * 1.015);
+      markerMesh.position.set(x * 1.025, y * 1.025, z * 1.025);
       if (isSelected) {
         markerMesh.scale.set(1.8, 1.8, 1.8);
       }
@@ -337,7 +341,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         side: THREE.DoubleSide,
       });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      ringMesh.position.set(x * 1.018, y * 1.018, z * 1.018);
+      ringMesh.position.set(x * 1.028, y * 1.028, z * 1.028);
       ringMesh.lookAt(x * 2, y * 2, z * 2);
       ringMesh.visible = false; // Initially dormant; driven dynamically by audio voice state
       wavesGroup.add(ringMesh);
@@ -418,30 +422,29 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
     if (!cameraRef.current) return;
-    cameraRef.current.position.z = Math.max(3.2, Math.min(9.0, cameraRef.current.position.z + e.deltaY * 0.004));
+    const zoomFactor = e.deltaY * 0.003;
+    cameraRef.current.position.z = Math.max(3.6, Math.min(9.0, cameraRef.current.position.z + zoomFactor));
   };
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full overflow-hidden select-none cursor-grab active:cursor-grabbing bg-slate-950"
+      className="w-full h-full relative cursor-grab active:cursor-grabbing overflow-hidden"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onClick={handleClick}
       onWheel={handleWheel}
-      role="region"
-      aria-label="3D Interactive Earth Sonification Globe"
     >
-      {/* Floating HUD Tooltip */}
+      {/* Dynamic Hover Tooltip */}
       {hoveredObs && tooltipPos && (
         <div
-          className="pointer-events-none absolute z-30 transform -translate-x-1/2 -translate-y-full mb-3 px-3 py-2 rounded-lg bg-slate-900/95 border border-slate-700 text-xs shadow-2xl backdrop-blur-md"
-          style={{ left: tooltipPos.x, top: tooltipPos.y }}
+          className="absolute z-30 pointer-events-none p-2.5 rounded-lg bg-slate-950/95 border border-cyan-500/60 shadow-2xl backdrop-blur-md text-white text-xs font-mono animate-fade-in -translate-x-1/2 -translate-y-full"
+          style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y - 12}px` }}
         >
-          <div className="font-semibold text-slate-100 flex items-center gap-1.5">
+          <div className="font-bold text-cyan-300 flex items-center gap-1">
             <span
-              className="inline-block w-2 h-2 rounded-full"
+              className="w-2 h-2 rounded-full"
               style={{
                 backgroundColor:
                   hoveredObs.phenomenon === 'fire'
@@ -453,25 +456,18 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
             />
             {hoveredObs.regionName || hoveredObs.variable}
           </div>
-          <div className="text-slate-300 font-mono mt-1">
-            {hoveredObs.value} {hoveredObs.unit}
-            {hoveredObs.delta !== undefined && (
-              <span className={`ml-2 text-[10px] ${hoveredObs.delta >= 0 ? 'text-amber-400' : 'text-blue-400'}`}>
-                (Δ {hoveredObs.delta > 0 ? `+${hoveredObs.delta.toFixed(1)}` : hoveredObs.delta.toFixed(1)})
-              </span>
-            )}
+          <div className="text-[11px] text-slate-300 mt-0.5">
+            {hoveredObs.value} {hoveredObs.unit} (Norm: {hoveredObs.normalizedValue.toFixed(2)})
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">
-            Lat: {hoveredObs.latitude.toFixed(2)}° | Lon: {hoveredObs.longitude.toFixed(2)}° (Pan: {(hoveredObs.longitude / 180).toFixed(2)})
+            {hoveredObs.latitude.toFixed(1)}°, {hoveredObs.longitude.toFixed(1)}° • Click to sonify
           </div>
-          <div className="text-[9px] text-cyan-400 mt-1 italic">Click to focus & hear location</div>
         </div>
       )}
 
-      {/* Mini orientation/interaction hint */}
-      <div className="absolute bottom-4 left-4 pointer-events-none text-[11px] font-mono text-slate-400/80 bg-slate-900/60 backdrop-blur-sm px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-        <span>Drag to rotate Earth • Scroll to zoom • Click markers to hear</span>
+      {/* Touch & Keyboard Navigation Hint Overlay */}
+      <div className="absolute bottom-3 left-4 pointer-events-none text-[10px] font-mono text-slate-400 bg-slate-950/60 px-2.5 py-1 rounded border border-slate-800/60 backdrop-blur-sm hidden sm:block">
+        <span>Drag to rotate Earth • Scroll to zoom • Click point to explore</span>
       </div>
     </div>
   );
