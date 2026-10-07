@@ -112,30 +112,29 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const earthTexture = createProceduralEarthTexture();
     const earthMaterial = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.55,
-      metalness: 0.08,
+      roughness: 0.5,
+      metalness: 0.05,
       transparent: false,
       opacity: 1.0,
     });
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
-    // Revolving Atmospheric Cloud Sphere Layer (Ultra Subtle, Soft Cloud Layer)
+    // Revolving Atmospheric Cloud Sphere Layer (Clean & Transparent)
     const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
     const cloudTexture = createProceduralCloudTexture();
     const cloudMaterial = new THREE.MeshStandardMaterial({
       map: cloudTexture,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.0,
       roughness: 0.95,
-      blending: THREE.AdditiveBlending,
     });
     const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
     globeGroup.add(cloudMesh);
     cloudMeshRef.current = cloudMesh;
 
     // Volumetric Atmospheric Horizon Glow Shader Layer
-    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.025, 64, 64);
+    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.018, 64, 64);
     const atmosphereMaterial = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -147,8 +146,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
-          gl_FragColor = vec4(0.22, 0.65, 0.98, 1.0) * intensity * 0.95;
+          float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
+          gl_FragColor = vec4(0.14, 0.65, 0.95, 1.0) * intensity * 0.8;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -168,10 +167,10 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     soundWavesGroupRef.current = soundWavesGroup;
 
     // --- Planetarium Directional Sun Lighting ---
-    const ambientLight = new THREE.AmbientLight(0x071329, 0.65);
+    const ambientLight = new THREE.AmbientLight(0x091c33, 0.65);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfff8e7, 2.2);
+    const sunLight = new THREE.DirectionalLight(0xfff8e7, 2.4);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
 
