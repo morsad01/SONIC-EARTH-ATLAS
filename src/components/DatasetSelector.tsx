@@ -36,23 +36,24 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/95 border border-slate-800 rounded-xl p-3 shadow-2xl backdrop-blur-md">
-      {/* Header and Source Switcher */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2 mb-2.5">
-        <span className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
+    <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 shadow-2xl backdrop-blur-md">
+      {/* Instrument Panel Header */}
+      <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2.5">
+        <span className="text-xs font-mono font-bold text-slate-200 uppercase tracking-widest flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
           DATA LAYERS
         </span>
 
-        {/* Live vs Demo Toggle */}
+        {/* Live vs Baseline Data Source Toggle */}
         <button
           onClick={onToggleDataSourceMode}
           disabled={isFetchingLive}
-          className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border transition ${
+          className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1 border transition cursor-pointer ${
             dataSourceMode === 'live' && !isFallback
-              ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/80'
-              : 'bg-cyan-950/80 text-cyan-300 border-cyan-800/80'
+              ? 'bg-emerald-950/80 text-emerald-300 border-emerald-600/80 shadow-[0_0_8px_rgba(16,185,129,0.2)]'
+              : 'bg-cyan-950/80 text-cyan-300 border-cyan-800/80 shadow-[0_0_8px_rgba(56,189,248,0.15)]'
           }`}
-          title="Toggle between NASA Live Open Feed and Curated Demo Slices"
+          title="Toggle between NASA Baseline Slices and Live Reanalysis Proxy"
         >
           {isFetchingLive ? (
             <RefreshCw className="w-3 h-3 animate-spin text-cyan-400" />
@@ -63,36 +64,38 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
         </button>
       </div>
 
-      {/* Layers Stack */}
+      {/* Observation Layers Stack */}
       <div className="space-y-2">
-        {/* Wildfires */}
+        {/* Wildfires Layer */}
         <div
           onClick={() => onTogglePhenomenon('fire')}
-          className={`p-2 rounded-lg border cursor-pointer flex items-center justify-between transition ${
+          className={`p-2.5 rounded-lg border cursor-pointer flex items-center justify-between transition ${
             enabledPhenomena.fire
-              ? 'bg-slate-950/80 border-amber-600/60 shadow-[0_0_10px_rgba(255,77,0,0.1)]'
-              : 'bg-slate-950/40 border-slate-800 opacity-60'
+              ? 'bg-slate-900/90 border-amber-500/60 shadow-[0_0_12px_rgba(255,77,0,0.15)]'
+              : 'bg-slate-950/40 border-slate-800/80 opacity-50 hover:opacity-80'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <div className={`p-1 rounded ${enabledPhenomena.fire ? 'bg-amber-500/20 text-amber-500' : 'text-slate-600'}`}>
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-md ${enabledPhenomena.fire ? 'bg-amber-500/20 text-amber-400' : 'text-slate-600 bg-slate-900'}`}>
               <Flame className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-white flex items-center gap-1.5">
-                <span>Active Wildfires</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400">
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>ACTIVE WILDFIRES</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 font-semibold">
                   {observationsCountByLayer.fire} pts
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-mono">NASA FIRMS (FRP MW)</div>
+              <div className="text-[10px] text-slate-400 font-mono tracking-tight">
+                FIRE RADIATIVE POWER • MW
+              </div>
             </div>
           </div>
 
           <button
             onClick={(e) => handleMute(e, 'fire')}
-            className={`p-1 rounded hover:bg-slate-800 transition ${
-              mutedLayers.fire ? 'text-amber-600' : 'text-slate-400 hover:text-white'
+            className={`p-1 rounded hover:bg-slate-800 transition cursor-pointer ${
+              mutedLayers.fire ? 'text-amber-500 font-bold' : 'text-slate-400 hover:text-white'
             }`}
             title={mutedLayers.fire ? 'Unmute Fire Layer' : 'Mute Fire Layer'}
             aria-label="Mute or Unmute Fire"
@@ -101,34 +104,36 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
           </button>
         </div>
 
-        {/* Precipitation */}
+        {/* Precipitation Layer */}
         <div
           onClick={() => onTogglePhenomenon('precipitation')}
-          className={`p-2 rounded-lg border cursor-pointer flex items-center justify-between transition ${
+          className={`p-2.5 rounded-lg border cursor-pointer flex items-center justify-between transition ${
             enabledPhenomena.precipitation
-              ? 'bg-slate-950/80 border-cyan-600/60 shadow-[0_0_10px_rgba(0,208,255,0.1)]'
-              : 'bg-slate-950/40 border-slate-800 opacity-60'
+              ? 'bg-slate-900/90 border-cyan-500/60 shadow-[0_0_12px_rgba(0,208,255,0.15)]'
+              : 'bg-slate-950/40 border-slate-800/80 opacity-50 hover:opacity-80'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <div className={`p-1 rounded ${enabledPhenomena.precipitation ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-600'}`}>
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-md ${enabledPhenomena.precipitation ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-600 bg-slate-900'}`}>
               <CloudRain className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-white flex items-center gap-1.5">
-                <span>Precipitation Rate</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400">
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>PRECIPITATION</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 font-semibold">
                   {observationsCountByLayer.precipitation} pts
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-mono">NASA GPM IMERG (mm/hr)</div>
+              <div className="text-[10px] text-slate-400 font-mono tracking-tight">
+                PRECIPITATION RATE • mm/hr
+              </div>
             </div>
           </div>
 
           <button
             onClick={(e) => handleMute(e, 'precipitation')}
-            className={`p-1 rounded hover:bg-slate-800 transition ${
-              mutedLayers.precipitation ? 'text-cyan-600' : 'text-slate-400 hover:text-white'
+            className={`p-1 rounded hover:bg-slate-800 transition cursor-pointer ${
+              mutedLayers.precipitation ? 'text-cyan-400 font-bold' : 'text-slate-400 hover:text-white'
             }`}
             title={mutedLayers.precipitation ? 'Unmute Precipitation Layer' : 'Mute Precipitation Layer'}
             aria-label="Mute or Unmute Precipitation"
@@ -137,34 +142,36 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
           </button>
         </div>
 
-        {/* SST Anomaly */}
+        {/* Ocean SST Layer */}
         <div
           onClick={() => onTogglePhenomenon('sst')}
-          className={`p-2 rounded-lg border cursor-pointer flex items-center justify-between transition ${
+          className={`p-2.5 rounded-lg border cursor-pointer flex items-center justify-between transition ${
             enabledPhenomena.sst
-              ? 'bg-slate-950/80 border-purple-600/60 shadow-[0_0_10px_rgba(191,90,242,0.1)]'
-              : 'bg-slate-950/40 border-slate-800 opacity-60'
+              ? 'bg-slate-900/90 border-purple-500/60 shadow-[0_0_12px_rgba(191,90,242,0.15)]'
+              : 'bg-slate-950/40 border-slate-800/80 opacity-50 hover:opacity-80'
           }`}
         >
-          <div className="flex items-center gap-2">
-            <div className={`p-1 rounded ${enabledPhenomena.sst ? 'bg-purple-500/20 text-purple-400' : 'text-slate-600'}`}>
+          <div className="flex items-center gap-2.5">
+            <div className={`p-1.5 rounded-md ${enabledPhenomena.sst ? 'bg-purple-500/20 text-purple-400' : 'text-slate-600 bg-slate-900'}`}>
               <Waves className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-white flex items-center gap-1.5">
-                <span>Ocean SST Anomaly</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400">
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>OCEAN SST</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-400 font-semibold">
                   {observationsCountByLayer.sst} pts
                 </span>
               </div>
-              <div className="text-[10px] text-slate-400 font-mono">NOAA / GHRSST (°C)</div>
+              <div className="text-[10px] text-slate-400 font-mono tracking-tight">
+                TEMPERATURE ANOMALY • °C
+              </div>
             </div>
           </div>
 
           <button
             onClick={(e) => handleMute(e, 'sst')}
-            className={`p-1 rounded hover:bg-slate-800 transition ${
-              mutedLayers.sst ? 'text-purple-600' : 'text-slate-400 hover:text-white'
+            className={`p-1 rounded hover:bg-slate-800 transition cursor-pointer ${
+              mutedLayers.sst ? 'text-purple-400 font-bold' : 'text-slate-400 hover:text-white'
             }`}
             title={mutedLayers.sst ? 'Unmute SST Layer' : 'Mute SST Layer'}
             aria-label="Mute or Unmute SST"

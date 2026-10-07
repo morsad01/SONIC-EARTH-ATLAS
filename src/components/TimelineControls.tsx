@@ -53,7 +53,7 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
   };
 
   return (
-    <div className="bg-slate-900/95 border border-slate-800 rounded-xl p-3 shadow-2xl backdrop-blur-md flex flex-col gap-2.5">
+    <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 shadow-2xl backdrop-blur-md flex flex-col gap-2.5">
       {/* 1-Line Scientifically Grounded Event Narrative */}
       <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 text-xs font-mono">
         <div className="flex items-center gap-2 overflow-hidden">
