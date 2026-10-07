@@ -106,26 +106,29 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // Realistic Earth Sphere
+    // Realistic Earth Sphere (100% Opaque, Solid Earth surface)
     const earthRadius = 2.0;
     const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
     const earthTexture = createProceduralEarthTexture();
     const earthMaterial = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.45,
-      metalness: 0.15,
+      roughness: 0.55,
+      metalness: 0.08,
+      transparent: false,
+      opacity: 1.0,
     });
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
-    // Revolving Atmospheric Cloud Sphere Layer
+    // Revolving Atmospheric Cloud Sphere Layer (Ultra Subtle, Soft Cloud Layer)
     const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
     const cloudTexture = createProceduralCloudTexture();
     const cloudMaterial = new THREE.MeshStandardMaterial({
       map: cloudTexture,
       transparent: true,
-      opacity: 0.45,
-      roughness: 0.9,
+      opacity: 0.15,
+      roughness: 0.95,
+      blending: THREE.AdditiveBlending,
     });
     const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
     globeGroup.add(cloudMesh);
