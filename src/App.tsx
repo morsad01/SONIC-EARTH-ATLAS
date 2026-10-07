@@ -126,11 +126,26 @@ export function App() {
     loadData(nextMode);
   };
 
+  // Sync active observations to SonificationEngine strictly when audio is ready
+  useEffect(() => {
+    if (isAudioReady) {
+      SonificationEngine.getInstance().syncObservations(observations, enabledPhenomena);
+    } else {
+      SonificationEngine.getInstance().stopAllVoices();
+    }
+  }, [isAudioReady, observations, enabledPhenomena, currentTimestepIndex]);
+
   // Start Audio & enter app
   const handleInitAudio = async () => {
     await AudioContextManager.init();
+    SonificationEngine.getInstance().setAudioUnlocked(true);
     setIsAudioReady(true);
     SonificationEngine.getInstance().syncObservations(observations, enabledPhenomena);
+  };
+
+  const handleStopAudio = () => {
+    setIsAudioReady(false);
+    SonificationEngine.getInstance().setAudioUnlocked(false);
   };
 
   const handleStartListeningFromHero = async () => {
@@ -171,6 +186,7 @@ export function App() {
         onToggleSpatialMode={handleToggleSpatialMode}
         isAudioReady={isAudioReady}
         onInitAudio={handleInitAudio}
+        onStopAudio={handleStopAudio}
         masterVolume={masterVolume}
         onChangeMasterVolume={setMasterVolume}
         onOpenDemo={() => setIsGuidedDemoOpen(true)}

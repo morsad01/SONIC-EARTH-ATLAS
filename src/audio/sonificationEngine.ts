@@ -21,6 +21,8 @@ export class SonificationEngine {
   private maxVoices = 12; // Deterministic voice limit to protect CPU and prevent acoustic chaos
   private spatialMode: 'spatial-hrtf' | 'stereo-panning' = 'stereo-panning';
   private hearChangeMode = false;
+  private isAudioUnlocked = false; // Strict Audio Gate: False by default on page load
+
   private isMuted: Record<PhenomenonType, boolean> = {
     fire: false,
     precipitation: false,
@@ -41,6 +43,25 @@ export class SonificationEngine {
   }
 
   private constructor() {}
+
+  /**
+   * Explicitly unlocks or locks/stops all sonification output.
+   */
+  public setAudioUnlocked(unlocked: boolean): void {
+    this.isAudioUnlocked = unlocked;
+    if (!unlocked) {
+      this.stopAllVoices();
+      if (this.isolatedPreviewTimeout) {
+        clearTimeout(this.isolatedPreviewTimeout);
+        this.isolatedPreviewTimeout = null;
+      }
+      AudioContextManager.suspend();
+    }
+  }
+
+  public isUnlocked(): boolean {
+    return this.isAudioUnlocked && AudioContextManager.isReady();
+  }
 
   private getCategoryNode(phenomenon: PhenomenonType): AudioNode | null {
     const master = AudioContextManager.getMasterNode();
@@ -67,6 +88,8 @@ export class SonificationEngine {
 
   public setSpatialMode(mode: 'spatial-hrtf' | 'stereo-panning') {
     this.spatialMode = mode;
+    if (!this.isAudioUnlocked) return;
+
     // Re-trigger active voices to update routing
     const currentList = Array.from(this.activeVoices.values());
     this.stopAllVoices();
@@ -84,6 +107,8 @@ export class SonificationEngine {
    * Performs prioritization: top observations by normalized value.
    */
   public syncObservations(observations: EarthObservation[], enabledPhenomena: Record<PhenomenonType, boolean>) {
+    if (!this.isAudioUnlocked) return;
+
     const ctx = AudioContextManager.getContext();
     if (!ctx || ctx.state !== 'running') return;
 
@@ -127,6 +152,8 @@ export class SonificationEngine {
    * Instantly sonifies a single observation (e.g. user clicked on the globe or 2D map).
    */
   public playObservation(obs: EarthObservation) {
+    if (!this.isAudioUnlocked) return;
+
     const ctx = AudioContextManager.getContext();
     if (!ctx || ctx.state !== 'running') return;
     this.startVoice(obs);
@@ -136,6 +163,8 @@ export class SonificationEngine {
    * Plays isolated preview for Auditory Legend demonstration.
    */
   public playIsolatedPreview(phenomenon: PhenomenonType) {
+    if (!this.isAudioUnlocked) return;
+
     const ctx = AudioContextManager.getContext();
     if (!ctx || ctx.state !== 'running') return;
 
@@ -199,6 +228,8 @@ export class SonificationEngine {
   }
 
   private startVoice(obs: EarthObservation) {
+    if (!this.isAudioUnlocked) return;
+
     const ctx = AudioContextManager.getContext();
     if (!ctx) return;
 
@@ -271,6 +302,7 @@ export class SonificationEngine {
       audioContextState: ctx ? ctx.state : 'uninitialized',
       sampleRate: ctx ? ctx.sampleRate : 0,
       isHearChangeMode: this.hearChangeMode,
+      isAudioUnlocked: this.isAudioUnlocked,
     };
   }
 
@@ -281,7 +313,7 @@ export class SonificationEngine {
   public getActiveVoiceDetails(): Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number }> {
     const ctx = AudioContextManager.getContext();
     const result = new Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number }>();
-    if (!ctx || ctx.state !== 'running') {
+    if (!ctx || ctx.state !== 'running' || !this.isAudioUnlocked) {
       return result;
     }
 

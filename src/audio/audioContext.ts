@@ -3,7 +3,6 @@ export class AudioContextManager {
   private static masterGain: GainNode | null = null;
   private static limiter: DynamicsCompressorNode | null = null;
   private static isInitialized = false;
-  private static isUnlocked = false;
 
   public static getContext(): AudioContext | null {
     return this.ctx;
@@ -31,15 +30,13 @@ export class AudioContextManager {
       source.buffer = buffer;
       source.connect(this.ctx.destination);
       source.start(0);
-
-      this.isUnlocked = true;
     } catch (err) {
       console.warn('[AudioContextManager] Mobile Web Audio unlock notice:', err);
     }
   }
 
   /**
-   * Initializes or resumes AudioContext strictly upon user interaction.
+   * Initializes or resumes AudioContext strictly upon explicit user interaction.
    */
   public static async init(): Promise<AudioContext> {
     if (!this.ctx) {
@@ -65,7 +62,6 @@ export class AudioContextManager {
       this.masterGain.connect(this.ctx.destination);
 
       this.isInitialized = true;
-      this.setupGlobalTouchUnlock();
     }
 
     await this.unlockMobileAudio();
@@ -73,25 +69,16 @@ export class AudioContextManager {
   }
 
   /**
-   * Registers automatic touch listeners to unlock Web Audio on mobile Safari/Chrome on first touch.
+   * Suspends the AudioContext immediately when the user clicks Stop / Mute.
    */
-  private static setupGlobalTouchUnlock(): void {
-    if (typeof window === 'undefined' || this.isUnlocked) return;
-
-    const unlockHandler = async () => {
-      if (this.ctx) {
-        await this.unlockMobileAudio();
-        if (this.ctx.state === 'running') {
-          window.removeEventListener('touchstart', unlockHandler, true);
-          window.removeEventListener('touchend', unlockHandler, true);
-          window.removeEventListener('click', unlockHandler, true);
-        }
+  public static async suspend(): Promise<void> {
+    if (this.ctx && this.ctx.state === 'running') {
+      try {
+        await this.ctx.suspend();
+      } catch (err) {
+        console.warn('[AudioContextManager] Suspend notice:', err);
       }
-    };
-
-    window.addEventListener('touchstart', unlockHandler, { capture: true, passive: true });
-    window.addEventListener('touchend', unlockHandler, { capture: true, passive: true });
-    window.addEventListener('click', unlockHandler, { capture: true, passive: true });
+    }
   }
 
   public static getMasterNode(): AudioNode | null {

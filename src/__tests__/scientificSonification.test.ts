@@ -159,3 +159,43 @@ describe('UX & Judge Presentation Enhancements (P0/P1)', () => {
     expect(activeMap.size).toBe(0);
   });
 });
+
+describe('Audio Lifecycle & Zero Autoplay Security (Pre-Submission Hardening)', () => {
+  it('SonificationEngine starts strictly in a locked state (isUnlocked() === false)', async () => {
+    const { SonificationEngine } = await import('../audio/sonificationEngine');
+    const engine = SonificationEngine.getInstance();
+    expect(engine.isUnlocked()).toBe(false);
+  });
+
+  it('syncObservations and playObservation do not produce active voices when audio is locked', async () => {
+    const { SonificationEngine } = await import('../audio/sonificationEngine');
+    const { generateDemoTimeSlices } = await import('../datasets/demoDatasets');
+
+    const engine = SonificationEngine.getInstance();
+    engine.setAudioUnlocked(false);
+
+    const slices = generateDemoTimeSlices();
+    const obsList = slices[0].observations;
+
+    // Attempt to sync observations while locked
+    engine.syncObservations(obsList, { fire: true, precipitation: true, sst: true });
+
+    // Active voice map should remain empty
+    const voiceDetails = engine.getActiveVoiceDetails();
+    expect(voiceDetails.size).toBe(0);
+
+    // Single observation attempt while locked
+    engine.playObservation(obsList[0]);
+    expect(engine.getActiveVoiceDetails().size).toBe(0);
+  });
+
+  it('setAudioUnlocked(false) immediately clears active voices and locks audio output', async () => {
+    const { SonificationEngine } = await import('../audio/sonificationEngine');
+    const engine = SonificationEngine.getInstance();
+
+    // Locking audio stops all voices immediately
+    engine.setAudioUnlocked(false);
+    expect(engine.isUnlocked()).toBe(false);
+    expect(engine.getActiveVoiceDetails().size).toBe(0);
+  });
+});

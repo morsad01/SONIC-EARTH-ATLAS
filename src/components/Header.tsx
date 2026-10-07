@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, Sparkles, Globe, Map as MapIcon, Sliders, Database, Headphones, Radio, Settings, X } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Globe, Map as MapIcon, Sliders, Database, Headphones, Radio, Settings, X } from 'lucide-react';
 
 interface HeaderProps {
   viewMode: '3d-globe' | '2d-map' | 'audio-first';
@@ -8,6 +8,7 @@ interface HeaderProps {
   onToggleSpatialMode: () => void;
   isAudioReady: boolean;
   onInitAudio: () => void;
+  onStopAudio: () => void;
   masterVolume: number;
   onChangeMasterVolume: (vol: number) => void;
   onOpenDemo: () => void;
@@ -22,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSpatialMode,
   isAudioReady,
   onInitAudio,
+  onStopAudio,
   masterVolume,
   onChangeMasterVolume,
   onOpenDemo,
@@ -96,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
 
-        {/* Guided Demo Button & Mobile Settings Toggle */}
+        {/* Guided Demo Button & Audio Control Actions */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={onOpenDemo}
@@ -141,14 +143,22 @@ export const Header: React.FC<HeaderProps> = ({
             {!isAudioReady ? (
               <button
                 onClick={onInitAudio}
-                className="px-3 py-1.5 min-h-[36px] rounded-lg bg-emerald-500 text-slate-950 font-mono text-xs font-bold flex items-center gap-1 animate-pulse cursor-pointer shadow-md"
+                className="px-3 py-1.5 min-h-[36px] rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-mono text-xs font-bold flex items-center gap-1 animate-pulse cursor-pointer shadow-md"
               >
                 <Volume2 className="w-3.5 h-3.5" />
                 <span>START AUDIO</span>
               </button>
             ) : (
               <div className="flex items-center gap-2 bg-slate-900/90 px-2 py-1 min-h-[36px] rounded-lg border border-slate-800">
-                <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
+                <button
+                  onClick={onStopAudio}
+                  className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-[10px] font-mono font-bold flex items-center gap-1 transition cursor-pointer"
+                  title="Stop all audio output immediately"
+                  aria-label="Stop Audio"
+                >
+                  <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                  <span>STOP</span>
+                </button>
                 <input
                   type="range"
                   min="0"
@@ -225,7 +235,16 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           ) : (
             <div className="flex items-center gap-2 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800">
-              <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
+              <button
+                onClick={() => {
+                  onStopAudio();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="px-2.5 py-1 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[11px] font-bold flex items-center gap-1"
+              >
+                <VolumeX className="w-3.5 h-3.5 text-rose-400" />
+                <span>STOP</span>
+              </button>
               <input
                 type="range"
                 min="0"
