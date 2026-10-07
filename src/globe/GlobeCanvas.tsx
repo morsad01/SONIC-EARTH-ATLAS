@@ -69,19 +69,31 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     // --- Starfield Background ---
     const starGeometry = new THREE.BufferGeometry();
-    const starCount = 800;
+    const starCount = 1200;
     const starPositions = new Float32Array(starCount * 3);
+    const starColors = new Float32Array(starCount * 3);
     for (let i = 0; i < starCount * 3; i += 3) {
-      starPositions[i] = (Math.random() - 0.5) * 80;
-      starPositions[i + 1] = (Math.random() - 0.5) * 80;
-      starPositions[i + 2] = -15 - Math.random() * 40;
+      starPositions[i] = (Math.random() - 0.5) * 90;
+      starPositions[i + 1] = (Math.random() - 0.5) * 90;
+      starPositions[i + 2] = -12 - Math.random() * 45;
+
+      // Color variation: deep space blues, cyan highlights, cool white
+      const c = Math.random();
+      if (c > 0.8) {
+        starColors[i] = 0.49; starColors[i + 1] = 0.83; starColors[i + 2] = 0.98; // Cyan
+      } else if (c > 0.5) {
+        starColors[i] = 0.25; starColors[i + 1] = 0.55; starColors[i + 2] = 0.95; // Deep Blue
+      } else {
+        starColors[i] = 0.97; starColors[i + 1] = 0.98; starColors[i + 2] = 0.99; // Cool White
+      }
     }
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+    starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
     const starMaterial = new THREE.PointsMaterial({
-      color: 0x88aacc,
-      size: 0.15,
+      size: 0.16,
+      vertexColors: true,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.75,
     });
     const starField = new THREE.Points(starGeometry, starMaterial);
     scene.add(starField);
@@ -97,14 +109,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const earthTexture = createProceduralEarthTexture();
     const earthMaterial = new THREE.MeshStandardMaterial({
       map: earthTexture,
-      roughness: 0.65,
-      metalness: 0.15,
+      roughness: 0.60,
+      metalness: 0.20,
     });
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
-    // Subtle Atmospheric Glow Layer
-    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.025, 48, 48);
+    // Volumetric Atmospheric Glow Shader Layer
+    const atmosphereGeometry = new THREE.SphereGeometry(earthRadius * 1.028, 64, 64);
     const atmosphereMaterial = new THREE.ShaderMaterial({
       vertexShader: `
         varying vec3 vNormal;
@@ -116,8 +128,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.65 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
-          gl_FragColor = vec4(0.2, 0.6, 1.0, 1.0) * intensity * 0.75;
+          float intensity = pow(0.68 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.6);
+          gl_FragColor = vec4(0.12, 0.55, 0.95, 1.0) * intensity * 0.85;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -136,15 +148,15 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     globeGroup.add(soundWavesGroup);
     soundWavesGroupRef.current = soundWavesGroup;
 
-    // --- Lighting ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.95);
+    // --- Planetarium Lighting ---
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.90);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xddeeff, 1.4);
+    const sunLight = new THREE.DirectionalLight(0xfff8e7, 1.5);
     sunLight.position.set(5, 3, 5);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x0055ff, 0.6);
+    const rimLight = new THREE.DirectionalLight(0x0066ff, 0.75);
     rimLight.position.set(-5, -2, -3);
     scene.add(rimLight);
 
