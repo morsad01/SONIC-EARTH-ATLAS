@@ -9,6 +9,8 @@ export interface NasaFrame {
   what: string; // what the colours mean
   credit: string;
   overlayOn?: string; // draw this transparent data layer over another layer
+  src?: string; // a bundled local image (used by the Earth Information Center frames); `layer` is then unused
+  sourceUrl?: string; // page the picture comes from
 }
 
 export const GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
@@ -52,6 +54,7 @@ function loadImg(src: string) {
  */
 export async function loadFrameCanvases(frame: NasaFrame, width = 1024): Promise<{ display: HTMLCanvasElement; sound: HTMLCanvasElement }> {
   const mk = () => { const cv = document.createElement('canvas'); cv.width = width; cv.height = width / 2; return cv; };
+  if (frame.src) return loadLocalCanvases(frame.src, width);
   const display = mk(), sound = mk();
   const d = display.getContext('2d')!, s = sound.getContext('2d', { willReadFrequently: true })!;
   const top = await loadImg(gibsUrl(frame.layer, frame.date, frame.format, width));
@@ -66,6 +69,22 @@ export async function loadFrameCanvases(frame: NasaFrame, width = 1024): Promise
   }
   d.drawImage(top, 0, 0, width, width / 2);
   return { display, sound };
+}
+
+/**
+ * A bundled image of any shape, fitted inside the 2:1 frame on black, so the needle and pitch rows stay the same.
+ * The black margins are silent.
+ */
+async function loadLocalCanvases(src: string, width: number) {
+  const img = await loadImg(src);
+  const h = width / 2;
+  const scale = Math.min(width / img.naturalWidth, h / img.naturalHeight);
+  const w = img.naturalWidth * scale, ih = img.naturalHeight * scale;
+  const cv = document.createElement('canvas'); cv.width = width; cv.height = h;
+  const c = cv.getContext('2d', { willReadFrequently: true })!;
+  c.fillStyle = '#000'; c.fillRect(0, 0, width, h);
+  c.drawImage(img, (width - w) / 2, (h - ih) / 2, w, ih);
+  return { display: cv, sound: cv };
 }
 
 /** Same pipeline for a user-supplied image file (no base layer). */

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, Square, ImagePlus, Loader2, AlertTriangle } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
+import { EIC_FRAMES } from '../lib/eicFrames';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs } from '../lib/prefs';
 
@@ -61,7 +62,7 @@ const PAIRS: { id: string; label: string; a: NasaFrame; b: NasaFrame }[] = [
 export const FrameJukebox: React.FC = () => {
   const { t, lang } = usePrefs();
   const [mode, setMode] = useState<'single' | 'pair'>('single');
-  const [frameId, setFrameId] = useState(FRAMES[0].id);
+  const [frameId, setFrameId] = useState(EIC_FRAMES[0].id);
   const [pairId, setPairId] = useState(PAIRS[0].id);
   const [userFile, setUserFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -74,7 +75,7 @@ export const FrameJukebox: React.FC = () => {
   const banks = useRef<{ a: Bank | null; b: Bank | null }>({ a: null, b: null });
   const timer = useRef<number | null>(null);
 
-  const frame = FRAMES.find((f) => f.id === frameId)!;
+  const frame = [...EIC_FRAMES, ...FRAMES].find((f) => f.id === frameId)!;
   const pair = PAIRS.find((p) => p.id === pairId)!;
 
   const stop = useCallback(() => {
@@ -154,7 +155,7 @@ export const FrameJukebox: React.FC = () => {
   };
 
   const needle = `${((col + 0.5) / COLS) * 100}%`;
-  const meta = mode === 'single' ? (userFile ? { title: userFile.name, what: 'Your image', credit: 'Uploaded by you' } : { title: lang === 'bn' ? frame.titleBn : frame.title, what: frame.what, credit: frame.credit }) : null;
+  const meta = mode === 'single' ? (userFile ? { title: userFile.name, what: 'Your image', credit: 'Uploaded by you', url: undefined } : { title: lang === 'bn' ? frame.titleBn : frame.title, what: frame.what, credit: frame.credit, url: frame.sourceUrl }) : null;
 
   return (
     <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="frames-title">
@@ -180,7 +181,7 @@ export const FrameJukebox: React.FC = () => {
             <div className="absolute top-0 bottom-0 w-[2px] bg-[var(--brass)] shadow-[0_0_14px_var(--brass)] pointer-events-none" style={{ left: needle, opacity: playing ? 1 : 0 }} />
             {status !== 'ready' && (
               <div className="absolute inset-0 grid place-items-center bg-black/60 text-sm text-[var(--ink-2)] p-6 text-center">
-                {status === 'loading' ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading NASA imagery from GIBS…</span>
+                {status === 'loading' ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {frame.src && !userFile ? 'Loading Earth Information Center image…' : 'Loading NASA imagery from GIBS…'}</span>
                   : <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-[var(--brass)]" /> NASA GIBS did not respond. Check the internet connection, or load an image file below.</span>}
               </div>
             )}
@@ -200,13 +201,23 @@ export const FrameJukebox: React.FC = () => {
             <span className="sr-only" aria-live="polite">{playing ? srText : ''}</span>
           </div>
           {mode === 'pair' && <p className="mt-2 text-sm text-[var(--ink-3)]">{t('beforeAfterHint')}</p>}
-          {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span></p>}
+          {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">See it on earth.gov</a></>}</p>}
         </div>
 
         <aside className="space-y-3" aria-label="Choose an image">
           {mode === 'single' ? (
             <>
-              <div className="label">Live from NASA GIBS, same week as the Atlas data</div>
+              <div className="label">{t('eicGroup')}</div>
+              <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
+                {EIC_FRAMES.map((f) => (
+                  <button key={f.id} onClick={() => { setUserFile(null); setFrameId(f.id); }} aria-pressed={!userFile && frameId === f.id}
+                    className={`text-left rounded-lg border p-2 flex gap-3 items-center cursor-pointer transition ${!userFile && frameId === f.id ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>
+                    <img src={f.src} alt="" loading="lazy" className="w-16 h-8 object-cover rounded bg-black shrink-0 hidden lg:block" />
+                    <span className="text-sm leading-snug">{lang === 'bn' ? f.titleBn : f.title}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="label pt-2">Live from NASA GIBS, same week as the Atlas data</div>
               <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
                 {FRAMES.map((f) => (
                   <button key={f.id} onClick={() => { setUserFile(null); setFrameId(f.id); }} aria-pressed={!userFile && frameId === f.id}
@@ -231,6 +242,7 @@ export const FrameJukebox: React.FC = () => {
             The image is a world map, so the needle travels west to east around the planet. Each of 12 bands is one pitch, north highest.
             Brighter pixels are louder. Red and orange pixels sound brighter and buzzier; blue and dark ones stay soft.
             This is sonification of the picture, so it tells you where the image is bright, not a measured value.
+            Earth Information Center pictures also contain labels and charts, and those make sound too.
           </div>
         </aside>
       </div>
