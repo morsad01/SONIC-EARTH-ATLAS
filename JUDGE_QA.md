@@ -7,7 +7,7 @@ Yes, all of it. FIRMS VIIRS fire radiative power (2–7 Oct 2026, the Atlas play
 Fire: 80 strongest 2° cells per day. Rain: 48 wettest of 396 points on a 10° grid, so it is a sample of wet places. SST: 40 most anomalous open-ocean cells at least 12° apart, out of 32,095 valid 1° cells. The full fields are visible as NASA GIBS images in the Frame Jukebox.
 
 **3. How does this answer the Earth Information Jukebox challenge?**
-The challenge asks for EIC-style visuals paired with sound generated in real time. Track A2 does exactly that with NASA GIBS imagery of the same week; track A1 goes further and sonifies the measured values behind those images; you can switch the globe to the same day's NASA imagery with one button. No audio file is pre-recorded.
+The challenge asks for EIC-style visuals paired with sound generated in real time. Track A2 does exactly that: it opens on four NASA Earth Information Center frames (earth.gov, bundled so they work offline) and sweeps them into sound with a needle, and it also plays NASA GIBS imagery of the same week; track A1 goes further and sonifies the measured values behind those images; you can switch the globe to the same day's NASA imagery with one button. No audio file is pre-recorded.
 
 **4. Why spatial audio?**
 Location is the first thing people ask about Earth data. Longitude becomes left–right, so a fire in Idaho sounds far left and one in Congo slightly right. With headphones you can find hotspots without looking.

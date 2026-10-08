@@ -1,3 +1,4 @@
+import { decodeShare } from './lib/shareLink';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
@@ -30,9 +31,11 @@ type View = '3d-globe' | '2d-map' | 'audio-first';
 const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: true, sst: true };
 
 export function App() {
-  const { t } = usePrefs();
-  const [showHero, setShowHero] = useState(true);
-  const [track, setTrack] = useState<Track>('atlas');
+  const { t, lang, set } = usePrefs();
+  const [initialShare] = useState(() => decodeShare(window.location.hash, { frames: [], pairs: [] }));
+  const [showHero, setShowHero] = useState(!initialShare?.track);
+  const [autoListen, setAutoListen] = useState(false);
+  const [track, setTrack] = useState<Track>(initialShare?.track ?? 'atlas');
   const [view, setView] = useState<View>('3d-globe');
   const [audioReady, setAudioReady] = useState(false);
   const [volume, setVolume] = useState(0.7);
@@ -55,6 +58,8 @@ export function App() {
   const [recording, setRecording] = useState<string | null>(null);
   const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | null>(null);
   const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
+
+  useEffect(() => { if (initialShare?.lang && initialShare.lang !== lang) set({ lang: initialShare.lang }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     DatasetAdapter.loadDatasets('live').then(setData).catch(() => DatasetAdapter.loadDatasets('demo').then(setData));
@@ -97,6 +102,11 @@ export function App() {
     setTrack(tr);
     setShowHero(false);
     if (tr === 'atlas' && !audioReady) await soundOn();
+  };
+  // One click from the landing page: sound on and an Earth Information Center frame playing.
+  const listenNow = async () => {
+    setTrack('frames'); setShowHero(false); setAutoListen(true);
+    if (!audioReady) await soundOn();
   };
   const startTour = async () => {
     setTrack('atlas'); setView('3d-globe'); setShowHero(false);
@@ -147,7 +157,7 @@ export function App() {
   return (
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
       <a href="#main" className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
-      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
+      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
 
       <Header track={track} onTrack={(tr) => { setTrack(tr); setTourOpen(false); }} audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())}
         onHome={() => { setShowHero(true); setTourOpen(false); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
@@ -174,7 +184,7 @@ export function App() {
           )}
           {track !== 'atlas' && !showHero && (
             <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">Loading…</div>}>
-              {track === 'frames' && <FrameJukebox />}
+              {track === 'frames' && <FrameJukebox autoPlay={autoListen} onAutoPlayed={() => setAutoListen(false)} onPlay={() => { if (!audioReady) soundOn(); }} />}
               {track === 'monsoon' && <BangladeshMonsoon />}
               {track === 'pulse' && <VitalSigns />}
             </Suspense>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Compass, Headphones } from 'lucide-react';
+import { Compass, Headphones, Play } from 'lucide-react';
 import type { EarthObservation } from '../types/dataset';
 import { usePrefs } from '../lib/prefs';
 import { TRACKS, type Track } from './Header';
@@ -9,6 +9,7 @@ interface Props {
   fireObs: EarthObservation[];
   onPick: (t: Track) => void;
   onTour: () => void;
+  onListen: () => void;
   onSilent: () => void;
 }
 
@@ -27,7 +28,7 @@ const Wave: React.FC<{ values: number[]; color: string; signed?: boolean }> = ({
   );
 };
 
-export const LandingHero: React.FC<Props> = ({ fireObs, onPick, onTour, onSilent }) => {
+export const LandingHero: React.FC<Props> = ({ fireObs, onPick, onTour, onListen, onSilent }) => {
   const { t, lang } = usePrefs();
   const [dhaka, setDhaka] = useState<number[]>([]);
   const [temps, setTemps] = useState<number[]>([]);
@@ -53,7 +54,8 @@ export const LandingHero: React.FC<Props> = ({ fireObs, onPick, onTour, onSilent
           <h1 className="font-display font-extrabold text-[clamp(2.75rem,8vw,5.5rem)] leading-[0.92]">{t('appName')}</h1>
           <p className="mt-4 text-lg sm:text-xl text-[var(--ink-2)] max-w-[56ch] leading-relaxed">{t('heroLead')}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button onClick={onTour} className="btn btn-brass min-h-[48px] px-5 text-base"><Compass className="w-5 h-5" />{t('startTour')}</button>
+            <button onClick={onListen} className="btn btn-brass min-h-[48px] px-5 text-base"><Play className="w-5 h-5" />{t('listenNow')}</button>
+            <button onClick={onTour} className="btn min-h-[48px] px-5 text-base"><Compass className="w-5 h-5" />{t('startTour')}</button>
             <button onClick={onSilent} className="btn min-h-[48px] px-5 text-base">{t('exploreSilently')}</button>
           </div>
           <p className="mt-3 text-sm text-[var(--ink-3)] flex items-center gap-2"><Headphones className="w-4 h-4" />{t('heroHeadphones')} {t('heroNote')}</p>

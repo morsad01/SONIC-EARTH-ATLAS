@@ -56,7 +56,7 @@ export const Header: React.FC<Props> = ({ track, onTrack, audioReady, onToggleAu
             <span className={`${recording ? 'inline' : 'hidden 2xl:inline'} tnum`}>{recording ?? t('record')}</span>
           </button>
           <button className="btn btn-ghost btn-icon" onClick={onSettings} aria-label={t('settings')}><Settings className="w-4.5 h-4.5" /></button>
-          <button className={`btn ${audioReady ? '' : 'btn-brass'}`} onClick={onToggleAudio} aria-pressed={audioReady}>
+          <button className={`btn ${audioReady ? '' : 'btn-brass'}`} onClick={onToggleAudio} aria-pressed={audioReady} title={`${audioReady ? t('soundOn') : t('soundOff')} (S)`} aria-label={audioReady ? t('soundOn') : t('soundOff')}>
             {audioReady ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             <span className="hidden sm:inline">{audioReady ? t('soundOn') : t('soundOff')}</span>
           </button>
