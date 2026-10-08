@@ -80,6 +80,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
   const [customB, setCustomB] = useState(share?.b ?? EIC_FRAMES[1].id);
   const [story, setStory] = useState<number | null>(null);
   const [loadedFor, setLoadedFor] = useState('');
+  const lastAnnounce = useRef(0);
   const [copied, setCopied] = useState<string | null>(null);
   const [userFile, setUserFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -257,7 +258,8 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
     colRef.current = c;
     setCol(c);
     const line = describe(c, r);
-    if (line) setSrText(line);
+    // Holding an arrow key moves the needle many times a second; announce at most once a second.
+    if (line && Date.now() - lastAnnounce.current > 1000) { lastAnnounce.current = Date.now(); setSrText(line); }
     if (timer.current) { const ctx = AudioContextManager.getContext(); if (ctx) driveCol(ctx, c); return; }
     const ctx = await AudioContextManager.init();
     if (timer.current) return;
@@ -449,6 +451,12 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             </div>
           </div>
           {mode === 'pair' && <p className="mt-2 text-sm text-[var(--ink-3)]">{t('beforeAfterHint')}</p>}
+          {mode === 'single' && !userFile && (
+            <details className="mt-3 max-w-[70ch] text-sm text-[var(--ink-2)]">
+              <summary className="cursor-pointer font-semibold text-[var(--ink)]">{t('describeFrame')}</summary>
+              <p className="mt-2 leading-relaxed">{(lang === 'bn' ? frame.longBn : frame.longEn) ?? `${lang === 'bn' ? frame.titleBn : frame.title}. ${frame.what}`}</p>
+            </details>
+          )}
           <details className="mt-3 max-w-[70ch] text-sm text-[var(--ink-2)]">
             <summary className="cursor-pointer font-semibold text-[var(--ink)]">{t('whatHearing')}</summary>
             <ul className="mt-2 list-disc pl-5 space-y-1">
@@ -515,7 +523,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             The image is a world map, so the needle travels west to east around the planet. Each of 12 bands is one pitch, north highest.
             Brighter pixels are louder. Red and orange pixels sound brighter and buzzier; blue and dark ones stay soft.
             This is sonification of the picture, so it tells you where the image is bright, not a measured value.
-            Earth Information Center pictures also contain labels and charts, and those make sound too.
+            On Earth Information Center charts, the titles, axis labels and legends are muted so the sound follows the data. Other text inside a picture can still make sound.
           </div>
         </aside>
       </div>

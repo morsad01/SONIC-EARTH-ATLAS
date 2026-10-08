@@ -19,7 +19,7 @@ Also: **Hear any place** (click anywhere on the globe or pick a city and hear 45
 
 * Every value comes from a NASA source. Raw extracts are in `scripts/raw/`, and `npm run build:data` turns them into `public/data/*.json` without changing any value.
 * The rain layer is a 10° global sample (the 48 wettest of 396 points), not a full rain map. SST is a monthly product, so it does not change between days. POWER values are model-based (MERRA-2), not rain gauges.
-* Frame Jukebox sonifies image pixels, not calibrated values. EIC frames also contain labels and charts, and those make sound too.
+* Frame Jukebox sonifies image pixels, not calibrated values. On EIC chart frames, titles, axis labels and legends are muted; other text inside a picture can still make sound.
 * If the snapshots fail to load, the app falls back to a hand-made sample and labels it "Sample" in the Layers panel.
 
 ## Run it
