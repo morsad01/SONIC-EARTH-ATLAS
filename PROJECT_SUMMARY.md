@@ -8,7 +8,7 @@
 Sonic Earth Atlas plays real NASA Earth observations and NASA imagery as sound, generated live in the browser. Four tracks: wildfires, rain and ocean heat placed around the listener in stereo on a 3D globe; NASA GIBS satellite images swept into sound, including before/after comparisons in each ear; the 2026 Bangladesh monsoon across eight divisions; and Earth's vital signs (temperature, CO₂, Arctic ice) as melodies or one chord. Click any place on the globe to hear 45 years of its NASA POWER climate. A live panel explains every sound in plain language, and the whole app works by keyboard, screen reader, spoken narration, and in English or Bangla.
 
 **NASA data used:**
-NASA FIRMS VIIRS S-NPP 375 m active fires (2–7 Oct 2026); NASA POWER daily PRECTOTCORR and climatology; NASA JPL MUR SST monthly anomaly (Sep 2026, via NOAA CoastWatch ERDDAP); NASA GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (as shown on NASA Vital Signs); NASA POWER monthly API (live, any point); NASA GIBS / Worldview imagery (VIIRS true colour and thermal anomalies, GPM IMERG, MUR SST anomaly, OMI NO₂, MODIS AOD and NDVI, VIIRS Day/Night Band).
+NASA FIRMS VIIRS S-NPP 375 m active fires (snapshot 2–7 Oct 2026, the Atlas plays 2–5 Oct); NASA POWER daily PRECTOTCORR and climatology; NASA JPL MUR SST monthly anomaly (Sep 2026, via NOAA CoastWatch ERDDAP); NASA GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (as shown on NASA Vital Signs); NASA POWER monthly API (live, any point); NASA GIBS / Worldview imagery (VIIRS true colour and thermal anomalies, GPM IMERG, MUR SST anomaly, OMI NO₂, MODIS AOD and NDVI, VIIRS Day/Night Band).
 
 **Tools:** React, TypeScript, Vite, three.js, Web Audio API, Web Speech API, Tailwind CSS, Vitest.
 

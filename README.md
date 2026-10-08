@@ -8,7 +8,7 @@ NASA's Earth Information Center makes striking pictures of a changing planet, bu
 
 | | Track | What you hear | NASA data |
 |---|---|---|---|
-| A1 | **Planet this week** | Fires crackle, rain drips, warm and cold ocean cells hum, each placed in stereo by longitude (3D/HRTF optional) on a globe, a map or an accessible list. | FIRMS VIIRS 375 m fire radiative power (2–5 Oct 2026); POWER PRECTOTCORR daily rain; JPL MUR SST anomaly (Sep 2026) |
+| A1 | **Planet this week** | Fires crackle, rain drips, warm and cold ocean cells hum, each placed in stereo by longitude (3D/HRTF optional) on a globe, a map or an accessible list. | FIRMS VIIRS 375 m fire radiative power (snapshot 2–7 Oct 2026, the Atlas plays 2–5 Oct); POWER PRECTOTCORR daily rain; JPL MUR SST anomaly (Sep 2026) |
 | A2 | **NASA image frames** | A needle sweeps a NASA satellite image west to east. Height = pitch, brightness = loudness, colour = timbre. "Before / after" plays two images at once, one per ear. | NASA GIBS (Worldview) live imagery: VIIRS true colour, thermal anomalies, IMERG rain, MUR SST anomaly, OMI NO₂, MODIS aerosol, NDVI, night lights |
 | B1 | **Bangladesh monsoon** | Eight divisional cities as eight voices across the stereo field, June to October 2026, against 2025 and the 2001–2020 normal. | POWER daily PRECTOTCORR and POWER climatology |
 | B2 | **Earth's vital signs** | Global temperature (1880–2025), CO₂ (1959–2025) and Arctic September sea ice (1979–2026), one note per year, alone or as a three-voice chord (temperature left, CO₂ centre, ice right). "Your data" plays any two-column CSV. | GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (the records on NASA's Vital Signs pages) |
