@@ -1,11 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat, BookOpen, Link2 } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
-import { EIC_FRAMES } from '../lib/eicFrames';
+import { EIC_FRAMES, EIC_STORY } from '../lib/eicFrames';
+import { decodeShare, encodeShare } from '../lib/shareLink';
 import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, stepMs, timbreWord } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
-import { usePrefs } from '../lib/prefs';
+import { usePrefs, speak } from '../lib/prefs';
 
+const ALL_FRAMES: NasaFrame[] = [...EIC_FRAMES, ...FRAMES];
 const COLS = 128, ROWS = 12, SWEEP_SEC = 20;
 const PENTA = [0, 2, 4, 7, 9];
 // Top row (north) is the highest pitch, like the globe's latitude tilt.
@@ -55,6 +57,7 @@ const fmtLat = (l: number) => `${Math.abs(l)}°${l < 0 ? 'S' : l > 0 ? 'N' : ''}
 
 // Pairs for "then and now". Same layer and day of year, one year apart (or season apart for vegetation).
 const PAIRS: { id: string; label: string; a: NasaFrame; b: NasaFrame }[] = [
+  { id: 'eic', label: 'EIC: greenhouse gases (left ear) → ocean heat (right ear)', a: EIC_FRAMES[0], b: EIC_FRAMES[1] },
   { id: 'sst', label: 'Ocean heat anomaly: Sep 2025 → Sep 2026', a: { ...FRAMES[3], date: '2025-09-30', title: '30 Sep 2025' }, b: { ...FRAMES[3], title: '30 Sep 2026' } },
   { id: 'veg', label: 'Vegetation: March → September 2026', a: { ...FRAMES[6], date: '2026-03-22', title: '22 Mar 2026' }, b: { ...FRAMES[6], title: '22 Sep 2026' } },
   { id: 'fire', label: 'Fires: 3 Oct 2025 → 3 Oct 2026', a: { ...FRAMES[1], date: '2025-10-03', title: '3 Oct 2025' }, b: { ...FRAMES[1], title: '3 Oct 2026' } },
@@ -63,10 +66,21 @@ const PAIRS: { id: string; label: string; a: NasaFrame; b: NasaFrame }[] = [
 interface JukeboxProps { autoPlay?: boolean; onAutoPlayed?: () => void; onPlay?: () => void }
 
 export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, onPlay }) => {
-  const { t, lang } = usePrefs();
-  const [mode, setMode] = useState<'single' | 'pair'>('single');
-  const [frameId, setFrameId] = useState(EIC_FRAMES[0].id);
-  const [pairId, setPairId] = useState(PAIRS[0].id);
+  const { t, lang, narration } = usePrefs();
+  // A shared link (#v1&track=frames&...) restores the picture, the comparison and the needle.
+  const [share] = useState(() => {
+    const s = decodeShare(window.location.hash, { frames: ALL_FRAMES.map((f) => f.id), pairs: [...PAIRS.map((p) => p.id), 'custom'] });
+    return s?.track === 'frames' ? s : null;
+  });
+  const pendingCol = useRef<number | null>(share?.col ?? null);
+  const [mode, setMode] = useState<'single' | 'pair'>(share?.pair ? 'pair' : 'single');
+  const [frameId, setFrameId] = useState(share?.frame ?? EIC_FRAMES[0].id);
+  const [pairId, setPairId] = useState(share?.pair ?? PAIRS[0].id);
+  const [customA, setCustomA] = useState(share?.a ?? EIC_FRAMES[0].id);
+  const [customB, setCustomB] = useState(share?.b ?? EIC_FRAMES[1].id);
+  const [story, setStory] = useState<number | null>(null);
+  const [loadedFor, setLoadedFor] = useState('');
+  const [copied, setCopied] = useState<string | null>(null);
   const [userFile, setUserFile] = useState<File | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [playing, setPlaying] = useState(false);
@@ -82,6 +96,8 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
   const timer = useRef<number | null>(null);
   const probeTimer = useRef<number | null>(null);
   const stepRef = useRef<() => void>(() => {});
+  const endRef = useRef<() => void>(() => {});
+  const savedLoop = useRef(true);
   const colRef = useRef(0);
   const [speed, setSpeedState] = useState(1);
   const [loop, setLoopState] = useState(true);
@@ -93,8 +109,10 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
   const frameBox = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x0: number; moved: boolean } | null>(null);
 
-  const frame = [...EIC_FRAMES, ...FRAMES].find((f) => f.id === frameId)!;
-  const pair = PAIRS.find((p) => p.id === pairId)!;
+  const frame = ALL_FRAMES.find((f) => f.id === frameId)!;
+  const pair = useMemo(() => pairId === 'custom'
+    ? { id: 'custom', label: '', a: ALL_FRAMES.find((f) => f.id === customA)!, b: ALL_FRAMES.find((f) => f.id === customB)! }
+    : PAIRS.find((p) => p.id === pairId)!, [pairId, customA, customB]);
 
   const stop = useCallback(() => {
     if (timer.current) window.clearInterval(timer.current);
@@ -132,6 +150,8 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
           grids.current = { a: toGrid(a.sound), b: toGrid(b.sound) };
         }
         setStatus('ready');
+        setLoadedFor(mode === 'single' && !userFile ? frame.id : '');
+        if (pendingCol.current !== null) { colRef.current = pendingCol.current; setCol(pendingCol.current); pendingCol.current = null; }
       } catch {
         if (!cancelled) setStatus('error');
       }
@@ -141,7 +161,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
 
   useEffect(() => () => stop(), [stop]);
 
-  const geo = mode === 'pair' || !!userFile || !frame.src;
+  const geo = mode === 'pair' ? !pair.a.src : (!!userFile || !frame.src);
   const where = (c: number, r?: number) => {
     const x = geo ? fmtLon(lonAt(c)) : `${Math.round(((c + 0.5) / COLS) * 100)}% across`;
     if (r === undefined) return x;
@@ -212,7 +232,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
       const line = describe(c);
       if (c % 16 === 0 && line) setSrText(`Needle at ${where(c)}.`);
       const n = nextColumn(c, { lo, hi, loop: loopRef.current });
-      if (n === null) { colRef.current = lo; stop(); return; }
+      if (n === null) { colRef.current = lo; stop(); endRef.current(); return; }
       colRef.current = n;
     };
     stepRef.current();
@@ -250,6 +270,38 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
       disposeBank(banks.current.a); disposeBank(banks.current.b);
       banks.current = { a: null, b: null };
     }, 450);
+  };
+
+  // --- EIC story: one sweep per bundled frame, with a caption (spoken when narration is on). ---
+  const endStory = () => {
+    if (story === null) return;
+    setStory(null); setLoop(savedLoop.current);
+    try { window.speechSynthesis?.cancel(); } catch { /* speech unavailable */ }
+    stop();
+  };
+  const goStory = (k: number) => {
+    if (k >= EIC_STORY.length) { endStory(); return; }
+    if (story === null) savedLoop.current = loopRef.current;
+    setLoop(false); setMode('single'); setUserFile(null); setFrameId(EIC_STORY[k].frameId); setStory(k);
+  };
+  useEffect(() => { endRef.current = () => { if (story !== null) goStory(story + 1); }; });
+  useEffect(() => {
+    if (story === null || status !== 'ready' || timer.current) return;
+    const step = EIC_STORY[story];
+    if (loadedFor !== step.frameId || mode !== 'single') return;
+    colRef.current = regionRef.current?.[0] ?? 0; setCol(colRef.current);
+    if (narration) speak(lang === 'bn' ? step.bn : step.en, lang);
+    start();
+  }, [story, status, loadedFor]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Choosing anything by hand ends the story.
+  const pickFrame = (id: string) => { endStory(); setUserFile(null); setFrameId(id); };
+  const chooseMode = (m: 'single' | 'pair') => { endStory(); setMode(m); };
+
+  const copyLink = async () => {
+    const hash = encodeShare({ track: 'frames', ...(mode === 'pair' ? { pair: pairId, ...(pairId === 'custom' ? { a: customA, b: customB } : {}) } : { frame: frameId }), col, lang });
+    const url = `${window.location.origin}${window.location.pathname}#${hash}`;
+    try { await navigator.clipboard.writeText(url); setCopied(t('linkCopied')); } catch { setCopied(url); }
+    window.setTimeout(() => setCopied(null), 4000);
   };
 
   const fractionIn = (e: React.PointerEvent) => {
@@ -293,8 +345,8 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
           <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{t('framesLead')}</p>
 
           <div className="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Mode">
-            <button role="tab" aria-selected={mode === 'single'} className="btn" aria-pressed={mode === 'single'} onClick={() => setMode('single')}>One image</button>
-            <button role="tab" aria-selected={mode === 'pair'} className="btn" aria-pressed={mode === 'pair'} onClick={() => setMode('pair')}>{t('beforeAfter')}</button>
+            <button role="tab" aria-selected={mode === 'single'} className="btn" aria-pressed={mode === 'single'} onClick={() => chooseMode('single')}>One image</button>
+            <button role="tab" aria-selected={mode === 'pair'} className="btn" aria-pressed={mode === 'pair'} onClick={() => chooseMode('pair')}>{t('beforeAfter')}</button>
           </div>
 
           <div ref={frameBox} className="mt-4 relative rounded-xl overflow-hidden border border-[var(--line)] bg-black cursor-crosshair touch-pan-y select-none"
@@ -337,7 +389,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button onClick={playing ? stop : start} disabled={status !== 'ready'} className="btn btn-brass min-w-[120px] disabled:opacity-50">
+            <button onClick={playing ? (story !== null ? endStory : stop) : start} disabled={status !== 'ready'} className="btn btn-brass min-w-[120px] disabled:opacity-50">
               {playing ? <><Square className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> {t('play')}</>}
             </button>
             {mode === 'single' && (
@@ -347,6 +399,10 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
               </label>
             )}
             <button className="btn" aria-pressed={legend} onClick={() => setLegend(!legend)}>{t('legend')}</button>
+            {mode === 'single' && !userFile && (story === null
+              ? <button className="btn" disabled={status !== 'ready' && story === null} onClick={() => goStory(0)}><BookOpen className="w-4 h-4" /> {t('story')}</button>
+              : <button className="btn" onClick={endStory}>{t('storyStop')}</button>)}
+            <button className="btn" onClick={copyLink}><Link2 className="w-4 h-4" /> {t('shareLink')}</button>
             <span className="tnum text-sm text-[var(--ink-2)]" aria-hidden="true">{readout}</span>
             <span className="sr-only" aria-live="polite">{srText}</span>
           </div>
@@ -365,6 +421,14 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             </div>
           )}
 
+          {copied && <p role="status" className="mt-2 text-sm text-[var(--ink-2)] max-w-[70ch] break-all">{copied.startsWith('http') ? <input readOnly value={copied} onFocus={(e) => e.currentTarget.select()} aria-label={t('shareLink')} className="w-full bg-transparent border border-[var(--line)] rounded px-2 py-1" /> : copied}</p>}
+          {story !== null && (
+            <div className="mt-3 panel-solid p-3 max-w-[70ch]" aria-live="polite">
+              <div className="label">{story + 1} / {EIC_STORY.length}</div>
+              <p className="mt-1 text-sm text-[var(--ink)]">{lang === 'bn' ? EIC_STORY[story].bn : EIC_STORY[story].en}</p>
+              <button className="btn mt-2" onClick={() => goStory(story + 1)}>{t('storyNext')}</button>
+            </div>
+          )}
           {audioBlocked && <p role="alert" className="mt-3 text-sm text-[var(--brass)] max-w-[70ch]">{t('audioBlocked')}</p>}
 
           <div className="mt-3 max-w-[70ch]">
@@ -404,7 +468,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
               <div className="label">{t('eicGroup')}</div>
               <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
                 {EIC_FRAMES.map((f) => (
-                  <button key={f.id} onClick={() => { setUserFile(null); setFrameId(f.id); }} aria-pressed={!userFile && frameId === f.id}
+                  <button key={f.id} onClick={() => pickFrame(f.id)} aria-pressed={!userFile && frameId === f.id}
                     className={`text-left rounded-lg border p-2 flex gap-3 items-center cursor-pointer transition ${!userFile && frameId === f.id ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>
                     <img src={f.src} alt="" loading="lazy" className="w-16 h-8 object-cover rounded bg-black shrink-0 hidden lg:block" />
                     <span className="text-sm leading-snug">{lang === 'bn' ? f.titleBn : f.title}</span>
@@ -414,7 +478,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
               <div className="label pt-2">Live from NASA GIBS, same week as the Atlas data</div>
               <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
                 {FRAMES.map((f) => (
-                  <button key={f.id} onClick={() => { setUserFile(null); setFrameId(f.id); }} aria-pressed={!userFile && frameId === f.id}
+                  <button key={f.id} onClick={() => pickFrame(f.id)} aria-pressed={!userFile && frameId === f.id}
                     className={`text-left rounded-lg border p-2 flex gap-3 items-center cursor-pointer transition ${!userFile && frameId === f.id ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>
                     <img src={gibsUrl(f.overlayOn && f.id !== 'sstanom' ? f.layer : f.layer, f.date, f.format, 128)} alt="" loading="lazy" className="w-16 h-8 object-cover rounded bg-black shrink-0 hidden lg:block" />
                     <span className="text-sm leading-snug">{lang === 'bn' ? f.titleBn : f.title}</span>
@@ -429,6 +493,21 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
                 <button key={p.id} onClick={() => setPairId(p.id)} aria-pressed={pairId === p.id}
                   className={`w-full text-left rounded-lg border p-3 text-sm cursor-pointer ${pairId === p.id ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>{p.label}</button>
               ))}
+              <button onClick={() => setPairId('custom')} aria-pressed={pairId === 'custom'}
+                className={`w-full text-left rounded-lg border p-3 text-sm cursor-pointer ${pairId === 'custom' ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>{t('chooseAny')}</button>
+              {pairId === 'custom' && (
+                <div className="space-y-2">
+                  {([['leftEar', customA, setCustomA], ['rightEar', customB, setCustomB]] as const).map(([k, val, setVal]) => (
+                    <label key={k} className="block text-sm">
+                      <span className="label">{t(k)}</span>
+                      <select value={val} onChange={(e) => setVal(e.target.value)} className="mt-1 w-full rounded-lg border border-[var(--line)] bg-[var(--panel)] p-2 text-[var(--ink)]">
+                        <optgroup label={t('eicGroup')}>{EIC_FRAMES.map((f) => <option key={f.id} value={f.id}>{lang === 'bn' ? f.titleBn : f.title}</option>)}</optgroup>
+                        <optgroup label="NASA GIBS">{FRAMES.map((f) => <option key={f.id} value={f.id}>{lang === 'bn' ? f.titleBn : f.title}</option>)}</optgroup>
+                      </select>
+                    </label>
+                  ))}
+                </div>
+              )}
             </>
           )}
           <div className="panel-solid p-3 text-sm text-[var(--ink-2)] leading-relaxed">

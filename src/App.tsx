@@ -1,3 +1,4 @@
+import { decodeShare } from './lib/shareLink';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
@@ -30,10 +31,11 @@ type View = '3d-globe' | '2d-map' | 'audio-first';
 const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: true, sst: true };
 
 export function App() {
-  const { t } = usePrefs();
-  const [showHero, setShowHero] = useState(true);
+  const { t, lang, set } = usePrefs();
+  const [initialShare] = useState(() => decodeShare(window.location.hash, { frames: [], pairs: [] }));
+  const [showHero, setShowHero] = useState(!initialShare?.track);
   const [autoListen, setAutoListen] = useState(false);
-  const [track, setTrack] = useState<Track>('atlas');
+  const [track, setTrack] = useState<Track>(initialShare?.track ?? 'atlas');
   const [view, setView] = useState<View>('3d-globe');
   const [audioReady, setAudioReady] = useState(false);
   const [volume, setVolume] = useState(0.7);
@@ -56,6 +58,8 @@ export function App() {
   const [recording, setRecording] = useState<string | null>(null);
   const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | null>(null);
   const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
+
+  useEffect(() => { if (initialShare?.lang && initialShare.lang !== lang) set({ lang: initialShare.lang }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     DatasetAdapter.loadDatasets('live').then(setData).catch(() => DatasetAdapter.loadDatasets('demo').then(setData));

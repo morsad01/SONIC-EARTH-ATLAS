@@ -41,3 +41,12 @@ export const EIC_FRAMES: NasaFrame[] = [
     sourceUrl: 'https://earth.gov',
   },
 ];
+
+/** A short guided listen across the EIC frames: each step plays one sweep with a caption (spoken if narration is on). */
+export interface StoryStep { frameId: string; en: string; bn: string }
+export const EIC_STORY: StoryStep[] = [
+  { frameId: 'eic-ghg', en: 'Greenhouse gases. Each bar is a year, from 1979. The sound grows louder and brighter as the warming effect climbs.', bn: 'গ্রিনহাউস গ্যাস। প্রতিটি দণ্ড একটি বছর, ১৯৭৯ থেকে। উষ্ণায়নের প্রভাব বাড়লে শব্দও জোরালো হয়।' },
+  { frameId: 'eic-ocean-heat', en: 'Ocean heat since 1957. The orange line is the extra heat stored in the ocean. Listen for the pitch rising, fastest in recent decades.', bn: '১৯৫৭ থেকে সমুদ্রের তাপ। কমলা রেখাটি সমুদ্রে জমা বাড়তি তাপ। সুর কীভাবে চড়ছে শুনুন, সাম্প্রতিক দশকে সবচেয়ে দ্রুত।' },
+  { frameId: 'eic-elnino', en: 'A forecast of how El Niño changes crop yields. Orange farmland loses harvest, purple gains. Notice where the sound clusters.', bn: 'এল নিনো ফসলের ফলন কীভাবে বদলায় তার পূর্বাভাস। কমলা অঞ্চলে ফলন কমে, বেগুনিতে বাড়ে। শব্দ কোথায় জমে লক্ষ করুন।' },
+  { frameId: 'eic-geos-rain', en: 'Today’s weather from a NASA model. Green, blue and pink are rain, white is cloud. This is a model, not a photograph.', bn: 'নাসার মডেল থেকে আজকের আবহাওয়া। সবুজ, নীল ও গোলাপি বৃষ্টি, সাদা মেঘ। এটি মডেল, ছবি নয়।' },
+];
