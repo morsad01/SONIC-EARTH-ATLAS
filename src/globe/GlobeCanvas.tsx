@@ -72,7 +72,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Phones and data-saver users get smaller textures, a lighter sphere and a lower pixel ratio.
+    const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
+    const light = window.matchMedia('(max-width: 640px)').matches || !!nav.connection?.saveData;
+    const texSize = light ? 1024 : 2048, segments = light ? 32 : 64;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, light ? 1.5 : 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
     container.appendChild(renderer.domElement);
@@ -118,7 +122,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     // Realistic Earth Sphere (100% Opaque, Solid Earth surface)
     const earthRadius = 2.0;
-    const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
+    const earthGeometry = new THREE.SphereGeometry(earthRadius, segments, segments);
     const loader = new THREE.TextureLoader();
     const maxAniso = renderer.capabilities.getMaxAnisotropy();
     const load = (f: string, srgb = false) => {
@@ -127,11 +131,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       if (srgb) t.colorSpace = THREE.SRGBColorSpace;
       return t;
     };
-    const earthTexture = load('earth_atmos_2048.jpg', true);
+    const earthTexture = load(`earth_atmos_${texSize}.jpg`, true);
     const earthMaterial = new THREE.MeshPhongMaterial({
       map: earthTexture,
-      specularMap: load('earth_specular_2048.jpg'),
-      normalMap: load('earth_normal_2048.jpg'),
+      specularMap: load(`earth_specular_${texSize}.jpg`),
+      normalMap: load(`earth_normal_${texSize}.jpg`),
       normalScale: new THREE.Vector2(0.85, 0.85),
       specular: new THREE.Color(0x4a6a8a),
       shininess: 22,
@@ -148,7 +152,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     pinRef.current = pin;
 
     // Revolving Atmospheric Cloud Sphere Layer (Clean & Transparent)
-    const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
+    const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, segments, segments);
     const cloudTexture = load('earth_clouds_1024.png', true);
     const cloudMaterial = new THREE.MeshPhongMaterial({
       map: cloudTexture,

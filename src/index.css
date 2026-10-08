@@ -175,6 +175,7 @@ body { background: var(--abyss); }
 .btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
 .btn-ghost:hover { background: var(--panel-2); color: var(--ink); }
 .btn-icon { padding: 0; width: 40px; }
+@media (pointer: coarse) { .btn { min-height: 44px; } .btn-icon { width: 44px; } input[type='range'] { min-height: 32px; } }
 .chip { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; border: 1px solid var(--line); color: var(--ink-2); }
 .label { font-size: .8125rem; color: var(--ink-3); }
 .dot { width: .6rem; height: .6rem; border-radius: 999px; display: inline-block; flex: none; }

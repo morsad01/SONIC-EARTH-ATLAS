@@ -366,7 +366,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
                   <span className="w-[2px] flex-1 my-1 bg-gradient-to-b from-white/80 to-white/10" />
                   <span className="chip bg-black/70">▼ low</span>
                 </div>
-                <div className="absolute right-1.5 bottom-1.5 flex flex-wrap gap-1 justify-end max-w-[70%]">
+                <div className="absolute right-1.5 bottom-1.5 hidden sm:flex flex-wrap gap-1 justify-end max-w-[70%]">
                   <span className="chip bg-black/70">brighter = louder</span>
                   <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#ff7a1a' }} />warm = buzzy</span>
                   <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#2f7fd8' }} />cool = soft</span>
