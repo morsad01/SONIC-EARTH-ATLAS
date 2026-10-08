@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { activeColumns, colAt, nextColumn, orderRange, rowAt, silentRects, stepMs } from '../lib/frameSweep';
+import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, silentRects, stepMs, timbreWord } from '../lib/frameSweep';
 import { EIC_FRAMES } from '../lib/eicFrames';
 
 describe('frame sweep maths', () => {
@@ -52,5 +52,14 @@ describe('frame sweep maths', () => {
       expect(r.x).toBeGreaterThanOrEqual(0); expect(r.y).toBeGreaterThanOrEqual(0);
       expect(r.x + r.w).toBeLessThanOrEqual(1); expect(r.y + r.h).toBeLessThanOrEqual(1);
     }
+  });
+
+  it('names notes and timbres for the legend', () => {
+    expect(noteName(440)).toBe('A4');
+    expect(noteName(261.63)).toBe('C4');
+    expect(noteName(130.81)).toBe('C3');
+    expect(timbreWord(0.6, 0)).toBe('buzzy');
+    expect(timbreWord(0.1, 0.4)).toBe('airy');
+    expect(timbreWord(0, 0)).toBe('soft');
   });
 });

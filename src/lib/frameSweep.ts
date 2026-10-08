@@ -50,3 +50,17 @@ export function activeColumns(lum: Float32Array, cols: number, rows: number, thr
   }
   return lo < 0 ? null : [lo, hi];
 }
+
+const NOTES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+/** Note name with octave for a frequency, e.g. 261.63 → "C4". */
+export function noteName(hz: number): string {
+  const midi = Math.round(69 + 12 * Math.log2(hz / 440));
+  return `${NOTES[((midi % 12) + 12) % 12]}${Math.floor(midi / 12) - 1}`;
+}
+
+/** The sound colour in plain words, matching how the filter opens for warm colours. */
+export function timbreWord(warm: number, green: number): 'buzzy' | 'airy' | 'soft' {
+  if (warm > 0.25) return 'buzzy';
+  if (green > 0.15) return 'airy';
+  return 'soft';
+}

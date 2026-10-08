@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
 import { EIC_FRAMES } from '../lib/eicFrames';
-import { activeColumns, colAt, nextColumn, orderRange, rowAt, stepMs } from '../lib/frameSweep';
+import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, stepMs, timbreWord } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs } from '../lib/prefs';
 
@@ -11,7 +11,7 @@ const PENTA = [0, 2, 4, 7, 9];
 // Top row (north) is the highest pitch, like the globe's latitude tilt.
 const rowHz = (row: number) => { const i = ROWS - 1 - row; return 130.81 * Math.pow(2, (PENTA[i % 5] + 12 * Math.floor(i / 5)) / 12); };
 
-interface Grid { lum: Float32Array; warm: Float32Array; green: Float32Array }
+interface Grid { lum: Float32Array; warm: Float32Array; green: Float32Array; rgb: Uint8ClampedArray }
 function toGrid(cv: HTMLCanvasElement): Grid {
   const g = document.createElement('canvas'); g.width = COLS; g.height = ROWS;
   const c = g.getContext('2d', { willReadFrequently: true })!;
@@ -24,7 +24,7 @@ function toGrid(cv: HTMLCanvasElement): Grid {
     lum[i] = 0.299 * R + 0.587 * G + 0.114 * B;
     warm[i] = Math.max(0, R - B); green[i] = Math.max(0, G - Math.max(R, B));
   }
-  return { lum, warm, green };
+  return { lum, warm, green, rgb: px };
 }
 
 interface Bank { oscs: OscillatorNode[]; gains: GainNode[]; filters: BiquadFilterNode[]; pan: StereoPannerNode; out: GainNode }
@@ -71,6 +71,8 @@ export const FrameJukebox: React.FC = () => {
   const [col, setCol] = useState(0);
   const [readout, setReadout] = useState('');
   const [srText, setSrText] = useState('');
+  const [legend, setLegend] = useState(true);
+  const [heard, setHeard] = useState<{ note: string; hz: number; level: number; color: string; timbre: string } | null>(null);
   const viewA = useRef<HTMLCanvasElement>(null), viewB = useRef<HTMLCanvasElement>(null);
   const grids = useRef<{ a: Grid | null; b: Grid | null }>({ a: null, b: null });
   const banks = useRef<{ a: Bank | null; b: Bank | null }>({ a: null, b: null });
@@ -104,7 +106,7 @@ export const FrameJukebox: React.FC = () => {
   // Load images whenever the selection changes.
   useEffect(() => {
     let cancelled = false;
-    stop(); setStatus('loading'); setCol(0); colRef.current = 0; setRegion(null); setReadout(''); setSrText('');
+    stop(); setStatus('loading'); setCol(0); colRef.current = 0; setRegion(null); setReadout(''); setSrText(''); setHeard(null);
     const paint = (target: HTMLCanvasElement | null, src: HTMLCanvasElement) => {
       if (!target) return;
       target.width = src.width; target.height = src.height;
@@ -176,6 +178,8 @@ export const FrameJukebox: React.FC = () => {
     const level = Math.round(ga.lum[row * COLS + c] * 100);
     const line = r === undefined ? `${where(c)} · loudest band ${geo ? fmtLat(latAt(bestR)) : `${bestR + 1} from the top`}` : `${where(c, r)} · brightness ${level}%`;
     setReadout(line);
+    const i = row * COLS + c;
+    setHeard({ note: noteName(rowHz(row)), hz: Math.round(rowHz(row)), level, color: `rgb(${ga.rgb[i * 4]},${ga.rgb[i * 4 + 1]},${ga.rgb[i * 4 + 2]})`, timbre: timbreWord(ga.warm[i], ga.green[i]) });
     return line;
   };
 
@@ -288,6 +292,20 @@ export const FrameJukebox: React.FC = () => {
                 <canvas ref={viewB} className="w-full aspect-[2/1] block" role="img" aria-label={pair.b.title} />
               </div>
             )}
+            {legend && status === 'ready' && (
+              <div className="absolute inset-0 pointer-events-none text-[11px] leading-none text-white/90" aria-hidden="true">
+                <div className="absolute left-1.5 top-1.5 bottom-1.5 flex flex-col items-center justify-between">
+                  <span className="chip bg-black/70">▲ high</span>
+                  <span className="w-[2px] flex-1 my-1 bg-gradient-to-b from-white/80 to-white/10" />
+                  <span className="chip bg-black/70">▼ low</span>
+                </div>
+                <div className="absolute right-1.5 bottom-1.5 flex flex-wrap gap-1 justify-end max-w-[70%]">
+                  <span className="chip bg-black/70">brighter = louder</span>
+                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#ff7a1a' }} />warm = buzzy</span>
+                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#2f7fd8' }} />cool = soft</span>
+                </div>
+              </div>
+            )}
             {region && <div className="absolute top-0 bottom-0 pointer-events-none border-x-2 border-[var(--brass)] bg-[var(--brass)]/10" style={{ left: `${(region[0] / COLS) * 100}%`, width: `${((region[1] - region[0] + 1) / COLS) * 100}%` }} />}
             <div className="absolute top-0 bottom-0 w-[2px] bg-[var(--brass)] shadow-[0_0_14px_var(--brass)] pointer-events-none" style={{ left: needle, opacity: playing || status === 'ready' ? 1 : 0 }} />
             {status !== 'ready' && (
@@ -308,9 +326,24 @@ export const FrameJukebox: React.FC = () => {
                 <input type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) setUserFile(f); }} />
               </label>
             )}
+            <button className="btn" aria-pressed={legend} onClick={() => setLegend(!legend)}>{t('legend')}</button>
             <span className="tnum text-sm text-[var(--ink-2)]" aria-hidden="true">{readout}</span>
             <span className="sr-only" aria-live="polite">{srText}</span>
           </div>
+
+          {heard && (
+            <div className="mt-3 panel-solid p-3 max-w-[70ch] flex flex-wrap items-center gap-x-5 gap-y-2 text-sm" role="group" aria-label={t('nowHearing')}>
+              <span className="label">{t('nowHearing')}</span>
+              <span><strong className="tnum">{heard.note}</strong> <span className="text-[var(--ink-3)] tnum">{heard.hz} Hz</span></span>
+              <span className="flex items-center gap-2">{t('loudness')}
+                <span className="inline-block w-24 h-2 rounded bg-[var(--line)] overflow-hidden" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={heard.level}>
+                  <span className="block h-full bg-[var(--brass)]" style={{ width: `${heard.level}%` }} />
+                </span>
+                <span className="tnum text-[var(--ink-3)]">{heard.level}%</span>
+              </span>
+              <span className="flex items-center gap-2"><i className="inline-block w-4 h-4 rounded border border-white/30" style={{ background: heard.color }} aria-hidden="true" />{heard.timbre}</span>
+            </div>
+          )}
 
           <div className="mt-3 max-w-[70ch]">
             <label htmlFor="frame-scrub" className="label">{t('scrub')}</label>
@@ -330,6 +363,16 @@ export const FrameJukebox: React.FC = () => {
             </div>
           </div>
           {mode === 'pair' && <p className="mt-2 text-sm text-[var(--ink-3)]">{t('beforeAfterHint')}</p>}
+          <details className="mt-3 max-w-[70ch] text-sm text-[var(--ink-2)]">
+            <summary className="cursor-pointer font-semibold text-[var(--ink)]">{t('whatHearing')}</summary>
+            <ul className="mt-2 list-disc pl-5 space-y-1">
+              <li>{t('hearNeedle')}</li>
+              <li>{t('hearPitch')}</li>
+              <li>{t('hearLoud')}</li>
+              <li>{t('hearColour')}</li>
+              <li>{t('hearScrub')}</li>
+            </ul>
+          </details>
           {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">See it on earth.gov</a></>}</p>}
         </div>
 
