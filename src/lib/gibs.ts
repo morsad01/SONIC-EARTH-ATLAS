@@ -13,6 +13,8 @@ export interface NasaFrame {
   overlayOn?: string; // draw this transparent data layer over another layer
   src?: string; // a bundled local image (used by the Earth Information Center frames); `layer` is then unused
   sourceUrl?: string; // page the picture comes from
+  longEn?: string; // a full description for people who cannot see the picture
+  longBn?: string;
   soundRegion?: Rect; // only this part of a bundled image makes sound (fractions of the image), e.g. the chart without its axes
   soundIgnore?: Rect[]; // parts inside the region that stay silent, e.g. a title
 }

@@ -24,4 +24,11 @@ describe('Earth Information Center frames', () => {
       expect(fs.statSync(file).size).toBeGreaterThan(5000);
     }
   });
+
+  it('describes every frame in words, in English and Bangla, for people who cannot see it', () => {
+    for (const f of EIC_FRAMES) {
+      expect(f.longEn?.length, f.id).toBeGreaterThan(200);
+      expect(f.longBn?.length, f.id).toBeGreaterThan(150);
+    }
+  });
 });
