@@ -1,4 +1,6 @@
 /** NASA GIBS (Global Imagery Browse Services) WMS snapshots. GIBS sends CORS headers, so the pixels can be read for sonification. */
+import { silentRects, type Rect } from './frameSweep';
+
 export interface NasaFrame {
   id: string;
   layer: string;
@@ -11,6 +13,8 @@ export interface NasaFrame {
   overlayOn?: string; // draw this transparent data layer over another layer
   src?: string; // a bundled local image (used by the Earth Information Center frames); `layer` is then unused
   sourceUrl?: string; // page the picture comes from
+  soundRegion?: Rect; // only this part of a bundled image makes sound (fractions of the image), e.g. the chart without its axes
+  soundIgnore?: Rect[]; // parts inside the region that stay silent, e.g. a title
 }
 
 export const GIBS_WMS = 'https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi';
@@ -54,7 +58,7 @@ function loadImg(src: string) {
  */
 export async function loadFrameCanvases(frame: NasaFrame, width = 1024): Promise<{ display: HTMLCanvasElement; sound: HTMLCanvasElement }> {
   const mk = () => { const cv = document.createElement('canvas'); cv.width = width; cv.height = width / 2; return cv; };
-  if (frame.src) return loadLocalCanvases(frame.src, width);
+  if (frame.src) return loadLocalCanvases(frame, width);
   const display = mk(), sound = mk();
   const d = display.getContext('2d')!, s = sound.getContext('2d', { willReadFrequently: true })!;
   const top = await loadImg(gibsUrl(frame.layer, frame.date, frame.format, width));
@@ -75,16 +79,24 @@ export async function loadFrameCanvases(frame: NasaFrame, width = 1024): Promise
  * A bundled image of any shape, fitted inside the 2:1 frame on black, so the needle and pitch rows stay the same.
  * The black margins are silent.
  */
-async function loadLocalCanvases(src: string, width: number) {
-  const img = await loadImg(src);
+async function loadLocalCanvases(frame: NasaFrame, width: number) {
+  const img = await loadImg(frame.src!);
   const h = width / 2;
   const scale = Math.min(width / img.naturalWidth, h / img.naturalHeight);
   const w = img.naturalWidth * scale, ih = img.naturalHeight * scale;
-  const cv = document.createElement('canvas'); cv.width = width; cv.height = h;
-  const c = cv.getContext('2d', { willReadFrequently: true })!;
-  c.fillStyle = '#000'; c.fillRect(0, 0, width, h);
-  c.drawImage(img, (width - w) / 2, (h - ih) / 2, w, ih);
-  return { display: cv, sound: cv };
+  const ox = (width - w) / 2, oy = (h - ih) / 2;
+  const paint = () => {
+    const cv = document.createElement('canvas'); cv.width = width; cv.height = h;
+    const c = cv.getContext('2d', { willReadFrequently: true })!;
+    c.fillStyle = '#000'; c.fillRect(0, 0, width, h);
+    c.drawImage(img, ox, oy, w, ih);
+    return { cv, c };
+  };
+  const display = paint().cv;
+  const { cv: sound, c } = paint();
+  // Axis labels, titles and legends stay silent so the sound follows the data, not the text.
+  for (const r of silentRects(frame.soundRegion, frame.soundIgnore)) c.fillRect(ox + r.x * w, oy + r.y * ih, r.w * w, r.h * ih);
+  return { display, sound };
 }
 
 /** Same pipeline for a user-supplied image file (no base layer). */

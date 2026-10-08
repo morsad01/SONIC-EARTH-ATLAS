@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Play, Square, ImagePlus, Loader2, AlertTriangle } from 'lucide-react';
+import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
 import { EIC_FRAMES } from '../lib/eicFrames';
+import { activeColumns, colAt, nextColumn, orderRange, rowAt, stepMs } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs } from '../lib/prefs';
 
@@ -74,6 +75,18 @@ export const FrameJukebox: React.FC = () => {
   const grids = useRef<{ a: Grid | null; b: Grid | null }>({ a: null, b: null });
   const banks = useRef<{ a: Bank | null; b: Bank | null }>({ a: null, b: null });
   const timer = useRef<number | null>(null);
+  const probeTimer = useRef<number | null>(null);
+  const stepRef = useRef<() => void>(() => {});
+  const colRef = useRef(0);
+  const [speed, setSpeedState] = useState(1);
+  const [loop, setLoopState] = useState(true);
+  const [region, setRegionState] = useState<[number, number] | null>(null);
+  const speedRef = useRef(1), loopRef = useRef(true), regionRef = useRef<[number, number] | null>(null);
+  const setSpeed = (v: number) => { speedRef.current = v; setSpeedState(v); };
+  const setLoop = (v: boolean) => { loopRef.current = v; setLoopState(v); };
+  const setRegion = (v: [number, number] | null) => { regionRef.current = v; setRegionState(v); };
+  const frameBox = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x0: number; moved: boolean } | null>(null);
 
   const frame = [...EIC_FRAMES, ...FRAMES].find((f) => f.id === frameId)!;
   const pair = PAIRS.find((p) => p.id === pairId)!;
@@ -81,6 +94,8 @@ export const FrameJukebox: React.FC = () => {
   const stop = useCallback(() => {
     if (timer.current) window.clearInterval(timer.current);
     timer.current = null;
+    if (probeTimer.current) window.clearTimeout(probeTimer.current);
+    probeTimer.current = null;
     disposeBank(banks.current.a); disposeBank(banks.current.b);
     banks.current = { a: null, b: null };
     setPlaying(false);
@@ -89,7 +104,7 @@ export const FrameJukebox: React.FC = () => {
   // Load images whenever the selection changes.
   useEffect(() => {
     let cancelled = false;
-    stop(); setStatus('loading'); setCol(0);
+    stop(); setStatus('loading'); setCol(0); colRef.current = 0; setRegion(null); setReadout(''); setSrText('');
     const paint = (target: HTMLCanvasElement | null, src: HTMLCanvasElement) => {
       if (!target) return;
       target.width = src.width; target.height = src.height;
@@ -102,6 +117,9 @@ export const FrameJukebox: React.FC = () => {
           if (cancelled) return;
           paint(viewA.current, c.display);
           grids.current = { a: toGrid(c.sound), b: null };
+          // Frames with a sound region start on the part that actually has sound, not on the silent margin.
+          const live = !userFile && frame.soundRegion ? activeColumns(grids.current.a!.lum, COLS, ROWS) : null;
+          if (live) { setRegion(live); colRef.current = live[0]; setCol(live[0]); }
         } else {
           const [a, b] = await Promise.all([loadFrameCanvases(pair.a), loadFrameCanvases(pair.b)]);
           if (cancelled) return;
@@ -118,40 +136,131 @@ export const FrameJukebox: React.FC = () => {
 
   useEffect(() => () => stop(), [stop]);
 
-  const start = async () => {
-    const ga = grids.current.a; if (!ga) return;
-    const ctx = await AudioContextManager.init();
-    const dest = AudioContextManager.getMasterNode()!;
+  const geo = mode === 'pair' || !!userFile || !frame.src;
+  const where = (c: number, r?: number) => {
+    const x = geo ? fmtLon(lonAt(c)) : `${Math.round(((c + 0.5) / COLS) * 100)}% across`;
+    if (r === undefined) return x;
+    return `${x} · ${geo ? fmtLat(latAt(r)) : `band ${r + 1} of ${ROWS} from the top`}`;
+  };
+
+  const openBanks = (ctx: AudioContext, dest: AudioNode) => {
     banks.current.a = makeBank(ctx, dest);
     if (mode === 'pair') { banks.current.b = makeBank(ctx, dest); banks.current.a.pan.pan.value = -0.9; banks.current.b.pan.pan.value = 0.9; }
-    setPlaying(true);
-    let c = 0;
-    const step = () => {
-      const now = ctx.currentTime;
-      const drive = (bank: Bank, g: Grid, panByCol: boolean) => {
-        if (panByCol) bank.pan.pan.setTargetAtTime((c / (COLS - 1)) * 1.8 - 0.9, now, 0.05);
-        for (let r = 0; r < ROWS; r++) {
-          const i = r * COLS + c;
-          const amp = Math.pow(g.lum[i], 1.5) * 0.06;
-          bank.gains[r].gain.setTargetAtTime(amp, now, 0.05);
-          // Warm colours open the filter (brighter buzz); green and blue stay soft.
-          bank.filters[r].frequency.setTargetAtTime(350 + g.warm[i] * 3200 + g.green[i] * 400, now, 0.05);
-        }
-      };
-      drive(banks.current.a!, ga, mode === 'single');
-      if (mode === 'pair' && banks.current.b && grids.current.b) drive(banks.current.b, grids.current.b, false);
-      // Words for what the needle is over.
-      let best = 0, bestR = 0;
-      for (let r = 0; r < ROWS; r++) { const v = ga.lum[r * COLS + c]; if (v > best) { best = v; bestR = r; } }
-      const lon = lonAt(c);
-      const line = `${fmtLon(lon)} · loudest band ${fmtLat(latAt(bestR))}`;
-      setReadout(line);
-      if (c % 16 === 0) setSrText(`Needle at ${fmtLon(lon)}. Loudest near ${fmtLat(latAt(bestR))}.`);
-      setCol(c);
-      c = (c + 1) % COLS;
+  };
+
+  /** Sound one column of the picture (and move the needle there). */
+  const driveCol = (ctx: AudioContext, c: number) => {
+    const ga = grids.current.a, bank = banks.current.a;
+    if (!ga || !bank) return;
+    const now = ctx.currentTime;
+    const drive = (bk: Bank, g: Grid, panByCol: boolean) => {
+      if (panByCol) bk.pan.pan.setTargetAtTime((c / (COLS - 1)) * 1.8 - 0.9, now, 0.05);
+      for (let r = 0; r < ROWS; r++) {
+        const i = r * COLS + c;
+        const amp = Math.pow(g.lum[i], 1.5) * 0.06;
+        bk.gains[r].gain.setTargetAtTime(amp, now, 0.05);
+        // Warm colours open the filter (brighter buzz); green and blue stay soft.
+        bk.filters[r].frequency.setTargetAtTime(350 + g.warm[i] * 3200 + g.green[i] * 400, now, 0.05);
+      }
     };
-    step();
-    timer.current = window.setInterval(step, (SWEEP_SEC * 1000) / COLS);
+    drive(bank, ga, mode === 'single');
+    if (mode === 'pair' && banks.current.b && grids.current.b) drive(banks.current.b, grids.current.b, false);
+    setCol(c);
+  };
+
+  const describe = (c: number, r?: number) => {
+    const ga = grids.current.a; if (!ga) return;
+    let best = 0, bestR = 0;
+    for (let rr = 0; rr < ROWS; rr++) { const v = ga.lum[rr * COLS + c]; if (v > best) { best = v; bestR = rr; } }
+    const row = r ?? bestR;
+    const level = Math.round(ga.lum[row * COLS + c] * 100);
+    const line = r === undefined ? `${where(c)} · loudest band ${geo ? fmtLat(latAt(bestR)) : `${bestR + 1} from the top`}` : `${where(c, r)} · brightness ${level}%`;
+    setReadout(line);
+    return line;
+  };
+
+  const start = async () => {
+    if (!grids.current.a) return;
+    const ctx = await AudioContextManager.init();
+    const dest = AudioContextManager.getMasterNode()!;
+    if (probeTimer.current) window.clearTimeout(probeTimer.current);
+    probeTimer.current = null;
+    disposeBank(banks.current.a); disposeBank(banks.current.b);
+    banks.current = { a: null, b: null };
+    openBanks(ctx, dest);
+    setPlaying(true);
+    const [lo0, hi0] = regionRef.current ?? [0, COLS - 1];
+    if (colRef.current < lo0 || colRef.current > hi0) colRef.current = lo0;
+    stepRef.current = () => {
+      const [lo, hi] = regionRef.current ?? [0, COLS - 1];
+      const c = colRef.current;
+      driveCol(ctx, c);
+      const line = describe(c);
+      if (c % 16 === 0 && line) setSrText(`Needle at ${where(c)}.`);
+      const n = nextColumn(c, { lo, hi, loop: loopRef.current });
+      if (n === null) { colRef.current = lo; stop(); return; }
+      colRef.current = n;
+    };
+    stepRef.current();
+    timer.current = window.setInterval(() => stepRef.current(), stepMs(SWEEP_SEC, COLS, speedRef.current));
+  };
+
+  // A new speed takes effect straight away, without restarting the sweep.
+  useEffect(() => {
+    if (!timer.current) return;
+    window.clearInterval(timer.current);
+    timer.current = window.setInterval(() => stepRef.current(), stepMs(SWEEP_SEC, COLS, speed));
+  }, [speed]);
+
+  /** Move the needle. While playing the sweep carries on from there; otherwise play a short probe so you can hear the spot. */
+  const seek = async (c: number, r?: number) => {
+    if (status !== 'ready') return;
+    colRef.current = c;
+    setCol(c);
+    const line = describe(c, r);
+    if (line) setSrText(line);
+    if (timer.current) { const ctx = AudioContextManager.getContext(); if (ctx) driveCol(ctx, c); return; }
+    const ctx = await AudioContextManager.init();
+    if (timer.current) return;
+    if (!banks.current.a) openBanks(ctx, AudioContextManager.getMasterNode()!);
+    driveCol(ctx, c);
+    if (probeTimer.current) window.clearTimeout(probeTimer.current);
+    probeTimer.current = window.setTimeout(() => {
+      probeTimer.current = null;
+      if (timer.current) return;
+      disposeBank(banks.current.a); disposeBank(banks.current.b);
+      banks.current = { a: null, b: null };
+    }, 450);
+  };
+
+  const fractionIn = (e: React.PointerEvent) => {
+    const r = frameBox.current!.getBoundingClientRect();
+    return { fx: (e.clientX - r.left) / r.width, fy: (e.clientY - r.top) / r.height };
+  };
+  const onFrameDown = (e: React.PointerEvent) => {
+    if (status !== 'ready') return;
+    drag.current = { x0: e.clientX, moved: false };
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+  };
+  const onFrameMove = (e: React.PointerEvent) => {
+    const d = drag.current; if (!d) return;
+    if (!d.moved && Math.abs(e.clientX - d.x0) < 8) return;
+    d.moved = true;
+    const r = frameBox.current!.getBoundingClientRect();
+    const a = colAt((d.x0 - r.left) / r.width, COLS), b = colAt(fractionIn(e).fx, COLS);
+    setRegion(orderRange(a, b, COLS));
+  };
+  const onFrameUp = (e: React.PointerEvent) => {
+    const d = drag.current; drag.current = null;
+    if (!d) return;
+    const { fx, fy } = fractionIn(e);
+    if (d.moved) {
+      const reg = regionRef.current;
+      if (reg) { colRef.current = reg[0]; seek(reg[0]); }
+      return;
+    }
+    // In "then and now" the two pictures are stacked, so the row is measured inside one of them.
+    seek(colAt(fx, COLS), rowAt(mode === 'pair' ? (fy * 2) % 1 : fy, ROWS));
   };
 
   const needle = `${((col + 0.5) / COLS) * 100}%`;
@@ -169,7 +278,8 @@ export const FrameJukebox: React.FC = () => {
             <button role="tab" aria-selected={mode === 'pair'} className="btn" aria-pressed={mode === 'pair'} onClick={() => setMode('pair')}>{t('beforeAfter')}</button>
           </div>
 
-          <div className="mt-4 relative rounded-xl overflow-hidden border border-[var(--line)] bg-black">
+          <div ref={frameBox} className="mt-4 relative rounded-xl overflow-hidden border border-[var(--line)] bg-black cursor-crosshair touch-pan-y select-none"
+            onPointerDown={onFrameDown} onPointerMove={onFrameMove} onPointerUp={onFrameUp} onPointerCancel={() => { drag.current = null; }}>
             {mode === 'pair' && <div className="absolute left-2 top-2 z-10 chip bg-black/70">◀ {pair.a.title}</div>}
             <canvas ref={viewA} className="w-full aspect-[2/1] block" aria-label={meta ? `${meta.title}. ${meta.what}` : pair.a.title} role="img" />
             {mode === 'pair' && (
@@ -178,7 +288,8 @@ export const FrameJukebox: React.FC = () => {
                 <canvas ref={viewB} className="w-full aspect-[2/1] block" role="img" aria-label={pair.b.title} />
               </div>
             )}
-            <div className="absolute top-0 bottom-0 w-[2px] bg-[var(--brass)] shadow-[0_0_14px_var(--brass)] pointer-events-none" style={{ left: needle, opacity: playing ? 1 : 0 }} />
+            {region && <div className="absolute top-0 bottom-0 pointer-events-none border-x-2 border-[var(--brass)] bg-[var(--brass)]/10" style={{ left: `${(region[0] / COLS) * 100}%`, width: `${((region[1] - region[0] + 1) / COLS) * 100}%` }} />}
+            <div className="absolute top-0 bottom-0 w-[2px] bg-[var(--brass)] shadow-[0_0_14px_var(--brass)] pointer-events-none" style={{ left: needle, opacity: playing || status === 'ready' ? 1 : 0 }} />
             {status !== 'ready' && (
               <div className="absolute inset-0 grid place-items-center bg-black/60 text-sm text-[var(--ink-2)] p-6 text-center">
                 {status === 'loading' ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {frame.src && !userFile ? 'Loading Earth Information Center image…' : 'Loading NASA imagery from GIBS…'}</span>
@@ -197,8 +308,26 @@ export const FrameJukebox: React.FC = () => {
                 <input type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) setUserFile(f); }} />
               </label>
             )}
-            <span className="tnum text-sm text-[var(--ink-2)]" aria-hidden="true">{playing ? readout : ''}</span>
-            <span className="sr-only" aria-live="polite">{playing ? srText : ''}</span>
+            <span className="tnum text-sm text-[var(--ink-2)]" aria-hidden="true">{readout}</span>
+            <span className="sr-only" aria-live="polite">{srText}</span>
+          </div>
+
+          <div className="mt-3 max-w-[70ch]">
+            <label htmlFor="frame-scrub" className="label">{t('scrub')}</label>
+            <input id="frame-scrub" type="range" min={0} max={COLS - 1} value={col} disabled={status !== 'ready'}
+              onChange={(e) => seek(+e.target.value)} aria-valuetext={where(col)} aria-describedby="frame-scrub-hint"
+              className="w-full accent-[var(--brass)] disabled:opacity-50" />
+            <p id="frame-scrub-hint" className="text-xs text-[var(--ink-3)]">{t('scrubHint')} {t('regionHint')}</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <button className="btn" aria-pressed={loop} onClick={() => setLoop(!loop)}><Repeat className="w-4 h-4" /> {t('loop')}</button>
+              <span className="label" id="frame-speed">{t('speed')}</span>
+              <div role="group" aria-labelledby="frame-speed" className="flex gap-1">
+                {[0.5, 1, 2].map((v) => <button key={v} className="btn" aria-pressed={speed === v} onClick={() => setSpeed(v)}>{v}×</button>)}
+              </div>
+              <button className="btn" disabled={status !== 'ready'} onClick={() => { const [, hi] = regionRef.current ?? [0, COLS - 1]; setRegion(orderRange(col, Math.max(hi, col), COLS)); }}>{t('loopStart')}</button>
+              <button className="btn" disabled={status !== 'ready'} onClick={() => { const [lo] = regionRef.current ?? [0, COLS - 1]; setRegion(orderRange(Math.min(lo, col), col, COLS)); }}>{t('loopEnd')}</button>
+              {region && <button className="btn" onClick={() => setRegion(null)}>{t('clearRegion')}</button>}
+            </div>
           </div>
           {mode === 'pair' && <p className="mt-2 text-sm text-[var(--ink-3)]">{t('beforeAfterHint')}</p>}
           {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">See it on earth.gov</a></>}</p>}

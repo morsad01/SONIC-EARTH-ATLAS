@@ -11,6 +11,7 @@ export const EIC_FRAMES: NasaFrame[] = [
     titleBn: 'গ্রিনহাউস গ্যাসের উষ্ণায়ন সূচক, ১৯৭৯ থেকে ২০২১',
     what: 'One bar per year, taller means more warming effect. Red is CO₂, purple methane, blue nitrous oxide, yellow other gases. The ring shows each gas’s share.',
     credit: 'NASA Earth Information Center (earth.gov), Greenhouse Gases theme; data: NOAA Annual Greenhouse Gas Index',
+    soundRegion: { x: 0.01, y: 0.09, w: 0.66, h: 0.84 }, soundIgnore: [{ x: 0.02, y: 0.1, w: 0.37, h: 0.1 }],
     sourceUrl: 'https://earth.gov/themes/greenhouse-gases',
   },
   {
@@ -19,6 +20,7 @@ export const EIC_FRAMES: NasaFrame[] = [
     titleBn: '১৯৫৭ সাল থেকে সমুদ্রের তাপ',
     what: 'The orange line is the cumulative increase in ocean heat from 1957 to 2020, in zettajoules. It climbs from 0 to about 350, fastest since the 1980s.',
     credit: 'NASA Earth Information Center (earth.gov), Sea Level Change theme',
+    soundRegion: { x: 0.23, y: 0.29, w: 0.58, h: 0.44 },
     sourceUrl: 'https://earth.gov/themes/sea-level-change',
   },
   {
@@ -27,6 +29,7 @@ export const EIC_FRAMES: NasaFrame[] = [
     titleBn: 'ফসলের ফলনে এল নিনোর পূর্বাভাসিত প্রভাব',
     what: 'Orange shades mean lower yields, purple shades higher yields, on farmland around the world. Grey land is not shown.',
     credit: 'NASA Earth Information Center (earth.gov), Agriculture theme',
+    soundRegion: { x: 0.02, y: 0.02, w: 0.96, h: 0.86 },
     sourceUrl: 'https://earth.gov/themes/agriculture',
   },
   {
