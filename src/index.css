@@ -131,3 +131,8 @@
 .animate-scanline {
   animation: scanline 8s linear infinite;
 }
+
+/* While the landing hero is open, only the globe shows behind it */
+.hero-open > :not(main):not(.hero-layer),
+.hero-open main > :not(:first-child) { visibility: hidden; }
+.hero-open main > :first-child { transform: translateX(24%); }

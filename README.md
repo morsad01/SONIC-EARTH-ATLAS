@@ -139,3 +139,11 @@ npm run build
 ## 📜 Attribution & License
 
 *Data and public domain satellite telemetry provided by NASA ESDIS, FIRMS, GPM, and NOAA GHRSST. Built for the NASA Space Apps Challenge 2026.*
+
+---
+## Data honesty (updated)
+- **Default sample mode** uses hand-made illustrative values modeled on FIRMS / GPM IMERG / GHRSST. They are *not* real observations and are labeled that way in the UI.
+- **Real mode:** get a free key at https://firms.modaps.eosdis.nasa.gov/api/map_key/ then run `FIRMS_MAP_KEY=your_key npm run fetch:firms`. This writes `public/data/firms_snapshot.json` (6 days of real VIIRS detections, top 80 2° cells). Toggle the data source in the app to hear real fires. GPM and SST remain illustrative.
+
+## Earth imagery credit
+Earth surface, specular, normal and cloud maps in `public/textures/` come from the three.js examples (MIT repo). For the final release swap in NASA Blue Marble (https://visibleearth.nasa.gov) under the same file names.

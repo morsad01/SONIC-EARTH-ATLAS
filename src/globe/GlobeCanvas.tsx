@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
-import { createProceduralEarthTexture, createProceduralCloudTexture } from './earthTextureGenerator';
 import { SonificationEngine } from '../audio/sonificationEngine';
 
 interface GlobeCanvasProps {
@@ -57,14 +56,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, 5.8);
+    camera.position.set(0, 0, width / height < 0.8 ? 10.5 : 7.2);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.5;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -109,25 +108,34 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     // Realistic Earth Sphere (100% Opaque, Solid Earth surface)
     const earthRadius = 2.0;
     const earthGeometry = new THREE.SphereGeometry(earthRadius, 64, 64);
-    const earthTexture = createProceduralEarthTexture();
-    const earthMaterial = new THREE.MeshStandardMaterial({
+    const loader = new THREE.TextureLoader();
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+    const load = (f: string, srgb = false) => {
+      const t = loader.load(`/textures/${f}`);
+      t.anisotropy = maxAniso;
+      if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    const earthTexture = load('earth_atmos_2048.jpg', true);
+    const earthMaterial = new THREE.MeshPhongMaterial({
       map: earthTexture,
-      roughness: 0.5,
-      metalness: 0.05,
-      transparent: false,
-      opacity: 1.0,
+      specularMap: load('earth_specular_2048.jpg'),
+      normalMap: load('earth_normal_2048.jpg'),
+      normalScale: new THREE.Vector2(0.85, 0.85),
+      specular: new THREE.Color(0x4a6a8a),
+      shininess: 22,
     });
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
 
     // Revolving Atmospheric Cloud Sphere Layer (Clean & Transparent)
     const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
-    const cloudTexture = createProceduralCloudTexture();
-    const cloudMaterial = new THREE.MeshStandardMaterial({
+    const cloudTexture = load('earth_clouds_1024.png', true);
+    const cloudMaterial = new THREE.MeshPhongMaterial({
       map: cloudTexture,
       transparent: true,
-      opacity: 0.0,
-      roughness: 0.95,
+      opacity: 0.9,
+      depthWrite: false,
     });
     const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
     globeGroup.add(cloudMesh);
@@ -146,8 +154,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       fragmentShader: `
         varying vec3 vNormal;
         void main() {
-          float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.5);
-          gl_FragColor = vec4(0.14, 0.65, 0.95, 1.0) * intensity * 0.8;
+          float intensity = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 3.0);
+          gl_FragColor = vec4(0.25, 0.6, 1.0, 1.0) * intensity * 1.1;
         }
       `,
       blending: THREE.AdditiveBlending,
@@ -167,7 +175,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     soundWavesGroupRef.current = soundWavesGroup;
 
     // --- Planetarium Directional Sun Lighting ---
-    const ambientLight = new THREE.AmbientLight(0x091c33, 0.65);
+    const ambientLight = new THREE.AmbientLight(0x7a9cd0, 1.05);
     scene.add(ambientLight);
 
     const sunLight = new THREE.DirectionalLight(0xfff8e7, 2.4);
@@ -189,7 +197,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
       // Revolving cloud layer rotation
       if (cloudMeshRef.current) {
-        cloudMeshRef.current.rotation.y += 0.0003;
+        cloudMeshRef.current.rotation.y += 0.00045;
       }
 
       // Smooth camera interpolation toward guided demo target region
@@ -467,10 +475,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         </div>
       )}
 
-      {/* Touch & Keyboard Navigation Hint Overlay */}
-      <div className="absolute bottom-3 left-4 pointer-events-none text-[10px] font-mono text-slate-400 bg-slate-950/60 px-2.5 py-1 rounded border border-slate-800/60 backdrop-blur-sm hidden sm:block">
-        <span>Drag to rotate Earth • Scroll to zoom • Click point to explore</span>
-      </div>
+
     </div>
   );
 };

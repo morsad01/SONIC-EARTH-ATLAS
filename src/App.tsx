@@ -1,13 +1,14 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DataSourceMode, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter } from './datasets/adapter';
 import { AudioContextManager } from './audio/audioContext';
 import { SonificationEngine } from './audio/sonificationEngine';
-import { GlobeCanvas } from './globe/GlobeCanvas';
+const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
 import { Accessible2DMap } from './map/Accessible2DMap';
 import { AudioFirstMode } from './accessibility/AudioFirstMode';
 import { Header } from './components/Header';
 import { LandingHero } from './components/LandingHero';
+import { LiveCaption } from './components/LiveCaption';
 import { TimelineControls } from './components/TimelineControls';
 import { DatasetSelector } from './components/DatasetSelector';
 import { InspectLocationModal } from './components/InspectLocationModal';
@@ -54,7 +55,7 @@ export function App() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [infoModalTab, setInfoModalTab] = useState<'science' | 'provenance' | 'legend'>('science');
   const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
-  const [isLegendOpen, setIsLegendOpen] = useState(true);
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isMobileLayersOpen, setIsMobileLayersOpen] = useState(false);
 
   // --- Initial Data Loading ---
@@ -168,7 +169,7 @@ export function App() {
   const activeLayersCount = Object.values(enabledPhenomena).filter(Boolean).length;
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full max-w-[100vw] bg-slate-950 text-white font-sans overflow-hidden select-none">
+    <div className={`${showLandingHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] bg-transparent text-white font-sans overflow-hidden select-none`}>
       {/* Landing Cinematic Hero */}
       {showLandingHero && (
         <LandingHero
@@ -192,19 +193,22 @@ export function App() {
         onOpenDemo={() => setIsGuidedDemoOpen(true)}
         onOpenProvenance={() => openInfoModal('provenance')}
         onOpenFormulas={() => openInfoModal('science')}
+        onGoHome={() => setShowLandingHero(true)}
       />
 
       {/* Center Canvas Area: 3D Globe vs 2D Map vs Audio-First */}
       <main className="flex-1 relative w-full h-full overflow-hidden">
         {viewMode === '3d-globe' && (
+          <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-slate-400">Loading globe…</div>}>
           <GlobeCanvas
             observations={observations}
             enabledPhenomena={enabledPhenomena}
             selectedObservation={selectedObservation}
             onSelectObservation={setSelectedObservation}
-            autoRotate={autoRotate}
+            autoRotate={autoRotate || showLandingHero}
             targetFocus={targetGlobeFocus}
           />
+          </Suspense>
         )}
 
         {viewMode === '2d-map' && (
@@ -232,7 +236,7 @@ export function App() {
         {viewMode !== 'audio-first' && (
           <>
             {/* Desktop Left Drawer: Dataset Layers Selector */}
-            <div className="hidden md:block absolute top-4 left-4 z-20 w-64 max-w-[calc(100vw-32px)]">
+            <div className="hidden md:block absolute top-4 left-4 z-20 w-72 max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)]">
               <DatasetSelector
                 enabledPhenomena={enabledPhenomena}
                 onTogglePhenomenon={handleTogglePhenomenon}
@@ -360,6 +364,7 @@ export function App() {
             </div>
           </>
         )}
+        {!showLandingHero && <LiveCaption observations={observations} enabled={enabledPhenomena} />}
       </main>
 
       {/* Selected Location Inspector Modal */}

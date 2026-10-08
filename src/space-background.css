@@ -1,0 +1,37 @@
+html, body { background: transparent !important; }
+
+#space-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 40%, #0a1a3a 0%, #050b1f 45%, #02040c 100%);
+}
+
+/* Milky Way band */
+#space-bg::before {
+  content: "";
+  position: absolute;
+  left: -25%; top: 25%;
+  width: 150%; height: 55%;
+  transform: rotate(-32deg);
+  background: radial-gradient(ellipse at center,
+    rgba(190,170,230,.24) 0%,
+    rgba(120,100,200,.13) 35%,
+    rgba(40,60,140,.06) 60%,
+    transparent 75%);
+  filter: blur(30px);
+}
+
+/* Nebula tints */
+#space-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 72%, rgba(168,85,247,.14), transparent 40%),
+    radial-gradient(circle at 80% 25%, rgba(56,189,248,.11), transparent 40%);
+}
+
+#stars { position: absolute; inset: 0; width: 100%; height: 100%; }

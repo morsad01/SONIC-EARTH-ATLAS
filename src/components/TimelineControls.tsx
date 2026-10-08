@@ -68,7 +68,7 @@ export const TimelineControls: React.FC<TimelineControlsProps> = ({
           </span>
         </div>
         <div className="text-[10px] text-slate-500 font-mono tracking-wider uppercase hidden lg:block whitespace-nowrap shrink-0">
-          NASA / NOAA OBSERVATIONAL SERIES
+          TIME SERIES
         </div>
       </div>
 

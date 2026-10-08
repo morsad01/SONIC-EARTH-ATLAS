@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, Globe, Map as MapIcon, Sliders, Database, Headphones, Radio, Settings, X } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Globe, Map as MapIcon, Sliders, Database, Headphones, Radio, Settings, X, Home } from 'lucide-react';
 
 interface HeaderProps {
   viewMode: '3d-globe' | '2d-map' | 'audio-first';
@@ -14,6 +14,7 @@ interface HeaderProps {
   onOpenDemo: () => void;
   onOpenProvenance: () => void;
   onOpenFormulas: () => void;
+  onGoHome: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -29,14 +30,19 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDemo,
   onOpenProvenance,
   onOpenFormulas,
+  onGoHome,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <header className="w-full max-w-[100vw] bg-slate-950/90 border-b border-slate-800/80 px-2.5 sm:px-4 py-2 pt-[max(0.4rem,env(safe-area-inset-top))] backdrop-blur-md sticky top-0 z-40 shadow-xl overflow-x-hidden">
       <div className="flex items-center justify-between gap-2">
-        {/* Brand & Mission Telemetry */}
-        <div className="flex items-center gap-2">
+        {/* Brand & Mission Telemetry (Clickable to go Home) */}
+        <button
+          onClick={onGoHome}
+          className="flex items-center gap-2 hover:opacity-85 transition cursor-pointer text-left focus:outline-none"
+          title="Return to Home Page"
+        >
           <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-600 via-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-cyan-500/20 ring-1 ring-cyan-400/30 shrink-0">
             <Radio className="w-3.5 h-3.5 text-cyan-200" />
           </div>
@@ -51,7 +57,7 @@ export const Header: React.FC<HeaderProps> = ({
               Hear Where Earth Is Changing
             </p>
           </div>
-        </div>
+        </button>
 
         {/* View Switcher (3D Globe vs 2D Map vs Audio-First) */}
         <div className="flex items-center bg-slate-900/90 border border-slate-800 p-0.5 rounded-lg text-xs font-mono shadow-inner shrink-0">
@@ -111,6 +117,15 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Desktop Control Actions */}
           <div className="hidden md:flex items-center gap-1.5">
+            <button
+              onClick={onGoHome}
+              className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 text-xs font-mono font-bold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
+              title="Return to Landing Home Page"
+            >
+              <Home className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Home</span>
+            </button>
+
             <button
               onClick={onOpenFormulas}
               className="px-2.5 py-1.5 min-h-[36px] rounded-lg bg-slate-900/90 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-mono flex items-center gap-1 transition cursor-pointer"
@@ -188,6 +203,17 @@ export const Header: React.FC<HeaderProps> = ({
       {isMobileMenuOpen && (
         <div className="md:hidden mt-2 pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 animate-fade-in font-mono text-xs">
           <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() => {
+                onGoHome();
+                setIsMobileMenuOpen(false);
+              }}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-cyan-500/40 text-cyan-300 font-bold flex items-center gap-1"
+            >
+              <Home className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Home</span>
+            </button>
+
             <button
               onClick={() => {
                 onOpenFormulas();

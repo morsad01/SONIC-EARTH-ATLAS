@@ -48,7 +48,7 @@ export const ProvenancePanel: React.FC<ProvenancePanelProps> = ({
                 dataSourceMode === 'live' && !isFallback ? 'bg-emerald-400 animate-pulse' : 'bg-cyan-400'
               }`}
             />
-            {dataSourceMode === 'live' && !isFallback ? 'LIVE REANALYSIS PROXY' : 'NASA/NOAA BASELINE'}
+            {dataSourceMode === 'live' && !isFallback ? 'REAL NASA FIRMS SNAPSHOT' : 'ILLUSTRATIVE SAMPLE'}
           </div>
         </div>
       </div>

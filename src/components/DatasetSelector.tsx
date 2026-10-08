@@ -38,7 +38,7 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
   };
 
   return (
-    <div className="space-y-2 max-w-full overflow-x-hidden">
+    <div className="space-y-2 max-w-full overflow-x-hidden max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
       <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3 shadow-2xl backdrop-blur-md">
         {/* Instrument Panel Header */}
         <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2.5 min-h-[36px]">
@@ -63,7 +63,7 @@ export const DatasetSelector: React.FC<DatasetSelectorProps> = ({
             ) : (
               <Database className="w-3.5 h-3.5 shrink-0" />
             )}
-            <span>{dataSourceMode === 'live' && !isFallback ? 'FEED: LIVE PROXY' : 'FEED: BASELINE'}</span>
+            <span>{dataSourceMode === 'live' && !isFallback ? 'FEED: REAL NASA FIRMS' : 'FEED: SAMPLE DATA'}</span>
           </button>
         </div>
 

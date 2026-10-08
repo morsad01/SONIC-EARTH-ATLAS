@@ -236,6 +236,8 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
         >
           {/* Deep Space / Ocean Background */}
           <rect x="0" y="0" width="1000" height="500" fill="#040b17" />
+          <image href="/textures/earth_atmos_2048.jpg" x="0" y="0" width="1000" height="500" preserveAspectRatio="none" opacity="0.9" />
+          <rect x="0" y="0" width="1000" height="500" fill="#020817" opacity="0.28" />
 
           {/* Graticule Grid */}
           {[-60, -30, 0, 30, 60].map((lat) => (
@@ -262,50 +264,6 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
               strokeDasharray={lon === 0 ? '' : '4, 6'}
             />
           ))}
-
-          {/* Continental Outlines (Equirectangular polygons) */}
-          {/* North America */}
-          <polygon
-            points="70,50 300,50 380,120 320,180 250,220 220,260 210,310 170,260 120,200 90,140 70,50"
-            fill="#132438"
-            stroke="#23456b"
-            strokeWidth="1.2"
-          />
-          {/* South America */}
-          <polygon
-            points="300,260 360,280 400,320 380,390 320,440 280,480 270,410 280,340 300,260"
-            fill="#132438"
-            stroke="#23456b"
-            strokeWidth="1.2"
-          />
-          {/* Eurasia */}
-          <polygon
-            points="480,60 880,60 920,130 830,190 750,230 650,230 580,210 500,160 480,90 480,60"
-            fill="#132438"
-            stroke="#23456b"
-            strokeWidth="1.2"
-          />
-          {/* Africa */}
-          <polygon
-            points="480,170 580,180 630,230 630,290 580,370 540,400 500,360 460,250 480,170"
-            fill="#132438"
-            stroke="#23456b"
-            strokeWidth="1.2"
-          />
-          {/* Australia */}
-          <polygon
-            points="810,330 910,330 920,390 890,420 820,410 800,360 810,330"
-            fill="#132438"
-            stroke="#23456b"
-            strokeWidth="1.2"
-          />
-          {/* Antarctica */}
-          <polygon
-            points="0,470 1000,470 1000,500 0,500"
-            fill="#182c44"
-            stroke="#284e78"
-            strokeWidth="1"
-          />
 
           {/* Sound-Source Observation Markers */}
           {visibleObs.map((obs) => {
