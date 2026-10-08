@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
@@ -50,11 +50,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const isDraggingRef = useRef(false);
   const previousMousePositionRef = useRef({ x: 0, y: 0 });
   const autoRotateRef = useRef(autoRotate);
-  autoRotateRef.current = autoRotate;
   const targetFocusRef = useRef(targetFocus);
-  targetFocusRef.current = targetFocus;
   const selectedObservationRef = useRef(selectedObservation);
-  selectedObservationRef.current = selectedObservation;
+  // Keep the latest props where the animation loop and event handlers can read them.
+  useLayoutEffect(() => {
+    autoRotateRef.current = autoRotate;
+    targetFocusRef.current = targetFocus;
+    selectedObservationRef.current = selectedObservation;
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
