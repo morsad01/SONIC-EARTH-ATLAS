@@ -32,6 +32,7 @@ const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: tru
 export function App() {
   const { t } = usePrefs();
   const [showHero, setShowHero] = useState(true);
+  const [autoListen, setAutoListen] = useState(false);
   const [track, setTrack] = useState<Track>('atlas');
   const [view, setView] = useState<View>('3d-globe');
   const [audioReady, setAudioReady] = useState(false);
@@ -98,6 +99,11 @@ export function App() {
     setShowHero(false);
     if (tr === 'atlas' && !audioReady) await soundOn();
   };
+  // One click from the landing page: sound on and an Earth Information Center frame playing.
+  const listenNow = async () => {
+    setTrack('frames'); setShowHero(false); setAutoListen(true);
+    if (!audioReady) await soundOn();
+  };
   const startTour = async () => {
     setTrack('atlas'); setView('3d-globe'); setShowHero(false);
     if (!audioReady) await soundOn();
@@ -147,7 +153,7 @@ export function App() {
   return (
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
       <a href="#main" className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
-      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
+      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
 
       <Header track={track} onTrack={(tr) => { setTrack(tr); setTourOpen(false); }} audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())}
         onHome={() => { setShowHero(true); setTourOpen(false); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
@@ -174,7 +180,7 @@ export function App() {
           )}
           {track !== 'atlas' && !showHero && (
             <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">Loading…</div>}>
-              {track === 'frames' && <FrameJukebox />}
+              {track === 'frames' && <FrameJukebox autoPlay={autoListen} onAutoPlayed={() => setAutoListen(false)} onPlay={() => { if (!audioReady) soundOn(); }} />}
               {track === 'monsoon' && <BangladeshMonsoon />}
               {track === 'pulse' && <VitalSigns />}
             </Suspense>

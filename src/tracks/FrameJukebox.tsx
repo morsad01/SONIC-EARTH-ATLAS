@@ -60,7 +60,9 @@ const PAIRS: { id: string; label: string; a: NasaFrame; b: NasaFrame }[] = [
   { id: 'fire', label: 'Fires: 3 Oct 2025 → 3 Oct 2026', a: { ...FRAMES[1], date: '2025-10-03', title: '3 Oct 2025' }, b: { ...FRAMES[1], title: '3 Oct 2026' } },
 ];
 
-export const FrameJukebox: React.FC = () => {
+interface JukeboxProps { autoPlay?: boolean; onAutoPlayed?: () => void; onPlay?: () => void }
+
+export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, onPlay }) => {
   const { t, lang } = usePrefs();
   const [mode, setMode] = useState<'single' | 'pair'>('single');
   const [frameId, setFrameId] = useState(EIC_FRAMES[0].id);
@@ -72,6 +74,7 @@ export const FrameJukebox: React.FC = () => {
   const [readout, setReadout] = useState('');
   const [srText, setSrText] = useState('');
   const [legend, setLegend] = useState(true);
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const [heard, setHeard] = useState<{ note: string; hz: number; level: number; color: string; timbre: string } | null>(null);
   const viewA = useRef<HTMLCanvasElement>(null), viewB = useRef<HTMLCanvasElement>(null);
   const grids = useRef<{ a: Grid | null; b: Grid | null }>({ a: null, b: null });
@@ -185,7 +188,14 @@ export const FrameJukebox: React.FC = () => {
 
   const start = async () => {
     if (!grids.current.a) return;
-    const ctx = await AudioContextManager.init();
+    let ctx: AudioContext;
+    try {
+      ctx = await AudioContextManager.init();
+      if (ctx.state !== 'running') await ctx.resume();
+    } catch { setAudioBlocked(true); return; }
+    if (ctx.state !== 'running') { setAudioBlocked(true); return; }
+    setAudioBlocked(false);
+    onPlay?.();
     const dest = AudioContextManager.getMasterNode()!;
     if (probeTimer.current) window.clearTimeout(probeTimer.current);
     probeTimer.current = null;
@@ -208,6 +218,11 @@ export const FrameJukebox: React.FC = () => {
     stepRef.current();
     timer.current = window.setInterval(() => stepRef.current(), stepMs(SWEEP_SEC, COLS, speedRef.current));
   };
+
+  // "Listen now" from the landing page: play as soon as the first picture is ready.
+  useEffect(() => {
+    if (autoPlay && status === 'ready' && !timer.current) { onAutoPlayed?.(); start(); }
+  }, [autoPlay, status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // A new speed takes effect straight away, without restarting the sweep.
   useEffect(() => {
@@ -311,7 +326,12 @@ export const FrameJukebox: React.FC = () => {
             {status !== 'ready' && (
               <div className="absolute inset-0 grid place-items-center bg-black/60 text-sm text-[var(--ink-2)] p-6 text-center">
                 {status === 'loading' ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> {frame.src && !userFile ? 'Loading Earth Information Center image…' : 'Loading NASA imagery from GIBS…'}</span>
-                  : <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-[var(--brass)]" /> NASA GIBS did not respond. Check the internet connection, or load an image file below.</span>}
+                  : (
+                    <div className="flex flex-col items-center gap-3" role="alert">
+                      <span className="flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-[var(--brass)]" /> {frame.src && !userFile ? 'This picture could not be loaded.' : 'NASA GIBS did not respond. Check the internet connection, or load an image file below.'}</span>
+                      {!(frame.src && !userFile) && <button className="btn btn-brass" onClick={() => { setMode('single'); setUserFile(null); setFrameId(EIC_FRAMES[0].id); }}>{t('tryEic')}</button>}
+                    </div>
+                  )}
               </div>
             )}
           </div>
@@ -344,6 +364,8 @@ export const FrameJukebox: React.FC = () => {
               <span className="flex items-center gap-2"><i className="inline-block w-4 h-4 rounded border border-white/30" style={{ background: heard.color }} aria-hidden="true" />{heard.timbre}</span>
             </div>
           )}
+
+          {audioBlocked && <p role="alert" className="mt-3 text-sm text-[var(--brass)] max-w-[70ch]">{t('audioBlocked')}</p>}
 
           <div className="mt-3 max-w-[70ch]">
             <label htmlFor="frame-scrub" className="label">{t('scrub')}</label>
