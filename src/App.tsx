@@ -1,413 +1,243 @@
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
-import type { EarthObservation, PhenomenonType, DataSourceMode, DatasetTimeSlice } from './types/dataset';
-import { DatasetAdapter } from './datasets/adapter';
+import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
+import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
 import { AudioContextManager } from './audio/audioContext';
 import { SonificationEngine } from './audio/sonificationEngine';
-const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
+import { recordOutput } from './audio/recorder';
 import { Accessible2DMap } from './map/Accessible2DMap';
 import { AudioFirstMode } from './accessibility/AudioFirstMode';
-import { Header } from './components/Header';
+import { Header, type Track } from './components/Header';
 import { LandingHero } from './components/LandingHero';
-import { LiveCaption } from './components/LiveCaption';
-import { TimelineControls } from './components/TimelineControls';
-import { DatasetSelector } from './components/DatasetSelector';
 import { InspectLocationModal } from './components/InspectLocationModal';
-import { InfoModal } from './components/InfoModal';
-import { GuidedDemoModal } from './demo/GuidedDemoModal';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel';
-import { AuditoryLegend } from './legend/AuditoryLegend';
-import { RotateCw, Volume2, X, Layers } from 'lucide-react';
+import { SettingsDialog } from './components/SettingsDialog';
+import { DataMethodDialog } from './components/DataMethodDialog';
+import { LayersPanel } from './atlas/LayersPanel';
+import { HearingPanel } from './atlas/HearingPanel';
+import { TimelineBar } from './atlas/TimelineBar';
+import { PlacePanel } from './atlas/PlacePanel';
+import { TourBar } from './demo/TourBar';
+import { usePrefs } from './lib/prefs';
+import { gibsUrl } from './lib/gibs';
+import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin } from 'lucide-react';
+
+const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
+const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
+const BangladeshMonsoon = lazy(() => import('./tracks/BangladeshMonsoon').then((m) => ({ default: m.BangladeshMonsoon })));
+const VitalSigns = lazy(() => import('./tracks/VitalSigns').then((m) => ({ default: m.VitalSigns })));
+
+type View = '3d-globe' | '2d-map' | 'audio-first';
+const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: true, sst: true };
 
 export function App() {
-  // --- Landing and App States ---
-  const [showLandingHero, setShowLandingHero] = useState(true);
-  const [viewMode, setViewMode] = useState<'3d-globe' | '2d-map' | 'audio-first'>('3d-globe');
-  const [isAudioReady, setIsAudioReady] = useState(false);
-  const [masterVolume, setMasterVolume] = useState(0.65);
+  const { t } = usePrefs();
+  const [showHero, setShowHero] = useState(true);
+  const [track, setTrack] = useState<Track>('atlas');
+  const [view, setView] = useState<View>('3d-globe');
+  const [audioReady, setAudioReady] = useState(false);
+  const [volume, setVolume] = useState(0.7);
   const [spatialMode, setSpatialMode] = useState<'spatial-hrtf' | 'stereo-panning'>('stereo-panning');
   const [autoRotate, setAutoRotate] = useState(false);
-  const [targetGlobeFocus, setTargetGlobeFocus] = useState<{ lat: number; lon: number } | null>(null);
-  const [showAcousticCalibratedHint, setShowAcousticCalibratedHint] = useState(false);
+  const [imagery, setImagery] = useState(false);
+  const [focus, setFocus] = useState<{ lat: number; lon: number } | null>(null);
 
-  // --- Data and Timestep States ---
-  const [dataSourceMode, setDataSourceMode] = useState<DataSourceMode>('demo');
-  const [timeSlices, setTimeSlices] = useState<DatasetTimeSlice[]>([]);
-  const [statusMessage, setStatusMessage] = useState('Loading scientific data...');
-  const [isFallback, setIsFallback] = useState(false);
-  const [isFetchingLive, setIsFetchingLive] = useState(false);
-  const [currentTimestepIndex, setCurrentTimestepIndex] = useState(0);
+  const [data, setData] = useState<AdapterResult | null>(null);
+  const [day, setDay] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [hearChange, setHearChange] = useState(false);
+  const [enabled, setEnabled] = useState<Record<PhenomenonType, boolean>>({ fire: true, precipitation: false, sst: false });
+  const [selected, setSelected] = useState<EarthObservation | null>(null);
 
-  // --- Timeline & Sonification Modifiers ---
-  const [isPlayingTimeline, setIsPlayingTimeline] = useState(false);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [hearChangeMode, setHearChangeMode] = useState(false);
+  const [tourOpen, setTourOpen] = useState(false);
+  const [dataOpen, setDataOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [diagnostics, setDiagnostics] = useState(false);
+  const [recording, setRecording] = useState<string | null>(null);
+  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | null>(null);
+  const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
 
-  // --- Phenomena Layers (Default to Wildfires-only on first start for acoustic clarity) ---
-  const [enabledPhenomena, setEnabledPhenomena] = useState<Record<PhenomenonType, boolean>>({
-    fire: true,
-    precipitation: false,
-    sst: false,
-  });
-
-  // --- Interactive Selection & Modals ---
-  const [selectedObservation, setSelectedObservation] = useState<EarthObservation | null>(null);
-  const [isGuidedDemoOpen, setIsGuidedDemoOpen] = useState(false);
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
-  const [infoModalTab, setInfoModalTab] = useState<'science' | 'provenance' | 'legend'>('science');
-  const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
-  const [isLegendOpen, setIsLegendOpen] = useState(false);
-  const [isMobileLayersOpen, setIsMobileLayersOpen] = useState(false);
-
-  // --- Initial Data Loading ---
-  const loadData = useCallback(async (mode: DataSourceMode) => {
-    setIsFetchingLive(mode === 'live');
-    try {
-      const res = await DatasetAdapter.loadDatasets(mode);
-      setTimeSlices(res.slices);
-      setStatusMessage(res.statusMessage);
-      setIsFallback(res.isFallback);
-      setDataSourceMode(res.mode);
-    } catch {
-      const fallback = DatasetAdapter.getDemoData();
-      setTimeSlices(fallback);
-      setStatusMessage('Curated demonstration dataset loaded.');
-      setIsFallback(true);
-      setDataSourceMode('demo');
-    } finally {
-      setIsFetchingLive(false);
-    }
+  useEffect(() => {
+    DatasetAdapter.loadDatasets('live').then(setData).catch(() => DatasetAdapter.loadDatasets('demo').then(setData));
   }, []);
 
-  useEffect(() => {
-    loadData('demo');
-  }, [loadData]);
-
-  // Current slice observations
-  const currentSlice = useMemo(() => {
-    if (!timeSlices || timeSlices.length === 0) return null;
-    return timeSlices[currentTimestepIndex] || timeSlices[0];
-  }, [timeSlices, currentTimestepIndex]);
-
-  const observations = useMemo(() => {
-    return currentSlice ? currentSlice.observations : [];
-  }, [currentSlice]);
-
-  // Count by layer for layer selector
-  const observationsCountByLayer = useMemo(() => {
-    const counts: Record<PhenomenonType, number> = { fire: 0, precipitation: 0, sst: 0 };
-    observations.forEach((obs) => {
-      counts[obs.phenomenon] = (counts[obs.phenomenon] || 0) + 1;
-    });
-    return counts;
+  const slices: DatasetTimeSlice[] = useMemo(() => data?.slices ?? [], [data]);
+  const slice = slices[day] ?? slices[0];
+  const observations = useMemo(() => slice?.observations ?? [], [slice]);
+  const counts = useMemo(() => {
+    const c: Record<PhenomenonType, number> = { fire: 0, precipitation: 0, sst: 0 };
+    observations.forEach((o) => c[o.phenomenon]++);
+    return c;
   }, [observations]);
 
-  // Update master volume
+  useEffect(() => { AudioContextManager.setMasterVolume(volume); }, [volume, audioReady]);
+  useEffect(() => { SonificationEngine.getInstance().setHearChangeMode(hearChange); }, [hearChange]);
+
+  // The spatial engine only plays while the Atlas track is on screen.
   useEffect(() => {
-    AudioContextManager.setMasterVolume(masterVolume);
-  }, [masterVolume]);
+    const eng = SonificationEngine.getInstance();
+    if (audioReady && track === 'atlas' && !showHero) eng.syncObservations(observations, enabled);
+    else eng.stopAllVoices();
+  }, [audioReady, observations, enabled, track, showHero]);
 
-  // Toggle Spatial HRTF vs Stereo
-  const handleToggleSpatialMode = () => {
-    const nextMode = spatialMode === 'spatial-hrtf' ? 'stereo-panning' : 'spatial-hrtf';
-    setSpatialMode(nextMode);
-    SonificationEngine.getInstance().setSpatialMode(nextMode);
-  };
-
-  // Toggle phenomenon layer
-  const handleTogglePhenomenon = (phenomenon: PhenomenonType) => {
-    setEnabledPhenomena((prev) => ({
-      ...prev,
-      [phenomenon]: !prev[phenomenon],
-    }));
-  };
-
-  // Toggle data source mode
-  const handleToggleDataSourceMode = () => {
-    const nextMode = dataSourceMode === 'demo' ? 'live' : 'demo';
-    loadData(nextMode);
-  };
-
-  // Sync active observations to SonificationEngine strictly when audio is ready
-  useEffect(() => {
-    if (isAudioReady) {
-      SonificationEngine.getInstance().syncObservations(observations, enabledPhenomena);
-    } else {
-      SonificationEngine.getInstance().stopAllVoices();
-    }
-  }, [isAudioReady, observations, enabledPhenomena, currentTimestepIndex]);
-
-  // Start Audio & enter app
-  const handleInitAudio = async () => {
+  const soundOn = useCallback(async () => {
     await AudioContextManager.init();
     SonificationEngine.getInstance().setAudioUnlocked(true);
-    setIsAudioReady(true);
-    SonificationEngine.getInstance().syncObservations(observations, enabledPhenomena);
+    AudioContextManager.setMasterVolume(volume);
+    setAudioReady(true);
+  }, [volume]);
+  const soundOff = useCallback(() => { SonificationEngine.getInstance().setAudioUnlocked(false); setAudioReady(false); }, []);
+
+  const toggleSpatial = () => {
+    const next = spatialMode === 'spatial-hrtf' ? 'stereo-panning' : 'spatial-hrtf';
+    setSpatialMode(next);
+    SonificationEngine.getInstance().setSpatialMode(next);
   };
 
-  const handleStopAudio = () => {
-    setIsAudioReady(false);
-    SonificationEngine.getInstance().setAudioUnlocked(false);
+  const pickTrack = async (tr: Track) => {
+    setTrack(tr);
+    setShowHero(false);
+    if (tr === 'atlas' && !audioReady) await soundOn();
+  };
+  const startTour = async () => {
+    setTrack('atlas'); setView('3d-globe'); setShowHero(false);
+    if (!audioReady) await soundOn();
+    setTourOpen(true);
   };
 
-  const handleStartListeningFromHero = async () => {
-    await handleInitAudio();
-    setShowLandingHero(false);
+  const record = async () => {
+    if (!audioReady) await soundOn();
+    const name = await recordOutput(30, (s) => setRecording(t('recording', { s })));
+    setRecording(name ? t('recordSaved', { name }) : null);
+    window.setTimeout(() => setRecording(null), 2500);
   };
 
-  const handleStartGuidedTourFromHero = async () => {
-    await handleInitAudio();
-    setShowLandingHero(false);
-    setIsGuidedDemoOpen(true);
-  };
+  // Keyboard shortcuts (ignored while typing in a field).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (showHero) return;
+      const k = e.key.toLowerCase();
+      if (k === '?') { setSettingsOpen(true); return; }
+      if (k === 's') { if (audioReady) soundOff(); else soundOn(); return; }
+      if (k === 't') { startTour(); return; }
+      if (track !== 'atlas') return;
+      if (e.key === ' ' && tag !== 'BUTTON') { e.preventDefault(); setPlaying((p) => !p); }
+      else if (e.key === 'ArrowRight' && view !== '2d-map') setDay((d) => (d + 1) % Math.max(1, slices.length));
+      else if (e.key === 'ArrowLeft' && view !== '2d-map') setDay((d) => (d - 1 + slices.length) % Math.max(1, slices.length));
+      else if (k === '1' || k === '2' || k === '3') { const p = (['fire', 'precipitation', 'sst'] as PhenomenonType[])[+k - 1]; setEnabled((o) => ({ ...o, [p]: !o[p] })); }
+      else if (k === 'g') setView('3d-globe');
+      else if (k === 'm') setView('2d-map');
+      else if (k === 'l') setView('audio-first');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
 
-  // Modal helper
-  const openInfoModal = (tab: 'science' | 'provenance' | 'legend') => {
-    setInfoModalTab(tab);
-    setIsInfoModalOpen(true);
-  };
+  const imageryUrl = imagery && slice && /^\d{4}-\d{2}-\d{2}$/.test(slice.dateLabel) ? gibsUrl('VIIRS_SNPP_CorrectedReflectance_TrueColor', slice.dateLabel, 'jpeg', 2048) : null;
 
-  const activeLayersCount = Object.values(enabledPhenomena).filter(Boolean).length;
+  const layersPanel = (
+    <LayersPanel enabled={enabled} onToggle={(p) => setEnabled((o) => ({ ...o, [p]: !o[p] }))} counts={counts}
+      statuses={data?.layerStatuses} isFallback={!!data?.isFallback} statusMessage={data?.statusMessage ?? 'Loading NASA data…'}
+      audioReady={audioReady} onOpenData={() => setDataOpen(true)} />
+  );
+  const placePanel = <PlacePanel place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
+  const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
   return (
-    <div className={`${showLandingHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] bg-transparent text-white font-sans overflow-hidden select-none`}>
-      {/* Landing Cinematic Hero */}
-      {showLandingHero && (
-        <LandingHero
-          onStartListening={handleStartListeningFromHero}
-          onExploreGlobe={() => setShowLandingHero(false)}
-          onStartGuidedTour={handleStartGuidedTourFromHero}
-        />
-      )}
+    <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
+      <a href="#main" className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
+      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
 
-      {/* Navigation & Telemetry Console */}
-      <Header
-        viewMode={viewMode}
-        onChangeViewMode={setViewMode}
-        spatialMode={spatialMode}
-        onToggleSpatialMode={handleToggleSpatialMode}
-        isAudioReady={isAudioReady}
-        onInitAudio={handleInitAudio}
-        onStopAudio={handleStopAudio}
-        masterVolume={masterVolume}
-        onChangeMasterVolume={setMasterVolume}
-        onOpenDemo={() => setIsGuidedDemoOpen(true)}
-        onOpenProvenance={() => openInfoModal('provenance')}
-        onOpenFormulas={() => openInfoModal('science')}
-        onGoHome={() => setShowLandingHero(true)}
-      />
+      <Header track={track} onTrack={(tr) => { setTrack(tr); setTourOpen(false); }} audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())}
+        onHome={() => { setShowHero(true); setTourOpen(false); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
+        recording={recording} onRecord={record} />
 
-      {/* Center Canvas Area: 3D Globe vs 2D Map vs Audio-First */}
-      <main className="flex-1 relative w-full h-full overflow-hidden">
-        {viewMode === '3d-globe' && (
-          <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-slate-400">Loading globe…</div>}>
-          <GlobeCanvas
-            observations={observations}
-            enabledPhenomena={enabledPhenomena}
-            selectedObservation={selectedObservation}
-            onSelectObservation={setSelectedObservation}
-            autoRotate={autoRotate || showLandingHero}
-            targetFocus={targetGlobeFocus}
-          />
-          </Suspense>
-        )}
+      <main id="main" className="flex-1 relative w-full overflow-hidden">
+        {/* First child = the visual canvas (the landing hero shows the globe from here). */}
+        <div className="absolute inset-0">
+          {(track === 'atlas' || showHero) && view === '3d-globe' && (
+            <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">Loading globe…</div>}>
+              <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
+                onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
+                onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place} />
+            </Suspense>
+          )}
+          {track === 'atlas' && !showHero && view === '2d-map' && (
+            <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected} />
+          )}
+          {track === 'atlas' && !showHero && view === 'audio-first' && (
+            <div className="w-full h-full overflow-y-auto py-6 lg:pl-[340px]">
+              <AudioFirstMode observations={observations.filter((o) => enabled[o.phenomenon])} currentDateLabel={slice?.dateLabel ?? ''} selectedObservation={selected}
+                onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')} />
+            </div>
+          )}
+          {track !== 'atlas' && !showHero && (
+            <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">Loading…</div>}>
+              {track === 'frames' && <FrameJukebox />}
+              {track === 'monsoon' && <BangladeshMonsoon />}
+              {track === 'pulse' && <VitalSigns />}
+            </Suspense>
+          )}
+        </div>
 
-        {viewMode === '2d-map' && (
-          <Accessible2DMap
-            observations={observations}
-            enabledPhenomena={enabledPhenomena}
-            selectedObservation={selectedObservation}
-            onSelectObservation={setSelectedObservation}
-          />
-        )}
-
-        {viewMode === 'audio-first' && (
-          <div className="w-full h-full overflow-y-auto bg-slate-950 py-6">
-            <AudioFirstMode
-              observations={observations}
-              currentDateLabel={currentSlice?.dateLabel || 'August 2026'}
-              selectedObservation={selectedObservation}
-              onSelectObservation={setSelectedObservation}
-              onExitAudioFirst={() => setViewMode('3d-globe')}
-            />
-          </div>
-        )}
-
-        {/* Floating HUD Controls for 3D and 2D Views */}
-        {viewMode !== 'audio-first' && (
+        {track === 'atlas' && !showHero && (
           <>
-            {/* Desktop Left Drawer: Dataset Layers Selector */}
-            <div className="hidden md:block absolute top-4 left-4 z-20 w-72 max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)]">
-              <DatasetSelector
-                enabledPhenomena={enabledPhenomena}
-                onTogglePhenomenon={handleTogglePhenomenon}
-                dataSourceMode={dataSourceMode}
-                onToggleDataSourceMode={handleToggleDataSourceMode}
-                isFetchingLive={isFetchingLive}
-                isFallback={isFallback}
-                observationsCountByLayer={observationsCountByLayer}
-              />
+            <TourBar open={tourOpen} onClose={() => { setTourOpen(false); setFocus(null); }}
+              onApply={(layers, d, change, f) => { setEnabled(layers); setDay(Math.min(d, Math.max(0, slices.length - 1))); setHearChange(change); setFocus(f); if (view !== '3d-globe') setView('3d-globe'); }} />
+
+            {/* Desktop side column */}
+            <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-3 bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
+              {layersPanel}
+              {hearingPanel}
             </div>
 
-            {/* Mobile Left Drawer Trigger Button */}
-            <div className="md:hidden absolute top-3 left-3 z-20">
-              <button
-                onClick={() => setIsMobileLayersOpen(true)}
-                className="px-3 py-1.5 min-h-[38px] rounded-lg bg-slate-950/90 border border-cyan-500/50 text-cyan-300 font-mono text-xs font-bold flex items-center gap-1.5 shadow-xl backdrop-blur-md cursor-pointer"
-              >
-                <Layers className="w-4 h-4 text-cyan-400" />
-                <span>LAYERS ({activeLayersCount})</span>
-              </button>
+            {/* View switch and globe options */}
+            <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
+              <div className="panel p-1 flex gap-1" role="group" aria-label="View">
+                {([['3d-globe', Globe, 'globe'], ['2d-map', MapIcon, 'map'], ['audio-first', List, 'list']] as const).map(([v, Icon, key]) => (
+                  <button key={v} className="btn btn-ghost min-h-[36px] px-2.5" aria-pressed={view === v} onClick={() => setView(v)}>
+                    <Icon className="w-4 h-4" /><span className="hidden sm:inline">{t(key)}</span>
+                  </button>
+                ))}
+              </div>
+              {view === '3d-globe' && (
+                <div className="panel p-1 flex flex-col gap-1">
+                  <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={imagery} onClick={() => setImagery(!imagery)} title={t('imageryHint')}><Satellite className="w-4 h-4" /><span className="hidden sm:inline">{t('imagery')}</span></button>
+                  <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={autoRotate} onClick={() => setAutoRotate(!autoRotate)} aria-label="Spin the globe"><RotateCw className="w-4 h-4" /><span className="hidden sm:inline">Spin</span></button>
+                </div>
+              )}
+              {view === '3d-globe' && <div className="hidden lg:block w-[300px] max-h-[calc(100dvh-330px)] overflow-y-auto scroll-thin">{placePanel}</div>}
             </div>
 
-            {/* Mobile Dataset Layers Bottom Drawer Sheet */}
-            {isMobileLayersOpen && (
-              <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/70 backdrop-blur-sm animate-fade-in">
-                <div className="bg-slate-950 border-t border-slate-800 rounded-t-2xl p-4 max-h-[80dvh] overflow-y-auto space-y-3 shadow-2xl safe-pb">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="font-mono text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Layers className="w-4 h-4" />
-                      DATASET OBSERVATION LAYERS
-                    </span>
-                    <button
-                      onClick={() => setIsMobileLayersOpen(false)}
-                      className="p-1 rounded text-slate-400 hover:text-white"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  <DatasetSelector
-                    enabledPhenomena={enabledPhenomena}
-                    onTogglePhenomenon={handleTogglePhenomenon}
-                    dataSourceMode={dataSourceMode}
-                    onToggleDataSourceMode={handleToggleDataSourceMode}
-                    isFetchingLive={isFetchingLive}
-                    isFallback={isFallback}
-                    observationsCountByLayer={observationsCountByLayer}
-                  />
+            {/* Mobile panel buttons */}
+            <div className="lg:hidden absolute left-3 top-3 z-20 flex flex-col gap-2">
+              <button className="btn panel" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
+              <button className="btn panel" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
+              <button className="btn panel" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
+            </div>
+            {sheet && (
+              <div className="lg:hidden fixed inset-0 z-50 bg-black/60 flex items-end" onClick={() => setSheet(null)}>
+                <div className="w-full max-h-[78dvh] overflow-y-auto bg-[var(--abyss)] rounded-t-2xl p-3 pb-6 border-t border-[var(--line)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+                  <div className="flex justify-end"><button className="btn btn-ghost btn-icon" onClick={() => setSheet(null)} aria-label={t('close')}><X className="w-5 h-5" /></button></div>
+                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : hearingPanel}
                 </div>
               </div>
             )}
 
-            {/* Globe Quick Controls (Auto-Rotate toggle & View Reset) */}
-            {viewMode === '3d-globe' && (
-              <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 flex flex-col gap-2">
-                <button
-                  onClick={() => setAutoRotate(!autoRotate)}
-                  className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border text-xs font-mono transition gap-1.5 shadow-xl backdrop-blur-md ${
-                    autoRotate
-                      ? 'bg-cyan-950 text-cyan-300 border-cyan-600'
-                      : 'bg-slate-900/90 text-slate-300 border-slate-700 hover:text-white'
-                  }`}
-                  title={autoRotate ? 'Pause Globe Auto-Rotation' : 'Auto-Rotate Globe'}
-                  aria-label="Toggle Globe Rotation"
-                >
-                  <RotateCw className={`w-4 h-4 ${autoRotate ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">{autoRotate ? 'Spinning' : 'Spin'}</span>
-                </button>
-
-                <button
-                  onClick={() => setIsLegendOpen(!isLegendOpen)}
-                  className={`p-2 min-h-[38px] min-w-[38px] flex items-center justify-center rounded-lg border text-xs font-mono transition gap-1.5 shadow-xl backdrop-blur-md ${
-                    isLegendOpen
-                      ? 'bg-slate-900/90 text-cyan-400 border-slate-700'
-                      : 'bg-slate-900/60 text-slate-400 border-slate-800'
-                  }`}
-                  title="Toggle Auditory Legend Panel"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Legend</span>
-                </button>
-              </div>
-            )}
-
-            {/* Right Side: Collapsible Auditory Legend */}
-            {isLegendOpen && viewMode === '3d-globe' && (
-              <div className="absolute bottom-24 right-4 z-20 w-80 max-w-[calc(100vw-32px)] animate-fade-in hidden md:block">
-                {showAcousticCalibratedHint && (
-                  <div className="mb-2.5 p-3 rounded-xl bg-slate-900/95 border border-cyan-500/60 shadow-xl backdrop-blur-md text-white text-xs animate-fade-in">
-                    <div className="flex items-center justify-between font-mono text-[11px] text-cyan-400 font-bold mb-1">
-                      <span className="flex items-center gap-1.5">
-                        <Volume2 className="w-3.5 h-3.5" />
-                        ACOUSTIC CALIBRATION ACTIVE
-                      </span>
-                      <button
-                        onClick={() => setShowAcousticCalibratedHint(false)}
-                        className="text-slate-400 hover:text-white p-0.5 rounded cursor-pointer"
-                        aria-label="Dismiss hint"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    <p className="text-slate-300 text-[11px] leading-relaxed">
-                      Calibrated to <strong>Active Wildfires only</strong> with gentle volume for listening clarity.
-                      Click <strong>[ Hear Fire ]</strong> below to isolate the sound, or activate Rain and Ocean in the left panel.
-                    </p>
-                  </div>
-                )}
-                <AuditoryLegend />
-              </div>
-            )}
-
-            {/* Bottom Center: Timeline Controls */}
-            <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 max-w-4xl mx-auto z-20">
-              <TimelineControls
-                currentTimestepIndex={currentTimestepIndex}
-                onChangeTimestep={setCurrentTimestepIndex}
-                isPlaying={isPlayingTimeline}
-                onTogglePlay={() => setIsPlayingTimeline(!isPlayingTimeline)}
-                playbackSpeed={playbackSpeed}
-                onChangePlaybackSpeed={setPlaybackSpeed}
-                hearChangeMode={hearChangeMode}
-                onToggleHearChangeMode={() => setHearChangeMode(!hearChangeMode)}
-              />
+            <div className="absolute bottom-2 sm:bottom-3 left-2 right-2 lg:left-[340px] lg:right-3 z-20">
+              <TimelineBar slices={slices} index={day} onChange={setDay} playing={playing} onTogglePlay={() => setPlaying(!playing)}
+                hearChange={hearChange} onToggleHearChange={() => setHearChange(!hearChange)} enabled={enabled} />
             </div>
           </>
         )}
-        {!showLandingHero && <LiveCaption observations={observations} enabled={enabledPhenomena} />}
       </main>
 
-      {/* Selected Location Inspector Modal */}
-      <InspectLocationModal
-        observation={selectedObservation}
-        onClose={() => setSelectedObservation(null)}
-      />
-
-      {/* Guided Cinematic Demo Controller Modal */}
-      <GuidedDemoModal
-        isOpen={isGuidedDemoOpen}
-        onClose={() => {
-          setIsGuidedDemoOpen(false);
-          setTargetGlobeFocus(null);
-        }}
-        onApplyStepState={(phenomena, timestepIdx, changeMode, cameraFocus) => {
-          setEnabledPhenomena(phenomena);
-          setCurrentTimestepIndex(timestepIdx);
-          setHearChangeMode(changeMode);
-          if (cameraFocus) {
-            setTargetGlobeFocus(cameraFocus);
-          }
-        }}
-      />
-
-      {/* Science and Provenance Info Modal */}
-      <InfoModal
-        isOpen={isInfoModalOpen}
-        initialTab={infoModalTab}
-        onClose={() => setIsInfoModalOpen(false)}
-        dataSourceMode={dataSourceMode}
-        statusMessage={statusMessage}
-        isFallback={isFallback}
-      />
-
-      {/* Scientific & Performance Diagnostics Overlay */}
-      <DiagnosticsPanel
-        activeDatasetCount={observations.length}
-        currentTimestep={currentTimestepIndex}
-        totalTimesteps={timeSlices.length}
-        isOpen={isDiagnosticsOpen}
-        onToggle={() => setIsDiagnosticsOpen(!isDiagnosticsOpen)}
-      />
+      <InspectLocationModal observation={selected} onClose={() => setSelected(null)} />
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} volume={volume} onVolume={setVolume} spatialMode={spatialMode}
+        onToggleSpatial={toggleSpatial} showDiagnostics={diagnostics} onToggleDiagnostics={() => setDiagnostics(!diagnostics)} />
+      <DataMethodDialog open={dataOpen} onClose={() => setDataOpen(false)} sstGlobal={data?.sstGlobal} />
+      {diagnostics && <DiagnosticsPanel activeDatasetCount={observations.length} currentTimestep={day} totalTimesteps={slices.length} isOpen onToggle={() => setDiagnostics(false)} />}
     </div>
   );
 }

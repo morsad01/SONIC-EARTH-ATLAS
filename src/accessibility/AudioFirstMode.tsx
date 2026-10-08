@@ -46,22 +46,21 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
 
   return (
     <div
-      className="p-6 max-w-5xl mx-auto w-full space-y-6 text-white"
+      className="px-4 sm:px-6 pt-14 pb-40 max-w-4xl mx-auto w-full space-y-5"
       role="region"
       aria-label="Audio-First Earth Science Exploration Mode"
     >
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900 border-2 border-cyan-500 shadow-xl">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 panel p-4">
         <div>
           <div className="flex items-center gap-2">
-            <Radio className="w-5 h-5 text-cyan-400 animate-pulse" />
-            <h2 className="text-xl font-bold font-mono tracking-wide">
-              AUDIO-FIRST EXPLORATION CONSOLE
+            <Radio className="w-5 h-5 text-[var(--brass)]" />
+            <h2 className="font-display text-2xl font-bold">
+              Observation list
             </h2>
           </div>
-          <p className="text-xs text-slate-300 mt-1">
-            Optimized for low-vision users, screen-readers, and non-visual cognitive exploration.
-            Spatial audio delivers geographic and scientific data directly to your ears.
+          <p className="text-sm text-[var(--ink-2)] mt-1 max-w-[60ch]">
+            Every observation for this day as a readable list, for screen readers and keyboard users. Each row plays its own sound at its real position.
           </p>
         </div>
 
@@ -72,9 +71,9 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
               setSpeechEnabled(next);
               if (next) speakDescription('Spoken text descriptions enabled.');
             }}
-            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold flex items-center gap-1.5 border transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs  font-semibold flex items-center gap-1.5 border transition ${
               speechEnabled
-                ? 'bg-cyan-500 text-slate-950 border-cyan-400'
+                ? 'bg-sky-500 text-slate-950 border-sky-400'
                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
             }`}
             aria-pressed={speechEnabled}
@@ -85,7 +84,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
 
           <button
             onClick={onExitAudioFirst}
-            className="px-3 py-1.5 rounded-lg text-xs font-mono bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
+            className="px-3 py-1.5 rounded-lg text-xs  bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition"
           >
             Switch to Visual 3D
           </button>
@@ -94,10 +93,10 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
 
       {/* Phenomenon Filter Bar */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-mono text-slate-400 mr-2">Filter Phenomenon:</span>
+        <span className="text-xs  text-slate-400 mr-2">Show:</span>
         <button
           onClick={() => setActivePhenomenonFilter('all')}
-          className={`px-3 py-1 rounded text-xs font-mono font-medium transition ${
+          className={`px-3 py-1 rounded text-xs  font-medium transition ${
             activePhenomenonFilter === 'all'
               ? 'bg-slate-100 text-slate-950 font-bold'
               : 'bg-slate-900 text-slate-300 hover:bg-slate-800 border border-slate-800'
@@ -107,7 +106,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
         </button>
         <button
           onClick={() => setActivePhenomenonFilter('fire')}
-          className={`px-3 py-1 rounded text-xs font-mono font-medium flex items-center gap-1.5 transition ${
+          className={`px-3 py-1 rounded text-xs  font-medium flex items-center gap-1.5 transition ${
             activePhenomenonFilter === 'fire'
               ? 'bg-amber-500 text-slate-950 font-bold'
               : 'bg-slate-900 text-amber-400 hover:bg-slate-800 border border-slate-800'
@@ -118,10 +117,10 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
         </button>
         <button
           onClick={() => setActivePhenomenonFilter('precipitation')}
-          className={`px-3 py-1 rounded text-xs font-mono font-medium flex items-center gap-1.5 transition ${
+          className={`px-3 py-1 rounded text-xs  font-medium flex items-center gap-1.5 transition ${
             activePhenomenonFilter === 'precipitation'
-              ? 'bg-cyan-400 text-slate-950 font-bold'
-              : 'bg-slate-900 text-cyan-300 hover:bg-slate-800 border border-slate-800'
+              ? 'bg-sky-400 text-slate-950 font-bold'
+              : 'bg-slate-900 text-sky-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           <CloudRain className="w-3.5 h-3.5" />
@@ -129,10 +128,10 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
         </button>
         <button
           onClick={() => setActivePhenomenonFilter('sst')}
-          className={`px-3 py-1 rounded text-xs font-mono font-medium flex items-center gap-1.5 transition ${
+          className={`px-3 py-1 rounded text-xs  font-medium flex items-center gap-1.5 transition ${
             activePhenomenonFilter === 'sst'
-              ? 'bg-purple-400 text-slate-950 font-bold'
-              : 'bg-slate-900 text-purple-300 hover:bg-slate-800 border border-slate-800'
+              ? 'bg-pink-400 text-slate-950 font-bold'
+              : 'bg-slate-900 text-pink-300 hover:bg-slate-800 border border-slate-800'
           }`}
         >
           <Waves className="w-3.5 h-3.5" />
@@ -141,13 +140,13 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
       </div>
 
       {/* High-Contrast Accessible Observation Table / List */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
-        <div className="p-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between text-xs font-mono">
-          <span className="text-slate-400">ACTIVE TIMESTEP: {currentDateLabel}</span>
-          <span className="text-cyan-400">Select any row using mouse or keyboard Tab + Enter</span>
+      <div className="panel overflow-hidden">
+        <div className="p-3 border-b border-[var(--line)] flex items-center justify-between text-sm text-[var(--ink-2)]">
+          <span className="text-slate-400">Date: {currentDateLabel}</span>
+          <span>Tab to a row, Enter to hear it</span>
         </div>
 
-        <div className="divide-y divide-slate-800/80 max-h-[460px] overflow-y-auto">
+        <div className="divide-y divide-[var(--line)]">
           {filtered.map((obs) => {
             const isSelected = selectedObservation?.id === obs.id;
             const panPercent = Math.round((obs.longitude / 180) * 100);
@@ -167,7 +166,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
                 }}
                 className={`p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 cursor-pointer transition ${
                   isSelected
-                    ? 'bg-cyan-950/40 border-l-4 border-cyan-400 text-white'
+                    ? 'bg-sky-950/40 border-l-4 border-sky-400 text-white'
                     : 'hover:bg-slate-800/60 text-slate-200'
                 }`}
                 aria-label={`${obs.regionName}. ${obs.variable}: ${obs.value} ${obs.unit}. Stereo position: ${panLabel}.`}
@@ -203,7 +202,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
                     <div className="font-bold text-sm text-white flex items-center gap-2">
                       <span>{obs.regionName}</span>
                       {isSelected && (
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-400 text-slate-950 font-bold uppercase">
+                        <span className="text-[10px]  px-2 py-0.5 rounded bg-sky-400 text-slate-950 font-bold uppercase">
                           Currently Sonifying
                         </span>
                       )}
@@ -214,19 +213,19 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs font-mono">
+                <div className="flex items-center gap-4 text-xs ">
                   <div className="text-right">
                     <div className="text-base font-bold text-white">
                       {obs.value} <span className="text-xs text-slate-400">{obs.unit}</span>
                     </div>
                     {obs.delta !== undefined && (
                       <div className={`text-[11px] ${obs.delta >= 0 ? 'text-amber-400' : 'text-blue-400'}`}>
-                        Δ {obs.delta > 0 ? `+${obs.delta.toFixed(1)}` : obs.delta.toFixed(1)} vs prev
+                        Δ {obs.delta > 0 ? `+${obs.delta.toFixed(1)}` : obs.delta.toFixed(1)} vs day before
                       </div>
                     )}
                   </div>
 
-                  <div className="px-2.5 py-1 rounded bg-slate-950 border border-slate-800 text-[11px] text-cyan-300">
+                  <div className="chip tnum">
                     Pan: {panLabel}
                   </div>
 
@@ -235,7 +234,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
                     title="Play Audio for Location"
                     aria-label={`Play audio for ${obs.regionName}`}
                   >
-                    <Volume2 className="w-4 h-4 text-cyan-400" />
+                    <Volume2 className="w-4 h-4 text-[var(--brass)]" />
                   </button>
                 </div>
               </div>

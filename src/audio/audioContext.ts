@@ -92,6 +92,18 @@ export class AudioContextManager {
     }
   }
 
+  private static tap: MediaStreamAudioDestinationNode | null = null;
+
+  /** A MediaStream of everything the app plays (for the Record button). */
+  public static getRecordStream(): MediaStream | null {
+    if (!this.ctx || !this.masterGain) return null;
+    if (!this.tap) {
+      this.tap = this.ctx.createMediaStreamDestination();
+      this.masterGain.connect(this.tap);
+    }
+    return this.tap.stream;
+  }
+
   public static supportsStereoPanner(): boolean {
     return typeof StereoPannerNode !== 'undefined';
   }

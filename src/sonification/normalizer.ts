@@ -20,19 +20,19 @@ export const NORMALIZATION_SPECS: Record<PhenomenonType, NormalizationSpec> = {
   },
   precipitation: {
     min: 0.1,
-    max: 45,
-    unit: 'mm/hr',
+    max: 100,
+    unit: 'mm/day',
     type: 'sqrt',
-    description: 'Square-root compressed scaling from light drizzle (0.1 mm/h) to torrential rain (45 mm/h).',
-    formulaString: 'norm = clamp(sqrt(RainRate / 45), 0, 1)',
+    description: 'Square-root compressed scaling from light rain (0.1 mm/day) to extreme rainfall (100 mm/day).',
+    formulaString: 'norm = clamp(sqrt(RainRate / 100), 0, 1)',
   },
   sst: {
-    min: -3.0,
-    max: 3.0,
+    min: -5.0,
+    max: 5.0,
     unit: '°C',
     type: 'bipolar',
-    description: 'Bipolar linear scaling centered at zero anomaly (0°C = 0.5, -3°C = 0.0, +3°C = 1.0).',
-    formulaString: 'norm = clamp((Anomaly - (-3.0)) / (3.0 - (-3.0)), 0, 1)',
+    description: 'Bipolar linear scaling centered at zero anomaly (0°C = 0.5, -5°C = 0.0, +5°C = 1.0).',
+    formulaString: 'norm = clamp((Anomaly - (-5.0)) / (5.0 - (-5.0)), 0, 1)',
   },
 };
 

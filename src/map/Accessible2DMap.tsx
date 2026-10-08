@@ -151,12 +151,12 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onClick={handleClick}
-      className="relative w-full h-full overflow-hidden bg-slate-950 select-none outline-none focus:ring-1 focus:ring-cyan-500/50"
-      aria-label="Accessible 2D Equirectangular Auditory Map. Use arrow keys to navigate coordinates and press Enter or Space to hear data."
+      className="relative w-full h-full overflow-hidden bg-[#071019] select-none outline-none"
+      aria-label="World map of the observations. Use the arrow keys to move the focus point and press Enter or Space to hear the nearest observation."
       role="application"
     >
       {/* Zoom / Pan Navigation Toolbar */}
-      <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5 bg-slate-900/90 border border-slate-700/80 p-1.5 rounded-lg shadow-xl backdrop-blur-md">
+      <div className="absolute top-16 right-3 z-20 flex flex-col gap-1.5 panel p-1.5">
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -194,10 +194,10 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       </div>
 
       {/* Coordinate & Audio Focus Crosshair Status HUD */}
-      <div className="absolute top-4 left-4 z-20 bg-slate-900/90 border border-slate-700/80 px-3.5 py-2.5 rounded-lg shadow-xl backdrop-blur-md text-xs font-mono">
+      <div className="hidden md:block absolute top-16 right-16 z-20 panel px-3.5 py-2.5 text-xs max-w-[260px]">
         <div className="text-slate-400 flex items-center gap-1.5 mb-1 font-sans text-xs font-semibold">
           <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-          <span>AUDIO FOCUS POINT</span>
+          <span>Keyboard focus point · arrows move, Enter listens</span>
         </div>
         <div className="text-slate-100 flex items-center gap-2">
           <span>Lat: {crosshair.lat >= 0 ? `+${crosshair.lat.toFixed(1)}°N` : `${crosshair.lat.toFixed(1)}°S`}</span>
@@ -218,9 +218,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       </div>
 
       {/* Keyboard Controls Accessible Help */}
-      <div className="absolute bottom-4 left-4 z-20 bg-slate-900/70 border border-slate-800 px-3 py-1.5 rounded text-[11px] font-mono text-slate-400 backdrop-blur-sm pointer-events-none">
-        <span className="text-cyan-400 font-bold">Arrow Keys</span>: Move audio focus • <span className="text-cyan-400 font-bold">Enter/Space</span>: Listen
-      </div>
+
 
       {/* Map Content Layer with Transform */}
       <div
@@ -231,8 +229,8 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       >
         <svg
           viewBox="0 0 1000 500"
-          className="w-full h-full preserve-3d"
-          preserveAspectRatio="none"
+          className="w-full h-full"
+          preserveAspectRatio="xMidYMid meet"
         >
           {/* Deep Space / Ocean Background */}
           <rect x="0" y="0" width="1000" height="500" fill="#040b17" />
@@ -271,11 +269,11 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
             const cy = ((90 - obs.latitude) / 180) * 500;
             const isSelected = selectedObservation?.id === obs.id;
 
-            let color = '#ff4d00';
-            if (obs.phenomenon === 'precipitation') color = '#00d0ff';
-            else if (obs.phenomenon === 'sst') color = obs.value >= 0 ? '#bf5af2' : '#0077ff';
+            let color = '#ff7a3d';
+            if (obs.phenomenon === 'precipitation') color = '#4cc3ff';
+            else if (obs.phenomenon === 'sst') color = obs.value >= 0 ? '#f25c8a' : '#5b8cff';
 
-            const baseRadius = 6 + obs.normalizedValue * 8;
+            const baseRadius = 3 + obs.normalizedValue * 6;
 
             return (
               <g
@@ -287,8 +285,8 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
                   SonificationEngine.getInstance().playObservation(obs);
                 }}
               >
-                {/* Visual acoustic radiating ring */}
-                <circle
+                {/* Visual acoustic radiating ring (selected point only) */}
+                {isSelected && <circle
                   cx={cx}
                   cy={cy}
                   r={baseRadius * 1.8}
@@ -298,7 +296,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
                   opacity={isSelected ? '0.9' : '0.4'}
                   className="animate-ping"
                   style={{ animationDuration: `${2.5 - obs.normalizedValue * 1.2}s` }}
-                />
+                />}
 
                 {/* Core observation beacon */}
                 <circle
@@ -306,22 +304,24 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
                   cy={cy}
                   r={baseRadius}
                   fill={color}
-                  stroke="#ffffff"
-                  strokeWidth={isSelected ? '2.5' : '1'}
-                  opacity="0.9"
+                  stroke={isSelected ? '#e9c46a' : 'rgba(255,255,255,0.7)'}
+                  strokeWidth={isSelected ? '2.5' : '0.6'}
+                  opacity="0.92"
                 />
 
                 {/* Label on selection or high intensity */}
-                {(isSelected || obs.normalizedValue > 0.8) && (
+                {isSelected && (
                   <text
-                    x={cx + baseRadius + 4}
+                    x={cx + baseRadius + 5}
                     y={cy + 4}
                     fill="#ffffff"
-                    fontSize="11"
-                    fontFamily="monospace"
-                    className="select-none pointer-events-none drop-shadow"
+                    fontSize="12"
+                    paintOrder="stroke"
+                    stroke="#071019"
+                    strokeWidth="3"
+                    className="select-none pointer-events-none"
                   >
-                    {obs.value} {obs.unit}
+                    {obs.regionName}: {obs.value} {obs.unit}
                   </text>
                 )}
               </g>
@@ -335,18 +335,16 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
               cy={((90 - crosshair.lat) / 180) * 500}
               r="16"
               fill="none"
-              stroke="#00ffff"
+              stroke="#e9c46a"
               strokeWidth="2"
               strokeDasharray="4, 3"
-              className="animate-spin"
-              style={{ animationDuration: '8s' }}
             />
             <line
               x1={((crosshair.lon + 180) / 360) * 1000 - 24}
               y1={((90 - crosshair.lat) / 180) * 500}
               x2={((crosshair.lon + 180) / 360) * 1000 + 24}
               y2={((90 - crosshair.lat) / 180) * 500}
-              stroke="#00ffff"
+              stroke="#e9c46a"
               strokeWidth="1.5"
             />
             <line
@@ -354,7 +352,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
               y1={((90 - crosshair.lat) / 180) * 500 - 24}
               x2={((crosshair.lon + 180) / 360) * 1000}
               y2={((90 - crosshair.lat) / 180) * 500 + 24}
-              stroke="#00ffff"
+              stroke="#e9c46a"
               strokeWidth="1.5"
             />
           </g>

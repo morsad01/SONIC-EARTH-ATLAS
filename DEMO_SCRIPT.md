@@ -1,64 +1,25 @@
-# SONIC EARTH ATLAS — PRESENTATION & DEMO SCRIPT
-**NASA Space Apps Challenge 2026**
+# Video script (about 3 min 45 s) and submission checklist
 
----
+Record at 1920×1080 with system audio. Wear headphones while recording and say so on screen. Add captions.
 
-## ⏱ Part 1: The 60-Second Judge Speed Demo (Primary Path)
+| Time | Screen | Say |
+|---|---|---|
+| 0:00–0:20 | Landing page | "NASA's Earth Information Center shows our planet changing, but only to people who can see it. We turned real NASA Earth data into sound. This is Sonic Earth Atlas." |
+| 0:20–1:00 | Click **Play the 40-second tour** | Let it run 3 steps. "Each crackle is a real VIIRS fire detection. Faster means more fire power. Left and right follow longitude: Idaho is far left, Congo on the right." |
+| 1:00–1:25 | Open **What you are hearing** | "Nothing here is a black box. For every voice we show the place, the value, and the exact pitch and rate it produces." |
+| 1:25–1:50 | Turn on **Rain** and **Ocean heat**, press **Hear the change**, step to 5 Oct | "On 5 October northern Vietnam got 93 mm in a day. In the Pacific, September water was up to 7 °C above normal, an El Niño-like pattern. Congo's fire jumped from 25 to 572 MW, and you hear it jump." |
+| 1:50–2:25 | **A2 NASA image frames**, play true colour, then **Before / after** ocean heat 2025 → 2026 | "These are NASA GIBS images of the same week. The needle travels around the world. Before and after plays last year in your left ear and this year in your right." |
+| 2:25–2:55 | **B1 Bangladesh monsoon**, switch to বাংলা | "Our home. Eight divisions, eight voices. Sylhet got 118% of its normal monsoon rain. Everything also works in Bangla, with spoken narration." |
+| 2:55–3:10 | Back to A1, click Bangladesh on the globe, press **Hear 45 years** | "Click any place on Earth and NASA POWER answers live: here is 45 years of Dhaka, warming in your ears." |
+| 3:10–3:25 | **B2 Earth's vital signs**, **All three together** | "Temperature on the left, CO₂ in the middle, Arctic ice on the right. Two lines climb, the ice falls." |
+| 3:20–3:45 | Data & method, then a user quote | "All data is NASA's, raw files are in our repository, and every limit is written down. [User quote.] Earth is not silent. Now everyone can listen." |
 
-*Designed for quick judge rounds. Focuses on the automated 35-second Guided Tour golden path.*
+## Before you submit
 
-### Step 1: Landing & Problem Statement (0:00 – 0:10)
-- **ACTION:** Presenter opens [http://localhost:5173](http://localhost:5173). Point to the spinning 3D Earth globe behind the translucent hero scrim.
-- **SAY:** 
-  > *"Judges, traditional satellite maps show Earth data visually, but analyzing simultaneous climate phenomena creates cognitive overload. Sonic Earth Atlas is a spatial auditory instrument that lets you HEAR where Earth is changing."*
-
-### Step 2: Launch Guided Tour (0:10 – 0:45)
-- **ACTION:** Click the prominent amber button: **`[ EXPERIENCE 35-SECOND GUIDED TOUR ]`**.
-- **AUTOMATED SEQUENCE & PRESENTER COMMENTARY:**
-  - **(0:10 – 0:16) Wildfires Step:** Globe rotates smoothly to South America. Crackle bursts emit from Brazil.
-    - *SAY:* *"NASA FIRMS thermal sensors online. Longitude places active Amazon wildfires across stereo channels while crackle intensity tracks Fire Radiative Power in Megawatts."*
-  - **(0:16 – 0:23) Rain Step:** Globe rotates to South Asia monsoon basin. Droplet cascades ping.
-    - *SAY:* *"NASA GPM rain radar synchronizes over the Ganges Delta. Droplet ping frequency directly tracks precipitation rate in mm/hr."*
-  - **(0:23 – 0:30) Ocean Step:** Globe rotates to Equatorial Pacific. Resonant pad drones swell.
-    - *SAY:* *"NOAA/NASA sea surface temperature anomalies sound as sustained drones. Warm marine heatwaves ascend in pitch."*
-  - **(0:30 – 0:45) Temporal Change Step:** All layers activate in 'Hear The Change' mode. Timestep advances.
-    - *SAY:* *"As time advances, our differential engine translates rate-of-change ($\Delta v$) into acoustic motion. You are listening to planetary environmental change over time."*
-
-### Step 3: Wrap & Impact (0:45 – 1:00)
-- **ACTION:** Guided Demo completes; click **`Begin Exploration`**. Point to the Auditory Legend on the right and Provenance button in header.
-- **SAY:** 
-  > *"Every sound is mathematically derived from authoritative NASA telemetry, fully accessible via keyboard, 2D map, and screen reader console. Earth is not silent — we just needed another way to listen."*
-
----
-
-## ⏱ Part 2: The Detailed 3-Minute Live Interactive Demo
-
-*Designed for deep-dive judge Q&A sessions or video recording.*
-
-### 0:00 – 0:30 | Introduction & Conceptual Foundation
-- **ACTION:** Open landing hero overlay. Point to the three core dimension boxes (**WHERE / WHAT / HOW IT CHANGES**).
-- **SAY:** 
-  > *"Welcome to Sonic Earth Atlas. Most Earth observation tools force users to interpret complex 2D color ramps. We built a deterministic spatial audio mapping that connects physical geography to human perception. Longitude maps to stereo panning, latitude to spatial elevation, environmental phenomenon to acoustic identity, and temporal delta to pitch velocity."*
-
-### 0:30 – 1:10 | Automated Guided Tour
-- **ACTION:** Click **`[ EXPERIENCE 35-SECOND GUIDED TOUR ]`**. Let the tour run through all 6 steps while pointing to synchronized captions and smooth camera focus tracking South America, South Asia, and the Pacific.
-- **SAY:** 
-  > *"Notice how the globe automatically rotates to bring active observation clusters into visual and acoustic center. Notice also how the active pin markers emit pulsing rings in exact sync with their Web Audio synthesizer voices."*
-
-### 1:10 – 1:50 | Auditory Legend & Layer Isolation
-- **ACTION:** Dismiss Guided Demo modal. On the main 3D Globe HUD, open the Auditory Legend panel on the right.
-- **ACTION:** Click **`[ Hear Fire ]`**, then **`[ Hear Rain ]`**, then **`[ Hear Ocean ]`**.
-- **SAY:** 
-  > *"To ensure first-time users understand what to listen for, our Auditory Legend isolated audition mode allows judges to isolate reference sound signatures centered at the prime meridian before exploring multi-layer soundscapes."*
-
-### 1:50 – 2:30 | Temporal Scrubbing & "Hear The Change" Mode
-- **ACTION:** In the bottom Timeline panel, click **T1**, **T3**, and **T4**. Point out the 1-line data-derived event narrative badge above the scrubber.
-- **ACTION:** Click **`[ HEAR THE CHANGE ]`** toggle to enable differential mode ($\Delta v$). Click Play.
-- **SAY:** 
-  > *"Watch the narrative headline update dynamically as we advance through timesteps. Notice how in 'Hear The Change' mode, stable signals remain quiet while rapidly intensifying fires or monsoon surges pitch upward, allowing scientists to audibly detect anomalies instantly."*
-
-### 2:30 – 3:00 | Accessibility & Data Provenance
-- **ACTION:** Switch view mode to **`2D Map`** using header button. Press `Arrow keys` and `Enter` to show keyboard crosshair audio focus.
-- **ACTION:** Click **`Provenance`** in header to display the normalization formulas and dataset metadata.
-- **SAY:** 
-  > *"For visually impaired researchers, our Audio-First mode provides screen reader Web Speech API narration. All normalization formulas—from log-decibel FRP to square-root rain rates—are transparently documented and built directly on NASA FIRMS, GPM IMERG, and NOAA GHRSST telemetry."*
+- [ ] `npm run build` passes and the deployed site opens in an incognito window.
+- [ ] GitHub repository is public, includes `public/data/` and `scripts/raw/`, and contains no API key (search for your FIRMS key).
+- [ ] The NASA image frames load on the deployed site (needs internet).
+- [ ] Test once with a phone and once with a screen reader (NVDA or VoiceOver).
+- [ ] Video uploaded and public; link pasted into the form.
+- [ ] Project name and description match PROJECT_SUMMARY.md.
+- [ ] Submit early, not at 11:50 PM.

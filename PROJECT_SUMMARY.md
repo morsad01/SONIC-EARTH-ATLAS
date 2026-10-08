@@ -1,21 +1,15 @@
-# PROJECT SUMMARY — SONIC EARTH ATLAS
-**NASA Space Apps Challenge 2026**
+# Submission text
 
-### Executive Overview (185 Words)
+**Project name:** Sonic Earth Atlas: an Earth Information Jukebox
 
-**Sonic Earth Atlas** is an interactive planetary spatial auditory instrument that transforms geographically distributed NASA Earth observations into an explorable 3D auditory map. Traditional Earth data interfaces present satellite telemetry as complex 2D charts and visual overlays, creating cognitive overload and excluding visually impaired researchers. 
+**Challenge:** The Earth Information Jukebox (NASA Space Apps Challenge 2026)
 
-Sonic Earth Atlas translates machine-readable measurements into a multi-sensory environment across three core dimensions: **WHERE** (longitude mapped to stereo panning; latitude to spatial elevation), **WHAT** (wildfire combustion crackles, precipitation droplet cascades, ocean temperature drones), and **HOW IT CHANGES** (temporal velocity $\Delta v$ modulating pitch and tempo).
+**Short description (≈100 words):**
+Sonic Earth Atlas plays real NASA Earth observations and NASA imagery as sound, generated live in the browser. Four tracks: wildfires, rain and ocean heat placed around the listener in stereo on a 3D globe; NASA GIBS satellite images swept into sound, including before/after comparisons in each ear; the 2026 Bangladesh monsoon across eight divisions; and Earth's vital signs (temperature, CO₂, Arctic ice) as melodies or one chord. Click any place on the globe to hear 45 years of its NASA POWER climate. A live panel explains every sound in plain language, and the whole app works by keyboard, screen reader, spoken narration, and in English or Bangla.
 
-Built on authoritative NASA FIRMS (VIIRS active fire radiative power), NASA GPM IMERG (precipitation rate), and NOAA/NASA GHRSST (sea surface temperature anomalies), the platform includes a 35-second choreographed Guided Demo with smooth camera focus transitions, an Audio-First screen reader console, an accessible 2D map, and an isolated Auditory Legend.
+**NASA data used:**
+NASA FIRMS VIIRS S-NPP 375 m active fires (2–7 Oct 2026); NASA POWER daily PRECTOTCORR and climatology; NASA JPL MUR SST monthly anomaly (Sep 2026, via NOAA CoastWatch ERDDAP); NASA GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (as shown on NASA Vital Signs); NASA POWER monthly API (live, any point); NASA GIBS / Worldview imagery (VIIRS true colour and thermal anomalies, GPM IMERG, MUR SST anomaly, OMI NO₂, MODIS AOD and NDVI, VIIRS Day/Night Band).
 
-By unifying spatial audio, WebGL planetary telemetry, and accessibility-first design, Sonic Earth Atlas offers a novel perceptual gateway for judges, scientists, and the public to listen to environmental change happening across Earth.
+**Tools:** React, TypeScript, Vite, three.js, Web Audio API, Web Speech API, Tailwind CSS, Vitest.
 
----
-
-### Key Differentiators & Impact
-
-1. **Deterministic Scientific Pipeline:** Converts actual physical satellite measurements ($\text{MW}$, $\text{mm/hr}$, $^\circ\text{C}$) into spatial audio parameters through rigorous logarithmic and square-root normalization formulas.
-2. **True Spatial Audio Mapping:** Uses Web Audio HRTF 3D positioning and stereo panning to align audio location with physical planetary coordinates.
-3. **Accessibility-First Engineering:** Features a dedicated screen reader console with Web Speech API narration and a keyboard-navigable 2D map.
-4. **Honest Data Integrity:** Explicitly distinguishes between verified `NASA/NOAA BASELINE` benchmark datasets and live meteorological reanalysis proxies.
+**What makes it different:** several real datasets at once in spatial sound; every voice explained with its exact parameters; NASA imagery and measured values of the same days; a local Bangladesh story; accessibility and Bangla built in from the start.

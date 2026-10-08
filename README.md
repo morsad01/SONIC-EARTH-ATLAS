@@ -1,149 +1,64 @@
-# SONIC EARTH ATLAS
-### *Hear Where Earth Is Changing.*
+# Sonic Earth Atlas: an Earth Information Jukebox
 
-> **NASA Space Apps Challenge 2026 Submission**  
-> *"SONIC EARTH ATLAS transforms geographically distributed NASA Earth observations into an explorable spatial auditory environment — allowing people to hear WHERE Earth is changing, WHAT phenomenon is occurring, and HOW it evolves over time."*
+**NASA Space Apps Challenge 2026 · The Earth Information Jukebox.** Independent team entry, not an official NASA product.
 
----
+NASA's Earth Information Center makes striking pictures of a changing planet, but pictures only reach people who can see them. Sonic Earth Atlas plays real NASA Earth observations and NASA imagery as sound, live in the browser, so the same science can be explored by ear, keyboard or screen reader.
 
-## 🌍 Executive Summary & Problem Statement
+## Four tracks
 
-### The Problem
-Traditional satellite data portals present Earth observations through 2D visual maps, complex spectral charts, and high-density telemetry tables. While visually rich, these interfaces create major barriers:
-1. **Cognitive Overload:** Synthesizing simultaneous multi-layer environmental phenomena (e.g., thermal combustion, convective rainfall, and ocean heat anomalies) requires switching between disconnected visual dashboards.
-2. **Accessibility Barriers:** Millions of blind, visually impaired, or neurodivergent researchers and enthusiasts are excluded from experiencing planetary satellite telemetry.
-3. **Temporal Obscurity:** Multi-temporal climate trends are often presented as static snapshots rather than perceptual dynamic processes.
+| | Track | What you hear | NASA data |
+|---|---|---|---|
+| A1 | **Planet this week** | Fires crackle, rain drips, warm and cold ocean cells hum, each placed in stereo by longitude (3D/HRTF optional) on a globe, a map or an accessible list. | FIRMS VIIRS 375 m fire radiative power (2–5 Oct 2026); POWER PRECTOTCORR daily rain; JPL MUR SST anomaly (Sep 2026) |
+| A2 | **NASA image frames** | A needle sweeps a NASA satellite image west to east. Height = pitch, brightness = loudness, colour = timbre. "Before / after" plays two images at once, one per ear. | NASA GIBS (Worldview) live imagery: VIIRS true colour, thermal anomalies, IMERG rain, MUR SST anomaly, OMI NO₂, MODIS aerosol, NDVI, night lights |
+| B1 | **Bangladesh monsoon** | Eight divisional cities as eight voices across the stereo field, June to October 2026, against 2025 and the 2001–2020 normal. | POWER daily PRECTOTCORR and POWER climatology |
+| B2 | **Earth's vital signs** | Global temperature (1880–2025), CO₂ (1959–2025) and Arctic September sea ice (1979–2026), one note per year, alone or as a three-voice chord (temperature left, CO₂ centre, ice right). "Your data" plays any two-column CSV. | GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (the records on NASA's Vital Signs pages) |
 
-### The Solution: Sonic Earth Atlas
-**Sonic Earth Atlas** is an interactive planetary spatial auditory instrument. It converts machine-readable satellite observations into an explorable 3D auditory map across three perceptual dimensions:
+Also: **Hear any place** (click anywhere on the globe or pick a city and hear 45 years of its NASA POWER temperature and rain, fetched live), a guided 40-second tour, "What you are hearing" panel that names every audible voice and its exact sound parameters, English and বাংলা interface, spoken narration, reduced motion, high contrast, keyboard shortcuts (press `?`), and a Record button that saves 30 seconds of the app's own audio.
 
-```
-AUTHORITATIVE SATELLITE DATA
-            ↓
-     SCIENTIFIC VALUE
-            ↓
-NORMALIZATION & DELTA FORMULAS
-            ↓
-   SONIFICATION PARAMETERS
-            ↓
-    SPATIAL AUDIO SYNTHESIS
-            ↓
-   PLANETARY PERCEPTION
-```
+## Data honesty
 
----
+* Every value comes from a NASA source. Raw extracts are in `scripts/raw/`, and `npm run build:data` turns them into `public/data/*.json` without changing any value.
+* The rain layer is a 10° global sample (the 48 wettest of 396 points), not a full rain map. SST is a monthly product, so it does not change between days. POWER values are model-based (MERRA-2), not rain gauges.
+* Frame Jukebox sonifies image pixels, not calibrated values.
+* If the snapshots fail to load, the app falls back to a hand-made sample and labels it "Sample" in the Layers panel.
 
-## 🔭 The Three Core Dimensions
+## Run it
 
-| Dimension | Physical Meaning | Acoustic & Spatial Mapping |
-| :--- | :--- | :--- |
-| **WHERE** | Geographic Location | **Longitude** maps directly to stereo panning (`pan = clamp(lon / 180, -1, 1)`). **Latitude** controls high-shelf acoustic elevation tilt and 3D HRTF spatial positioning on a bounding sphere ($R = 2.5$). |
-| **WHAT** | Environmental Phenomenon | **Wildfires:** Physically modeled thermal crackle bursts ($800–3000\text{ Hz}$).<br>**Precipitation:** Resonant droplet cascades ($340–700\text{ Hz}$) with downward pitch glides.<br>**Ocean Heat:** Harmonic pad drones ($92–138\text{ Hz}$) with sub-ocean swell modulation. |
-| **HOW IT CHANGES** | Temporal Dynamics | **"Hear The Change" Mode:** Calculates differential velocity ($\Delta v = v_t - v_{t-1}$). Acceleration increases pitch and pulse density to highlight environmental rates of change. |
-
----
-
-## 📡 NASA / NOAA Datasets & Data Provenance
-
-Sonic Earth Atlas integrates three core Earth observation domains:
-
-1. **Active Wildfires — NASA FIRMS / VIIRS**
-   - **Variable**: Fire Radiative Power (FRP)
-   - **Unit**: Megawatts ($\text{MW}$)
-   - **Algorithm**: VIIRS $375\text{m}$ Active Fire Algorithm detecting $4\mu\text{m}$ middle-infrared thermal radiance spikes.
-   - **Logarithmic Normalization**:
-     $$\text{norm} = \text{clamp}\left(\frac{\log_{10}(\text{FRP}) - \log_{10}(5)}{\log_{10}(800) - \log_{10}(5)}, 0, 1\right)$$
-
-2. **Precipitation Dynamics — NASA GPM IMERG**
-   - **Variable**: Surface Precipitation Rate
-   - **Unit**: Millimeters per hour ($\text{mm/hr}$)
-   - **Algorithm**: Integrated Multi-satellitE Retrievals for GPM (IMERG) combining passive microwave radiometers and infrared sounders.
-   - **Square-Root Normalization**:
-     $$\text{norm} = \text{clamp}\left(\sqrt{\frac{\text{RainRate}}{45}}, 0, 1\right)$$
-
-3. **Sea Surface Temperature Anomaly — NOAA / NASA PO.DAAC / GHRSST**
-   - **Variable**: Sea Surface Temperature (SST) Anomaly
-   - **Unit**: Degrees Celsius ($^\circ\text{C}$)
-   - **Algorithm**: Daily Multi-scale Ultra-high Resolution (MUR) SST compared against $1985\text{--}2012$ climatological baseline.
-   - **Bipolar Zero-Centered Normalization**:
-     $$\text{norm} = \text{clamp}\left(\frac{\text{Anomaly} - (-3.0)}{3.0 - (-3.0)}, 0, 1\right)$$
-
-### Honest Data Provenance Distinction
-- **`NASA/NOAA BASELINE` (Primary Benchmark):** Curated 6-timestep benchmark slices matching NASA FIRMS VIIRS $375\text{m}$ and GPM IMERG schemas across major global monitoring stations (Amazon Basin, Ganges Delta, Equatorial Pacific ENSO zone, Mediterranean, California).
-- **`LIVE REANALYSIS PROXY` (Secondary Feed):** Real-time meteorological reanalysis proxy (Open-Meteo stream) used to ensure zero CORS errors or token failures during browser exploration.
-- **Disclaimer:** *Sonic Earth Atlas is an independent submission built for the NASA Space Apps Challenge 2026. It is not an official NASA product and is not operated by NASA.*
-
----
-
-## 🎧 Interactive & Accessibility Features
-
-- **35-Second Guided Cinematic Tour:** Choreographed golden-path tour with automated regional camera focus tracking South America (Fire), South Asia (Rain), and the Equatorial Pacific (Ocean).
-- **Audio-Driven Visual Beacons:** Marker rings and pin highlight pulses are dynamically driven by Web Audio voice emissions (`SonificationEngine.getInstance().getActiveVoiceDetails()`). Silent points emit zero visual rings.
-- **First-Load Acoustic Calibration:** Initial load defaults to Active Wildfires only at gentle master volume ($0.65$) to avoid acoustic clutter.
-- **Audio-First Screen Reader Console:** High-contrast, tabular console (`AudioFirstMode.tsx`) with Web Speech API live voice narration for visually impaired users.
-- **Accessible 2D Equirectangular Map:** Keyboard-navigable map (`Accessible2DMap.tsx`) with arrow key navigation, crosshair pan, and audio focus.
-- **Auditory Legend:** Isolated audition buttons (`[ Hear Fire ]`, `[ Hear Rain ]`, `[ Hear Ocean ]`) to audition sound signatures before exploring full soundscapes.
-
----
-
-## 🛠 Technology Stack
-
-- **Frontend Core:** React 19 + TypeScript 6 + Vite 8
-- **3D Planetary Canvas:** Three.js (Procedural Canvas Texture + Custom GLSL Atmosphere Shader)
-- **Sonification Engine:** Web Audio API (`SpatialPanner`, `HRTF PannerNode`, `StereoPannerNode`, `BiquadFilterNode`, `DynamicsCompressorNode` Brick-wall Limiter)
-- **Iconography:** Lucide React
-- **Styling:** Tailwind CSS v4
-- **Testing:** Vitest Automated Unit Test Suite
-
----
-
-## 🚀 Local Setup & Demo Instructions
-
-### Prerequisites
-- Node.js (v18+)
-- npm (v9+)
-
-### Installation
 ```bash
-git clone https://github.com/your-org/sonic-earth-atlas.git
-cd sonic-earth-atlas
 npm install
+npm run dev        # http://localhost:5173
+npm test           # data-integrity and mapping tests
+npm run build      # production build in dist/
 ```
 
-### Running Development Server
+The NASA image frames (NASA GIBS) and Hear any place (NASA POWER) are requested live, so they need an internet connection. Everything else is bundled.
+
+## Refresh the data
+
 ```bash
-npm run dev
-```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-### Running Automated Test Suite
-```bash
-npm test
+FIRMS_MAP_KEY=<your free key> npm run fetch:firms   # Windows PowerShell: $env:FIRMS_MAP_KEY="<key>"; npm run fetch:firms
+npm run fetch:precip
+npm run fetch:sst
+npm run build:data
 ```
 
-### Production Build & Typecheck
-```bash
-npm run build
-```
+The Bangladesh, GISTEMP, CO₂ and sea-ice extracts in `scripts/raw/` were fetched on 2026-10-08 from NASA POWER, NASA GISS, NOAA GML and NSIDC.
 
----
+## How sound is made
 
-## ⚠️ Known Limitations
+| Layer | Normalisation | Sound |
+|---|---|---|
+| Fire (MW) | `clamp((log10(FRP) − log10 5) / (log10 800 − log10 5), 0, 1)` | 4–20 crackles/s, band-pass 800–3000 Hz |
+| Rain (mm/day) | `clamp(sqrt(rain / 100), 0, 1)` | ~3–18 droplets/s, 340–700 Hz |
+| Ocean (°C) | `clamp((anomaly + 5) / 10, 0, 1)` | drone at 110 Hz × 2^((anomaly/3)·4/12) |
+| All | pan = longitude / 180 | latitude tilts elevation in HRTF mode |
 
-1. **Browser HRTF Support:** While spatial HRTF is built-in using Web Audio `PannerNode`, legacy browser engines fall back to high-clarity stereo panning.
-2. **Audio Gesture Gating:** Modern web browsers require explicit user interaction before starting Web Audio. Audio starts only after clicking `[ EXPERIENCE 35-SECOND GUIDED TOUR ]` or `[ LISTEN TO EARTH ]`.
-3. **Voice Ceiling:** The sonification engine enforces a deterministic 12-voice ceiling ($N_{\text{max}} = 12$) to protect CPU performance and prevent acoustic overlap.
+A 12-voice limit keeps the mix clear: the strongest values in the enabled layers play.
 
----
+## Stack
 
-## 📜 Attribution & License
+React 19, TypeScript, Vite, Tailwind CSS 4, three.js, Web Audio API, Web Speech API, Vitest. Place names: Natural Earth via `world-atlas`.
 
-*Data and public domain satellite telemetry provided by NASA ESDIS, FIRMS, GPM, and NOAA GHRSST. Built for the NASA Space Apps Challenge 2026.*
+## Credits
 
----
-## Data honesty (updated)
-- **Default sample mode** uses hand-made illustrative values modeled on FIRMS / GPM IMERG / GHRSST. They are *not* real observations and are labeled that way in the UI.
-- **Real mode:** get a free key at https://firms.modaps.eosdis.nasa.gov/api/map_key/ then run `FIRMS_MAP_KEY=your_key npm run fetch:firms`. This writes `public/data/firms_snapshot.json` (6 days of real VIIRS detections, top 80 2° cells). Toggle the data source in the app to hear real fires. GPM and SST remain illustrative.
-
-## Earth imagery credit
-Earth surface, specular, normal and cloud maps in `public/textures/` come from the three.js examples (MIT repo). For the final release swap in NASA Blue Marble (https://visibleearth.nasa.gov) under the same file names.
+Data and imagery: NASA FIRMS / LANCE, NOAA GML (Mauna Loa CO₂), NSIDC (Sea Ice Index), NASA LaRC POWER, NASA JPL PO.DAAC MUR SST (via NOAA CoastWatch ERDDAP), NASA GISS GISTEMP, NASA GIBS / Worldview. Globe textures from the three.js examples (MIT).

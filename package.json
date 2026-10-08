@@ -1,5 +1,5 @@
 {
-  "name": "nasa",
+  "name": "sonic-earth-atlas",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,10 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview",
-    "fetch:firms": "node scripts/fetch-firms.mjs"
+    "fetch:firms": "node scripts/fetch-firms.mjs",
+    "fetch:precip": "node scripts/fetch-precip.mjs",
+    "fetch:sst": "node scripts/fetch-sst.mjs",
+    "build:data": "node scripts/build-snapshots.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -19,17 +22,22 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@types/d3-geo": "^3.1.1",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
     "@types/three": "^0.186.0",
+    "@types/topojson-client": "^3.1.5",
     "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.6.1",
+    "d3-geo": "^3.1.1",
     "oxlint": "^1.81.0",
     "postcss": "^8.5.29",
     "tailwindcss": "^4.3.3",
+    "topojson-client": "^3.1.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "world-atlas": "^2.0.2"
   }
 }

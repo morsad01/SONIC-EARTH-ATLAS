@@ -1,0 +1,701 @@
+{
+ "generated": "2026-10-08",
+ "erddapTime": "2026-09-16T00:00:00Z",
+ "monthLabel": "September 2026",
+ "datasetId": "jplMURSST41anommday",
+ "selectionNote": "40 most anomalous open-ocean cells, at least 12° apart",
+ "globalStats": {
+  "areaWeightedMeanAnomalyC": 0.693,
+  "fractionWarmerThanNormal": 0.763,
+  "validCells": 32095
+ },
+ "slices": [
+  {
+   "timestepIndex": 0,
+   "dateLabel": "2026-09",
+   "timestamp": "2026-09",
+   "observations": [
+    {
+     "id": "sst--1,-92",
+     "phenomenon": "sst",
+     "latitude": -1,
+     "longitude": -92,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 7.11,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Equatorial Pacific near the Galápagos",
+     "metadata": {
+      "cell": "1°S, 92°W"
+     }
+    },
+    {
+     "id": "sst--42,25",
+     "phenomenon": "sst",
+     "latitude": -42,
+     "longitude": 25,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 6.46,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "42°S, 25°E"
+     }
+    },
+    {
+     "id": "sst--1,-107",
+     "phenomenon": "sst",
+     "latitude": -1,
+     "longitude": -107,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 6.21,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "1°S, 107°W"
+     }
+    },
+    {
+     "id": "sst--10,-83",
+     "phenomenon": "sst",
+     "latitude": -10,
+     "longitude": -83,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 5.39,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 83°W"
+     }
+    },
+    {
+     "id": "sst--1,-120",
+     "phenomenon": "sst",
+     "latitude": -1,
+     "longitude": -120,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 5.18,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "1°S, 120°W"
+     }
+    },
+    {
+     "id": "sst-0,-132",
+     "phenomenon": "sst",
+     "latitude": 0,
+     "longitude": -132,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 4.7,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 132°W"
+     }
+    },
+    {
+     "id": "sst--42,-53",
+     "phenomenon": "sst",
+     "latitude": -42,
+     "longitude": -53,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -4.56,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "42°S, 53°W"
+     }
+    },
+    {
+     "id": "sst-46,167",
+     "phenomenon": "sst",
+     "latitude": 46,
+     "longitude": 167,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 4.53,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central North Pacific",
+     "metadata": {
+      "cell": "46°N, 167°E"
+     }
+    },
+    {
+     "id": "sst-0,-146",
+     "phenomenon": "sst",
+     "latitude": 0,
+     "longitude": -146,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 4.25,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 146°W"
+     }
+    },
+    {
+     "id": "sst--40,9",
+     "phenomenon": "sst",
+     "latitude": -40,
+     "longitude": 9,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 4.11,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 9°E"
+     }
+    },
+    {
+     "id": "sst-42,-51",
+     "phenomenon": "sst",
+     "latitude": 42,
+     "longitude": -51,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 4.04,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "42°N, 51°W"
+     }
+    },
+    {
+     "id": "sst-26,-120",
+     "phenomenon": "sst",
+     "latitude": 26,
+     "longitude": -120,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 3.66,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "26°N, 120°W"
+     }
+    },
+    {
+     "id": "sst-0,-158",
+     "phenomenon": "sst",
+     "latitude": 0,
+     "longitude": -158,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 3.5,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 158°W"
+     }
+    },
+    {
+     "id": "sst--45,80",
+     "phenomenon": "sst",
+     "latitude": -45,
+     "longitude": 80,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 3.47,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "45°S, 80°E"
+     }
+    },
+    {
+     "id": "sst-44,-173",
+     "phenomenon": "sst",
+     "latitude": 44,
+     "longitude": -173,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 3.45,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central North Pacific",
+     "metadata": {
+      "cell": "44°N, 173°W"
+     }
+    },
+    {
+     "id": "sst--39,53",
+     "phenomenon": "sst",
+     "latitude": -39,
+     "longitude": 53,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -3.43,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "39°S, 53°E"
+     }
+    },
+    {
+     "id": "sst--19,93",
+     "phenomenon": "sst",
+     "latitude": -19,
+     "longitude": 93,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.87,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "19°S, 93°E"
+     }
+    },
+    {
+     "id": "sst-47,-155",
+     "phenomenon": "sst",
+     "latitude": 47,
+     "longitude": -155,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.84,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central North Pacific",
+     "metadata": {
+      "cell": "47°N, 155°W"
+     }
+    },
+    {
+     "id": "sst--49,-35",
+     "phenomenon": "sst",
+     "latitude": -49,
+     "longitude": -35,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.73,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "49°S, 35°W"
+     }
+    },
+    {
+     "id": "sst--44,-14",
+     "phenomenon": "sst",
+     "latitude": -44,
+     "longitude": -14,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.72,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "44°S, 14°W"
+     }
+    },
+    {
+     "id": "sst-12,55",
+     "phenomenon": "sst",
+     "latitude": 12,
+     "longitude": 55,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.71,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Arabian Sea",
+     "metadata": {
+      "cell": "12°N, 55°E"
+     }
+    },
+    {
+     "id": "sst-37,145",
+     "phenomenon": "sst",
+     "latitude": 37,
+     "longitude": 145,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.62,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "37°N, 145°E"
+     }
+    },
+    {
+     "id": "sst-22,-137",
+     "phenomenon": "sst",
+     "latitude": 22,
+     "longitude": -137,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.6,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "22°N, 137°W"
+     }
+    },
+    {
+     "id": "sst--41,152",
+     "phenomenon": "sst",
+     "latitude": -41,
+     "longitude": 152,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.59,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Tasman Sea",
+     "metadata": {
+      "cell": "41°S, 152°E"
+     }
+    },
+    {
+     "id": "sst--58,-66",
+     "phenomenon": "sst",
+     "latitude": -58,
+     "longitude": -66,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -2.52,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Ocean",
+     "metadata": {
+      "cell": "58°S, 66°W"
+     }
+    },
+    {
+     "id": "sst--58,-122",
+     "phenomenon": "sst",
+     "latitude": -58,
+     "longitude": -122,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.29,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Ocean",
+     "metadata": {
+      "cell": "58°S, 122°W"
+     }
+    },
+    {
+     "id": "sst-19,-109",
+     "phenomenon": "sst",
+     "latitude": 19,
+     "longitude": -109,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.26,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "19°N, 109°W"
+     }
+    },
+    {
+     "id": "sst--35,110",
+     "phenomenon": "sst",
+     "latitude": -35,
+     "longitude": 110,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.18,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "35°S, 110°E"
+     }
+    },
+    {
+     "id": "sst-26,-64",
+     "phenomenon": "sst",
+     "latitude": 26,
+     "longitude": -64,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.17,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "26°N, 64°W"
+     }
+    },
+    {
+     "id": "sst--21,-74",
+     "phenomenon": "sst",
+     "latitude": -21,
+     "longitude": -74,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.15,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "21°S, 74°W"
+     }
+    },
+    {
+     "id": "sst--19,-101",
+     "phenomenon": "sst",
+     "latitude": -19,
+     "longitude": -101,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.14,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "19°S, 101°W"
+     }
+    },
+    {
+     "id": "sst-47,-9",
+     "phenomenon": "sst",
+     "latitude": 47,
+     "longitude": -9,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.1,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "47°N, 9°W"
+     }
+    },
+    {
+     "id": "sst--45,99",
+     "phenomenon": "sst",
+     "latitude": -45,
+     "longitude": 99,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -2.09,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "45°S, 99°E"
+     }
+    },
+    {
+     "id": "sst-11,68",
+     "phenomenon": "sst",
+     "latitude": 11,
+     "longitude": 68,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.08,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Arabian Sea",
+     "metadata": {
+      "cell": "11°N, 68°E"
+     }
+    },
+    {
+     "id": "sst-17,-149",
+     "phenomenon": "sst",
+     "latitude": 17,
+     "longitude": -149,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.07,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central North Pacific",
+     "metadata": {
+      "cell": "17°N, 149°W"
+     }
+    },
+    {
+     "id": "sst-11,-174",
+     "phenomenon": "sst",
+     "latitude": 11,
+     "longitude": -174,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.04,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Central North Pacific",
+     "metadata": {
+      "cell": "11°N, 174°W"
+     }
+    },
+    {
+     "id": "sst--33,39",
+     "phenomenon": "sst",
+     "latitude": -33,
+     "longitude": 39,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 2.02,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "33°S, 39°E"
+     }
+    },
+    {
+     "id": "sst--57,165",
+     "phenomenon": "sst",
+     "latitude": -57,
+     "longitude": 165,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -2.01,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Southern Ocean",
+     "metadata": {
+      "cell": "57°S, 165°E"
+     }
+    },
+    {
+     "id": "sst--49,130",
+     "phenomenon": "sst",
+     "latitude": -49,
+     "longitude": 130,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": -1.98,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "Western South Pacific",
+     "metadata": {
+      "cell": "49°S, 130°E"
+     }
+    },
+    {
+     "id": "sst-41,-31",
+     "phenomenon": "sst",
+     "latitude": 41,
+     "longitude": -31,
+     "timestamp": "2026-09",
+     "variable": "Sea surface temperature anomaly (monthly)",
+     "value": 1.98,
+     "unit": "°C",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA JPL MUR SST, served via NOAA CoastWatch ERDDAP",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "41°N, 31°W"
+     }
+    }
+   ]
+  }
+ ]
+}

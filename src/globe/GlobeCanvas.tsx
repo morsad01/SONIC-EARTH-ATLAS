@@ -10,6 +10,9 @@ interface GlobeCanvasProps {
   onSelectObservation: (obs: EarthObservation | null) => void;
   autoRotate?: boolean;
   targetFocus?: { lat: number; lon: number } | null;
+  imageryUrl?: string | null;
+  onPickPlace?: (p: { lat: number; lon: number }) => void;
+  pickedPlace?: { lat: number; lon: number } | null;
 }
 
 export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
@@ -19,7 +22,15 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   onSelectObservation,
   autoRotate = false,
   targetFocus = null,
+  imageryUrl = null,
+  onPickPlace,
+  pickedPlace = null,
 }) => {
+  const earthMeshRef = useRef<THREE.Mesh | null>(null);
+  const pinRef = useRef<THREE.Mesh | null>(null);
+  const downPosRef = useRef({ x: 0, y: 0 });
+  const earthMatRef = useRef<THREE.MeshPhongMaterial | null>(null);
+  const baseMapRef = useRef<THREE.Texture | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredObs, setHoveredObs] = useState<EarthObservation | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -125,8 +136,16 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       specular: new THREE.Color(0x4a6a8a),
       shininess: 22,
     });
+    earthMatRef.current = earthMaterial;
+    baseMapRef.current = earthTexture;
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
+    earthMeshRef.current = earthMesh;
+    // Pin for "Hear any place"
+    const pin = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.075, 32), new THREE.MeshBasicMaterial({ color: 0xe9c46a, side: THREE.DoubleSide, transparent: true, opacity: 0.95 }));
+    pin.visible = false;
+    globeGroup.add(pin);
+    pinRef.current = pin;
 
     // Revolving Atmospheric Cloud Sphere Layer (Clean & Transparent)
     const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, 64, 64);
@@ -281,6 +300,39 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     };
   }, []);
 
+  // --- Pin position for the picked place ---
+  useEffect(() => {
+    const pin = pinRef.current;
+    if (!pin) return;
+    if (!pickedPlace) { pin.visible = false; return; }
+    const phi = (90 - pickedPlace.lat) * (Math.PI / 180), theta = (pickedPlace.lon + 180) * (Math.PI / 180), r = 2.03;
+    const x = -r * Math.sin(phi) * Math.sin(theta), y = r * Math.cos(phi), z = r * Math.sin(phi) * Math.cos(theta);
+    pin.position.set(x, y, z);
+    pin.lookAt(x * 2, y * 2, z * 2);
+    pin.visible = true;
+  }, [pickedPlace]);
+
+  // --- Optional NASA GIBS imagery of the selected day as the globe surface ---
+  useEffect(() => {
+    const mat = earthMatRef.current;
+    if (!mat) return;
+    if (!imageryUrl) {
+      if (baseMapRef.current) { mat.map = baseMapRef.current; mat.needsUpdate = true; }
+      if (cloudMeshRef.current) cloudMeshRef.current.visible = true;
+      return;
+    }
+    let cancelled = false;
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin('anonymous');
+    loader.load(imageryUrl, (tex) => {
+      if (cancelled) { tex.dispose(); return; }
+      tex.colorSpace = THREE.SRGBColorSpace;
+      mat.map = tex; mat.needsUpdate = true;
+      if (cloudMeshRef.current) cloudMeshRef.current.visible = false; // real clouds are already in the image
+    });
+    return () => { cancelled = true; };
+  }, [imageryUrl]);
+
   // --- Observation Markers & Wave Rings Re-rendering ---
   useEffect(() => {
     if (!markersGroupRef.current || !soundWavesGroupRef.current) return;
@@ -322,11 +374,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       const z = earthRadius * Math.sin(phi) * Math.cos(theta);
 
       // Color mapping
-      let colorHex = 0xff4d00;
-      if (obs.phenomenon === 'precipitation') colorHex = 0x00d0ff;
-      else if (obs.phenomenon === 'sst') colorHex = obs.value >= 0 ? 0xbf5af2 : 0x0077ff;
+      let colorHex = 0xff7a3d;
+      if (obs.phenomenon === 'precipitation') colorHex = 0x4cc3ff;
+      else if (obs.phenomenon === 'sst') colorHex = obs.value >= 0 ? 0xf25c8a : 0x5b8cff;
 
-      const markerRadius = 0.035 + obs.normalizedValue * 0.035;
+      const markerRadius = 0.022 + obs.normalizedValue * 0.04;
       const markerGeo = new THREE.SphereGeometry(markerRadius, 16, 16);
       const markerMat = new THREE.MeshBasicMaterial({
         color: colorHex,
@@ -351,6 +403,13 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         side: THREE.DoubleSide,
       });
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      // Soft halo so markers read as glowing points, not plastic beads
+      const haloGeo = new THREE.CircleGeometry(markerRadius * 2.4, 24);
+      const haloMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.position.set(x * 1.021, y * 1.021, z * 1.021);
+      halo.lookAt(x * 2, y * 2, z * 2);
+      wavesGroup.add(halo);
       ringMesh.position.set(x * 1.028, y * 1.028, z * 1.028);
       ringMesh.lookAt(x * 2, y * 2, z * 2);
       ringMesh.visible = false; // Initially dormant; driven dynamically by audio voice state
@@ -361,6 +420,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
   // --- Mouse & Touch Controls ---
   const handlePointerDown = (e: React.PointerEvent) => {
+    downPosRef.current = { x: e.clientX, y: e.clientY };
     isDraggingRef.current = true;
     previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
   };
@@ -426,7 +486,18 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       onSelectObservation(obs);
       // Immediately trigger sonification of this clicked point
       SonificationEngine.getInstance().playObservation(obs);
+      return;
     }
+    // Empty spot on Earth (and not the end of a drag): pick that place
+    const moved = Math.hypot(e.clientX - downPosRef.current.x, e.clientY - downPosRef.current.y);
+    if (!onPickPlace || moved > 6 || !earthMeshRef.current || !globeGroupRef.current) return;
+    const hit = raycaster.intersectObject(earthMeshRef.current)[0];
+    if (!hit) return;
+    const local = globeGroupRef.current.worldToLocal(hit.point.clone()).normalize();
+    const lat = Math.asin(local.y) * (180 / Math.PI);
+    let lon = Math.atan2(-local.x, local.z) * (180 / Math.PI) - 180;
+    if (lon < -180) lon += 360;
+    onPickPlace({ lat: Math.round(lat * 100) / 100, lon: Math.round(lon * 100) / 100 });
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -449,28 +520,28 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       {/* Dynamic Hover Tooltip */}
       {hoveredObs && tooltipPos && (
         <div
-          className="absolute z-30 pointer-events-none p-2.5 rounded-lg bg-slate-950/95 border border-cyan-500/60 shadow-2xl backdrop-blur-md text-white text-xs font-mono animate-fade-in -translate-x-1/2 -translate-y-full"
+          className="absolute z-30 pointer-events-none p-2.5 rounded-lg panel-solid shadow-2xl text-sm -translate-x-1/2 -translate-y-full"
           style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y - 12}px` }}
         >
-          <div className="font-bold text-cyan-300 flex items-center gap-1">
+          <div className="font-semibold flex items-center gap-1.5">
             <span
               className="w-2 h-2 rounded-full"
               style={{
                 backgroundColor:
                   hoveredObs.phenomenon === 'fire'
-                    ? '#ff4d00'
+                    ? '#ff7a3d'
                     : hoveredObs.phenomenon === 'precipitation'
-                    ? '#00d0ff'
-                    : '#bf5af2',
+                    ? '#4cc3ff'
+                    : '#f25c8a',
               }}
             />
             {hoveredObs.regionName || hoveredObs.variable}
           </div>
           <div className="text-[11px] text-slate-300 mt-0.5">
-            {hoveredObs.value} {hoveredObs.unit} (Norm: {hoveredObs.normalizedValue.toFixed(2)})
+            {hoveredObs.value} {hoveredObs.unit} · {hoveredObs.variable}
           </div>
           <div className="text-[10px] text-slate-400 mt-0.5">
-            {hoveredObs.latitude.toFixed(1)}°, {hoveredObs.longitude.toFixed(1)}° • Click to sonify
+            {String(hoveredObs.metadata?.cell ?? `${hoveredObs.latitude}°, ${hoveredObs.longitude}°`)} · click to hear
           </div>
         </div>
       )}

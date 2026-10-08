@@ -136,3 +136,59 @@
 .hero-open > :not(main):not(.hero-layer),
 .hero-open main > :not(:first-child) { visibility: hidden; }
 .hero-open main > :first-child { transform: translateX(24%); }
+
+/* ===================== Sonic Earth Atlas v8 design tokens ===================== */
+:root {
+  --abyss: #071019;
+  --panel: #0d1b27;
+  --panel-2: #12273a;
+  --line: #22384a;
+  --ink: #e8f0f2;
+  --ink-2: #a9bcc6;
+  --ink-3: #7f96a3;
+  --brass: #e9c46a;
+  --brass-ink: #1b1405;
+  --fire: #ff7a3d;
+  --rain: #4cc3ff;
+  --warm: #f25c8a;
+  --cold: #5b8cff;
+  --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Noto Sans Bengali', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+html[lang='bn'] { --font-body: 'Noto Sans Bengali', 'IBM Plex Sans', system-ui, sans-serif; --font-display: 'Noto Sans Bengali', 'Bricolage Grotesque', system-ui, sans-serif; }
+html, body { font-family: var(--font-body); color: var(--ink); }
+body { background: var(--abyss); }
+.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+.font-mono { font-family: var(--font-body) !important; font-variant-numeric: tabular-nums; }
+.tnum { font-variant-numeric: tabular-nums; }
+#space-bg { background: radial-gradient(ellipse at 60% 35%, #0f2a3d 0%, #0a1a28 40%, #060d15 100%) !important; }
+#space-bg::before { opacity: 0.35; }
+
+@layer components {
+.panel { background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line); border-radius: 14px; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.panel-solid { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 40px; padding: 0 .9rem; border-radius: 10px; border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font-weight: 500; font-size: .875rem; cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s; }
+.btn:hover { border-color: #3b5a72; background: #183248; }
+.btn[aria-pressed='true'] { border-color: var(--brass); color: var(--brass); }
+.btn-brass { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); font-weight: 600; }
+.btn-brass:hover { background: #f3d58a; border-color: #f3d58a; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: var(--panel-2); color: var(--ink); }
+.btn-icon { padding: 0; width: 40px; }
+.chip { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; border: 1px solid var(--line); color: var(--ink-2); }
+.label { font-size: .8125rem; color: var(--ink-3); }
+.dot { width: .6rem; height: .6rem; border-radius: 999px; display: inline-block; flex: none; }
+}
+:focus-visible { outline: 2px solid var(--brass) !important; outline-offset: 2px; border-radius: 6px; }
+
+/* High contrast mode */
+html.hc { --panel: #000; --panel-2: #0b0b0b; --line: #f5f5f5; --ink: #fff; --ink-2: #fff; --ink-3: #e5e5e5; --brass: #ffd60a; }
+html.hc .panel { background: #000; backdrop-filter: none; }
+html.hc .text-slate-400, html.hc .text-slate-500, html.hc .text-slate-300 { color: #fff !important; }
+
+/* Reduced motion (user setting or OS) */
+html.rm *, html.rm *::before, html.rm *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; } }
+
+.sr-only-focusable:not(:focus) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.scroll-thin::-webkit-scrollbar { width: 6px; }

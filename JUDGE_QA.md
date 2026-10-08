@@ -1,81 +1,34 @@
-# JUDGE QUESTION & ANSWER PREPARATION
-**NASA Space Apps Challenge 2026 — Sonic Earth Atlas**
+# Judge questions and honest answers
 
----
+**1. Is the data real?**
+Yes, all of it. FIRMS VIIRS fire radiative power (2–7 Oct 2026, the Atlas plays 2–5 Oct), NASA POWER daily rain, JPL MUR SST anomaly for September 2026, NASA POWER for 8 Bangladeshi cities, GISTEMP v4 (1880–2025), Mauna Loa CO₂ and NSIDC Arctic sea ice (the records NASA shows on its Vital Signs pages). Hear any place asks NASA POWER live for the exact point you click. Raw extracts are in `scripts/raw/`; tests check that the numbers the tour speaks match the files.
 
-### Q1: Why sonification? Why turn Earth data into sound?
-**Answer:** Human hearing is uniquely optimized for multi-dimensional pattern recognition, temporal flux detection, and spatial awareness. While human vision struggles to track simultaneous overlapping gradient layers across wide geographic fields without cognitive fatigue, the auditory cortex can seamlessly differentiate pitch, timbre, rhythm, and spatial location concurrently. Sonification provides an expressive, highly intuitive complement to visual maps, turning complex high-density satellite telemetry into a perceptual soundscape.
+**2. What is sampled and what is not?**
+Fire: 80 strongest 2° cells per day. Rain: 48 wettest of 396 points on a 10° grid, so it is a sample of wet places. SST: 40 most anomalous open-ocean cells at least 12° apart, out of 32,095 valid 1° cells. The full fields are visible as NASA GIBS images in the Frame Jukebox.
 
----
+**3. How does this answer the Earth Information Jukebox challenge?**
+The challenge asks for EIC-style visuals paired with sound generated in real time. Track A2 does exactly that with NASA GIBS imagery of the same week; track A1 goes further and sonifies the measured values behind those images; you can switch the globe to the same day's NASA imagery with one button. No audio file is pre-recorded.
 
-### Q2: Why spatial audio? How does location map to sound?
-**Answer:** Spatial placement grounds auditory events in physical space. In Sonic Earth Atlas:
-- **Longitude ($\lambda \in [-180^\circ, 180^\circ]$)** maps directly to stereo panning (`pan = clamp(lon / 180, -1, 1)`). An active wildfire in California sounds on your left, while a monsoon in India sounds on your right.
-- **Latitude ($\phi \in [-90^\circ, 90^\circ]$)** modulates high-shelf acoustic elevation filtering and 3D Web Audio HRTF spatial positioning on a bounding sphere ($R = 2.5$).
-- **Camera Focus Alignment:** During our guided tour, camera rotation brings target regions to the front, aligning visual placement directly with center spatial audio focus.
+**4. Why spatial audio?**
+Location is the first thing people ask about Earth data. Longitude becomes left–right, so a fire in Idaho sounds far left and one in Congo slightly right. With headphones you can find hotspots without looking.
 
----
+**5. How exactly does a value become sound?**
+Fire: log-scaled FRP drives crackle rate (4–20/s) and brightness. Rain: square-root-scaled mm/day drives droplet density (≈3–18/s) and pitch (340–700 Hz). Ocean: anomaly shifts a 110 Hz drone 4 semitones per 3 °C. The "What you are hearing" panel shows these numbers live for each voice.
 
-### Q3: How exactly are raw scientific values mapped to sound parameters?
-**Answer:** We reject arbitrary aesthetic sound generation in favor of a deterministic mathematical pipeline:
-1. **Active Wildfires (NASA FIRMS VIIRS):** Fire Radiative Power ($\text{MW}$) uses logarithmic decibel scaling:
-   $$\text{norm} = \text{clamp}\left(\frac{\log_{10}(\text{FRP}) - \log_{10}(5)}{\log_{10}(800) - \log_{10}(5)}, 0, 1\right)$$
-   Maps to combustion crackle burst frequency ($4\text{--}24\text{ Hz}$) and bandpass filter cutoff.
-2. **Precipitation Dynamics (NASA GPM IMERG):** Rain rate ($\text{mm/hr}$) uses square-root scaling:
-   $$\text{norm} = \text{clamp}\left(\sqrt{\frac{\text{RainRate}}{45}}, 0, 1\right)$$
-   Maps to resonant droplet ping density ($2\text{--}18\text{ Hz}$) and downward pitch glides ($340\text{--}700\text{ Hz}$).
-3. **Sea Surface Temperature Anomaly (NOAA/NASA GHRSST):** Thermal anomaly ($^\circ\text{C}$) uses zero-centered bipolar scaling:
-   $$\text{norm} = \text{clamp}\left(\frac{\text{Anomaly} - (-3.0)}{3.0 - (-3.0)}, 0, 1\right)$$
-   Maps to fundamental harmonic drone pitch ($92\text{--}138\text{ Hz}$, A2 base) and sub-ocean swell LFO depth.
+**6. Who is it for, and what did you test?**
+Blind and low-vision learners, people who think better with sound, and anyone in a classroom. Every view has a text equivalent (List view, live descriptions, spoken narration in English or Bangla), full keyboard control (`?` lists shortcuts), reduced motion and high contrast. *[Add your own test here: who tried it, what they said.]*
 
----
+**7. Why Bangladesh?**
+We are a Bangladeshi team and the monsoon is the climate story people here live. Track B1 shows, for example, that Sylhet received 2,840 mm from 1 June to 5 October 2026, 118% of its 2001–2020 normal, with the wettest day on 8 July (138 mm). These are POWER model estimates, not gauge readings.
 
-### Q4: Why not simply use visual map colors?
-**Answer:** Visual map colors are limited by display contrast, color vision deficiency (e.g. protanopia/deuteranopia), and screen real-estate constraints. Furthermore, static visual maps require users to manually scan across different locations to detect changes. Sonification introduces pre-attentive temporal triggers: an abrupt spike in fire intensity or rain volume creates an immediate acoustic cue regardless of where your eyes are currently focused on the screen.
+**8. What are the limits?**
+Snapshot data, not a live feed (FIRMS needs a key; we refresh with scripts). POWER is reanalysis, not observation. Image sonification reads pixels, not calibrated values. Web Audio HRTF varies by browser; stereo is the default. The voice limit is 12.
 
----
+**9. Has image sonification been done before?**
+Yes, for example NASA's Chandra sonifications and past Space Apps projects that turned telescope images into music. Our contribution is the combination: several real Earth datasets at once, positioned in space, with an explanation of every sound, NASA imagery of the same days, a local (Bangladesh) story, and accessibility built in.
 
-### Q5: What exact NASA / NOAA datasets are used?
-**Answer:**
-1. **NASA FIRMS (Fire Information for Resource Management System):** VIIRS Active Fire Radiative Power ($375\text{m}$ resolution).
-2. **NASA GPM IMERG (Global Precipitation Measurement):** Half-hourly surface precipitation rate.
-3. **NOAA / NASA PO.DAAC GHRSST (Group for High Resolution Sea Surface Temperature):** Daily Multi-scale Ultra-high Resolution (MUR) sea surface temperature anomalies.
+**10. Can I explore my own place or my own data?**
+Yes. Click anywhere on the globe (or pick a city) and the app fetches 1981–2025 NASA POWER temperature and rain for that point and plays them, with the warming trend per decade. In Earth's vital signs, "Your data" plays any two-column CSV, so a teacher can sonify a NASA time series of their choice. Files never leave the browser.
 
----
-
-### Q6: Is this live NASA satellite data? What is the proxy feed?
-**Answer:** To ensure 100% scientific reliability and avoid CORS blockages or private API token failures during competition judging, Sonic Earth Atlas operates on two explicit modes:
-- **`NASA/NOAA BASELINE` (Primary Default):** Verified 6-timestep benchmark datasets strictly adhering to NASA FIRMS VIIRS $375\text{m}$ and GPM IMERG schemas across major global monitoring basins.
-- **`LIVE REANALYSIS PROXY` (Secondary Feed):** Open-Meteo meteorological reanalysis stream providing real-time global weather parameters.
-- We explicitly state in the UI that this is an independent Space Apps project and not an official NASA live streaming product.
-
----
-
-### Q7: How is accessibility handled for blind or visually impaired users?
-**Answer:** Accessibility is engineered as a core architectural foundation:
-- **Audio-First Screen Reader Mode:** A high-contrast tabular console (`AudioFirstMode.tsx`) with Web Speech API live voice synthesis narrating data values as users navigate.
-- **2D Accessible Equirectangular Map:** Keyboard-navigable alternative (`Accessible2DMap.tsx`) supporting arrow keys, zoom, and spatial crosshairs.
-- **Auditory Legend:** Isolated reference audition buttons (`[ Hear Fire ]`, `[ Hear Rain ]`, `[ Hear Ocean ]`) to help neurodivergent or visually impaired users learn sound signatures prior to multi-layer playback.
-
----
-
-### Q8: What makes Sonic Earth Atlas genuinely innovative?
-**Answer:** Existing sonification projects often produce static audio renders or isolated astronomical spectral sweeps. Sonic Earth Atlas is a **real-time, interactive planetary spatial instrument** that unifies geographic position (**WHERE**), phenomenon identity (**WHAT**), and differential temporal velocity (**HOW IT CHANGES**) inside a WebGL/Web Audio environment.
-
----
-
-### Q9: How is this different from existing NASA sonification work (e.g., Chandra Sonifications)?
-**Answer:** NASA Chandra sonifications translate static 2D deep-space telescope images into pre-rendered audio videos by scanning left-to-right across pixels. Sonic Earth Atlas is a **live 3D planetary instrument**: users actively rotate the globe, toggle satellite layers, scrub multi-year timelines, compute live rate-of-change deltas, and interact with geographically spatialized Web Audio synthesis nodes in real time.
-
----
-
-### Q10: What are the current limitations of the system?
-**Answer:**
-1. **Browser Audio Gesture Policy:** Modern browsers require explicit user interaction before starting Web Audio (handled cleanly via landing CTAs).
-2. **Deterministic Voice Ceiling:** Enforces a 12-voice max ceiling ($N_{\text{max}} = 12$) to prevent audio clipping and CPU overload.
-3. **Web Audio HRTF Support:** Safari and legacy engines fall back to stereo panning rather than 3D HRTF convolvers.
-
----
-
-### Q11: Can this system scale to additional Earth observations?
-**Answer:** Yes. The `SonificationEngine` and dataset normalization architecture are domain-agnostic. Any quantitative geospatial variable—such as atmospheric methane ($\text{CH}_4$), aerosol optical depth ($\text{AOD}$), soil moisture ($\text{m}^3/\text{m}^3$), or polar ice velocity ($\text{m/yr}$)—can be integrated by defining a normalization range and connecting it to a custom Web Audio synthesizer node.
+**11. What next?**
+Daily automatic refresh, more layers (aerosols, sea ice), user testing with a blind students' organisation, and an offline classroom pack.

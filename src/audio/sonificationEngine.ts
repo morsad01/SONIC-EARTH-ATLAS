@@ -100,6 +100,7 @@ export class SonificationEngine {
 
   public setHearChangeMode(enabled: boolean) {
     this.hearChangeMode = enabled;
+    for (const v of this.activeVoices.values()) v.synth.updateObservation(v.obs, enabled);
   }
 
   /**
@@ -186,7 +187,7 @@ export class SonificationEngine {
         value: 450,
         unit: 'MW',
         normalizedValue: 0.75,
-        source: 'NASA FIRMS / VIIRS Sample',
+        source: 'Reference sound (not an observation)',
         regionName: 'Auditory Legend Reference Sound',
       };
     } else if (phenomenon === 'precipitation') {
@@ -198,9 +199,9 @@ export class SonificationEngine {
         timestamp: '2026-08-01',
         variable: 'Precipitation Rate',
         value: 28.5,
-        unit: 'mm/hr',
+        unit: 'mm/day',
         normalizedValue: 0.8,
-        source: 'NASA GPM IMERG Sample',
+        source: 'Reference sound (not an observation)',
         regionName: 'Auditory Legend Reference Sound',
       };
     } else {
@@ -214,7 +215,7 @@ export class SonificationEngine {
         value: 2.3,
         unit: '°C',
         normalizedValue: 0.88,
-        source: 'NOAA / NASA GHRSST Sample',
+        source: 'Reference sound (not an observation)',
         regionName: 'Auditory Legend Reference Sound',
       };
     }
@@ -310,9 +311,9 @@ export class SonificationEngine {
    * Returns a map of actively emitting voices with their normalized intensity,
    * phenomenon type, and timestamp to drive synchronized visual beacons.
    */
-  public getActiveVoiceDetails(): Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number }> {
+  public getActiveVoiceDetails(): Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number; obs: EarthObservation }> {
     const ctx = AudioContextManager.getContext();
-    const result = new Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number }>();
+    const result = new Map<string, { intensity: number; phenomenon: PhenomenonType; startedAt: number; obs: EarthObservation }>();
     if (!ctx || ctx.state !== 'running' || !this.isAudioUnlocked) {
       return result;
     }
@@ -323,6 +324,7 @@ export class SonificationEngine {
         intensity: voice.obs.normalizedValue,
         phenomenon: voice.phenomenon,
         startedAt: voice.startedAt,
+        obs: voice.obs,
       });
     }
     return result;

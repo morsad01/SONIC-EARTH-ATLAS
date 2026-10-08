@@ -23,8 +23,8 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in max-w-[100vw] overflow-x-hidden safe-pb safe-pt">
-      <div className="max-w-lg w-full max-h-[85dvh] overflow-y-auto bg-slate-900 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-2xl text-white space-y-3.5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 animate-fade-in max-w-[100vw] overflow-x-hidden safe-pb safe-pt">
+      <div className="max-w-lg w-full max-h-[85dvh] overflow-y-auto bg-[var(--panel)] border border-[var(--line)] rounded-2xl p-4 sm:p-5 shadow-2xl text-white space-y-3.5">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-800 pb-3 gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -48,10 +48,10 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
               <Activity className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm sm:text-base font-bold text-white font-mono truncate">
+              <h3 className="text-sm sm:text-base font-bold text-white truncate">
                 {observation.regionName || observation.variable}
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-400 font-mono truncate">
+              <p className="text-[11px] sm:text-xs text-slate-400 truncate">
                 {catalog.title}
               </p>
             </div>
@@ -67,9 +67,9 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
         </div>
 
         {/* Core Scientific Values Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <span className="text-slate-500 text-[10px] block">MEASURED VALUE</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className="p-3 bg-[var(--panel-2)] rounded-xl border border-[var(--line)]">
+            <span className="text-[var(--ink-3)] text-xs block">Measured value</span>
             <span className="text-lg sm:text-xl font-bold text-white mt-0.5 block">
               {observation.value} <span className="text-xs text-slate-400">{observation.unit}</span>
             </span>
@@ -80,14 +80,14 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
             )}
           </div>
 
-          <div className="p-3 bg-slate-950 rounded-xl border border-slate-800">
-            <span className="text-slate-500 text-[10px] block">NORMALIZED [0.0 - 1.0]</span>
-            <span className="text-lg sm:text-xl font-bold text-cyan-400 mt-0.5 block">
+          <div className="p-3 bg-[var(--panel-2)] rounded-xl border border-[var(--line)]">
+            <span className="text-[var(--ink-3)] text-xs block">Sound intensity (0 to 1)</span>
+            <span className="text-lg sm:text-xl font-bold text-[var(--brass)] mt-0.5 block">
               {observation.normalizedValue.toFixed(3)}
             </span>
             <div className="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
               <div
-                className="bg-cyan-400 h-full rounded-full"
+                className="bg-[var(--brass)] h-full rounded-full"
                 style={{ width: `${Math.round(observation.normalizedValue * 100)}%` }}
               />
             </div>
@@ -95,7 +95,7 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
         </div>
 
         {/* Spatial Coordinates & Sonification Parameters */}
-        <div className="p-3 bg-slate-950/70 rounded-xl border border-slate-800 space-y-2 text-xs font-mono">
+        <div className="p-3 bg-[var(--panel-2)] rounded-xl border border-[var(--line)] space-y-2 text-xs">
           <div className="flex items-center justify-between gap-2">
             <span className="text-slate-400 flex items-center gap-1.5 shrink-0">
               <MapPin className="w-3.5 h-3.5 text-slate-500" />
@@ -111,7 +111,7 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
               <Compass className="w-3.5 h-3.5 text-slate-500" />
               Stereo Spatial Pan:
             </span>
-            <span className="text-cyan-300 font-semibold text-[11px] sm:text-xs truncate">
+            <span className="text-[var(--ink)] font-semibold text-[11px] sm:text-xs truncate">
               {panValue} ({panLabel})
             </span>
           </div>
@@ -133,12 +133,12 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
         </div>
 
         {/* Audio Synthesis Formula Mapping */}
-        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs">
-          <div className="text-[10px] font-mono text-slate-400 flex items-center gap-1 mb-1">
-            <Sliders className="w-3 h-3 text-cyan-400" />
-            SYNTHESIS MAPPING FORMULA
+        <div className="p-3 bg-[var(--panel-2)] rounded-xl border border-[var(--line)] text-xs">
+          <div className="text-[10px] text-slate-400 flex items-center gap-1 mb-1">
+            <Sliders className="w-3 h-3 text-[var(--brass)]" />
+            How this value becomes sound
           </div>
-          <p className="text-[11px] font-mono text-slate-300 break-words">
+          <p className="text-[11px] text-slate-300 break-words">
             {catalog.audioFormula}
           </p>
         </div>
@@ -149,7 +149,7 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
             href={catalog.sourceUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-xs font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1 min-h-[44px]"
+            className="text-xs text-[var(--brass)] hover:text-[var(--ink)] flex items-center gap-1 min-h-[44px]"
           >
             <span>Source Provider ({catalog.provider})</span>
             <ExternalLink className="w-3 h-3" />
@@ -157,10 +157,10 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({
 
           <button
             onClick={handlePlaySound}
-            className="w-full sm:w-auto px-4 py-2.5 min-h-[44px] rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-mono text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-500/20 transition cursor-pointer"
+            className="btn btn-brass w-full sm:w-auto min-h-[44px]"
           >
             <Volume2 className="w-4 h-4" />
-            <span>PLAY LOCATION AUDIO</span>
+            <span>Play this place</span>
           </button>
         </div>
       </div>

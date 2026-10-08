@@ -1,0 +1,3299 @@
+{
+ "generated": "2026-10-08",
+ "source": "NASA POWER Daily API v2.10, parameter PRECTOTCORR (MERRA-2 based)",
+ "method": "396-point 10° global sample grid (lat -50..50). Kept the 48 points with the highest single-day rain on 2026-10-02..05.",
+ "slices": [
+  {
+   "timestepIndex": 0,
+   "dateLabel": "2026-10-02",
+   "timestamp": "2026-10-02",
+   "observations": [
+    {
+     "id": "precip-20,105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 105,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.69,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Vietnam",
+     "metadata": {
+      "cell": "20°N, 105°E"
+     }
+    },
+    {
+     "id": "precip-10,-85",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -85,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 37.58,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Costa Rica",
+     "metadata": {
+      "cell": "10°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-30,-85",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -85,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 15.01,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-0,15",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 15,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.6,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Congo",
+     "metadata": {
+      "cell": "0°N, 15°E"
+     }
+    },
+    {
+     "id": "precip--40,-45",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -45,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.41,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,-45",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -45,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.96,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 45°W"
+     }
+    },
+    {
+     "id": "precip-0,65",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 65,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 11.66,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 65°E"
+     }
+    },
+    {
+     "id": "precip-10,165",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 165,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 22.42,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 165°E"
+     }
+    },
+    {
+     "id": "precip-20,155",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 155,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.68,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-25",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -25,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.4,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-115",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -115,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "20°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,-55",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -55,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "30°S, 55°W"
+     }
+    },
+    {
+     "id": "precip-30,115",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 115,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.83,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 115°E"
+     }
+    },
+    {
+     "id": "precip-10,-15",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -15,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 16.57,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Guinea",
+     "metadata": {
+      "cell": "10°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-25",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -25,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 26.88,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "30°S, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-15",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -15,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mauritania",
+     "metadata": {
+      "cell": "20°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-115",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -115,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 24.58,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 115°W"
+     }
+    },
+    {
+     "id": "precip--10,-155",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -155,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 8.8,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 155°W"
+     }
+    },
+    {
+     "id": "precip--20,35",
+     "phenomenon": "precipitation",
+     "latitude": -20,
+     "longitude": 35,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 24.35,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mozambique",
+     "metadata": {
+      "cell": "20°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-30,95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 95,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.36,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-0,95",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 95,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.19,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-50,155",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": 155,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 22.44,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Russia",
+     "metadata": {
+      "cell": "50°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-5",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -5,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.48,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Côte d'Ivoire",
+     "metadata": {
+      "cell": "10°N, 5°W"
+     }
+    },
+    {
+     "id": "precip-10,-115",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -115,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.33,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,125",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 125,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.15,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Australia",
+     "metadata": {
+      "cell": "30°S, 125°E"
+     }
+    },
+    {
+     "id": "precip--40,35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 35,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.93,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "40°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-10,-55",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -55,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.09,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 55°W"
+     }
+    },
+    {
+     "id": "precip-0,-145",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": -145,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.3,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 145°W"
+     }
+    },
+    {
+     "id": "precip--50,-5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -5,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.87,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°W"
+     }
+    },
+    {
+     "id": "precip-40,-65",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -65,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "40°N, 65°W"
+     }
+    },
+    {
+     "id": "precip-20,-95",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -95,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.27,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mexico",
+     "metadata": {
+      "cell": "20°N, 95°W"
+     }
+    },
+    {
+     "id": "precip-20,-105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -105,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 10.19,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mexico",
+     "metadata": {
+      "cell": "20°N, 105°W"
+     }
+    },
+    {
+     "id": "precip--10,165",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 165,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.22,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coral Sea",
+     "metadata": {
+      "cell": "10°S, 165°E"
+     }
+    },
+    {
+     "id": "precip-40,-85",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -85,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 16.41,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "40°N, 85°W"
+     }
+    },
+    {
+     "id": "precip--40,155",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 155,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 16.26,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Tasman Sea",
+     "metadata": {
+      "cell": "40°S, 155°E"
+     }
+    },
+    {
+     "id": "precip--30,-105",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -105,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.74,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 105°W"
+     }
+    },
+    {
+     "id": "precip-20,145",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 145,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.82,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 145°E"
+     }
+    },
+    {
+     "id": "precip-30,-95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -95,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.18,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 95°W"
+     }
+    },
+    {
+     "id": "precip--30,75",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 75,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 5.32,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "30°S, 75°E"
+     }
+    },
+    {
+     "id": "precip--50,5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 5,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.3,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°E"
+     }
+    },
+    {
+     "id": "precip-50,-65",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": -65,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.29,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Canada",
+     "metadata": {
+      "cell": "50°N, 65°W"
+     }
+    },
+    {
+     "id": "precip--50,-45",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -45,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.94,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,175",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 175,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.56,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,175",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 175,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,-55",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -55,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 11.99,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "10°S, 55°W"
+     }
+    },
+    {
+     "id": "precip--50,25",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 25,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.38,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "50°S, 25°E"
+     }
+    },
+    {
+     "id": "precip-30,145",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 145,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.81,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "30°N, 145°E"
+     }
+    },
+    {
+     "id": "precip--40,-35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -35,
+     "timestamp": "2026-10-02",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 35°W"
+     }
+    }
+   ]
+  },
+  {
+   "timestepIndex": 1,
+   "dateLabel": "2026-10-03",
+   "timestamp": "2026-10-03",
+   "observations": [
+    {
+     "id": "precip-20,105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 105,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.35,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.66,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Vietnam",
+     "metadata": {
+      "cell": "20°N, 105°E"
+     }
+    },
+    {
+     "id": "precip-10,-85",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -85,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 82,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 44.42,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Costa Rica",
+     "metadata": {
+      "cell": "10°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-30,-85",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -85,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -7.84,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-0,15",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 15,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 8.72,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 4.12,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Congo",
+     "metadata": {
+      "cell": "0°N, 15°E"
+     }
+    },
+    {
+     "id": "precip--40,-45",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -45,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.26,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.15,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,-45",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -45,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 52.14,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 49.18,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 45°W"
+     }
+    },
+    {
+     "id": "precip-0,65",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 65,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 50.47,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 38.81,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 65°E"
+     }
+    },
+    {
+     "id": "precip-10,165",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 165,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 46.34,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 23.92,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 165°E"
+     }
+    },
+    {
+     "id": "precip-20,155",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 155,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 14.52,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 11.84,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-25",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -25,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.96,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.56,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-115",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -115,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.55,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.62,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "20°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,-55",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -55,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 29.9,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 29.9,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "30°S, 55°W"
+     }
+    },
+    {
+     "id": "precip-30,115",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 115,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 29.49,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 24.66,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 115°E"
+     }
+    },
+    {
+     "id": "precip-10,-15",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -15,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 29.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 12.6,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Guinea",
+     "metadata": {
+      "cell": "10°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-25",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -25,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.11,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -26.77,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "30°S, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-15",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -15,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.12,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.12,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mauritania",
+     "metadata": {
+      "cell": "20°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-115",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -115,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.52,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -24.06,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 115°W"
+     }
+    },
+    {
+     "id": "precip--10,-155",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -155,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 22.45,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 13.65,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 155°W"
+     }
+    },
+    {
+     "id": "precip--20,35",
+     "phenomenon": "precipitation",
+     "latitude": -20,
+     "longitude": 35,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.05,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -24.3,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mozambique",
+     "metadata": {
+      "cell": "20°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-30,95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 95,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 22.81,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 21.45,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-0,95",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 95,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 22.47,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 15.28,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-50,155",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": 155,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.62,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -20.82,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Russia",
+     "metadata": {
+      "cell": "50°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-5",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -5,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -7.31,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Côte d'Ivoire",
+     "metadata": {
+      "cell": "10°N, 5°W"
+     }
+    },
+    {
+     "id": "precip-10,-115",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -115,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 5.75,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.42,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,125",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 125,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 20.17,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 20.02,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Australia",
+     "metadata": {
+      "cell": "30°S, 125°E"
+     }
+    },
+    {
+     "id": "precip--40,35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 35,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 19.99,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 19.06,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "40°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-10,-55",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -55,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.06,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 5.97,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 55°W"
+     }
+    },
+    {
+     "id": "precip-0,-145",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": -145,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 18.75,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 11.45,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 145°W"
+     }
+    },
+    {
+     "id": "precip--50,-5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -5,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 18.22,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 17.35,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°W"
+     }
+    },
+    {
+     "id": "precip-40,-65",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -65,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.07,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 12.07,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "40°N, 65°W"
+     }
+    },
+    {
+     "id": "precip-20,-95",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -95,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.89,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.62,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mexico",
+     "metadata": {
+      "cell": "20°N, 95°W"
+     }
+    },
+    {
+     "id": "precip-20,-105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -105,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 5.79,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -4.4,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mexico",
+     "metadata": {
+      "cell": "20°N, 105°W"
+     }
+    },
+    {
+     "id": "precip--10,165",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 165,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 16.97,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 9.75,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coral Sea",
+     "metadata": {
+      "cell": "10°S, 165°E"
+     }
+    },
+    {
+     "id": "precip-40,-85",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -85,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -16.41,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "40°N, 85°W"
+     }
+    },
+    {
+     "id": "precip--40,155",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 155,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 10.68,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -5.58,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Tasman Sea",
+     "metadata": {
+      "cell": "40°S, 155°E"
+     }
+    },
+    {
+     "id": "precip--30,-105",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -105,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.47,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -5.27,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 105°W"
+     }
+    },
+    {
+     "id": "precip-20,145",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 145,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.43,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.61,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 145°E"
+     }
+    },
+    {
+     "id": "precip-30,-95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -95,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 14.67,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.49,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 95°W"
+     }
+    },
+    {
+     "id": "precip--30,75",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 75,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.49,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -3.83,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "30°S, 75°E"
+     }
+    },
+    {
+     "id": "precip--50,5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 5,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 14.33,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 12.03,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°E"
+     }
+    },
+    {
+     "id": "precip-50,-65",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": -65,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.01,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.28,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Canada",
+     "metadata": {
+      "cell": "50°N, 65°W"
+     }
+    },
+    {
+     "id": "precip--50,-45",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -45,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.02,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -1.92,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,175",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 175,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.51,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.05,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,175",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 175,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 11.92,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.75,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,-55",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -55,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.46,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -10.53,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "10°S, 55°W"
+     }
+    },
+    {
+     "id": "precip--50,25",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 25,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.12,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.74,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "50°S, 25°E"
+     }
+    },
+    {
+     "id": "precip-30,145",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 145,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.63,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.18,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "30°N, 145°E"
+     }
+    },
+    {
+     "id": "precip--40,-35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -35,
+     "timestamp": "2026-10-03",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.57,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -1.27,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 35°W"
+     }
+    }
+   ]
+  },
+  {
+   "timestepIndex": 2,
+   "dateLabel": "2026-10-04",
+   "timestamp": "2026-10-04",
+   "observations": [
+    {
+     "id": "precip-20,105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 105,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 31.7,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 27.35,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Vietnam",
+     "metadata": {
+      "cell": "20°N, 105°E"
+     }
+    },
+    {
+     "id": "precip-10,-85",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -85,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.5,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -79.5,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Costa Rica",
+     "metadata": {
+      "cell": "10°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-30,-85",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -85,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.79,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.62,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-0,15",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 15,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 58.3,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 49.58,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Congo",
+     "metadata": {
+      "cell": "0°N, 15°E"
+     }
+    },
+    {
+     "id": "precip--40,-45",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -45,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 52.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 52.58,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,-45",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -45,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -44.3,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 45°W"
+     }
+    },
+    {
+     "id": "precip-0,65",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 65,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.03,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -37.44,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 65°E"
+     }
+    },
+    {
+     "id": "precip-10,165",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 165,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 6.5,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -39.84,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 165°E"
+     }
+    },
+    {
+     "id": "precip-20,155",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 155,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 44.35,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 29.83,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-25",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -25,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 38.56,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 36.6,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-115",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -115,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 37.71,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 36.16,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "20°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,-55",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -55,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.16,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -29.74,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "30°S, 55°W"
+     }
+    },
+    {
+     "id": "precip-30,115",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 115,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.65,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -25.84,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 115°E"
+     }
+    },
+    {
+     "id": "precip-10,-15",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -15,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 10.71,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -18.46,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Guinea",
+     "metadata": {
+      "cell": "10°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-25",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -25,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.08,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.03,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "30°S, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-15",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -15,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.25,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.13,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mauritania",
+     "metadata": {
+      "cell": "20°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-115",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -115,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.22,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.3,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 115°W"
+     }
+    },
+    {
+     "id": "precip--10,-155",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -155,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 24.55,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.1,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 155°W"
+     }
+    },
+    {
+     "id": "precip--20,35",
+     "phenomenon": "precipitation",
+     "latitude": -20,
+     "longitude": 35,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.05,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mozambique",
+     "metadata": {
+      "cell": "20°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-30,95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 95,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.93,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.88,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-0,95",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 95,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.78,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -20.69,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-50,155",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": 155,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.79,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.83,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Russia",
+     "metadata": {
+      "cell": "50°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-5",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -5,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 19.62,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 17.45,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Côte d'Ivoire",
+     "metadata": {
+      "cell": "10°N, 5°W"
+     }
+    },
+    {
+     "id": "precip-10,-115",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -115,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 20.99,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 15.24,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,125",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 125,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.21,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -19.96,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Australia",
+     "metadata": {
+      "cell": "30°S, 125°E"
+     }
+    },
+    {
+     "id": "precip--40,35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 35,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.02,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -19.97,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "40°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-10,-55",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -55,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 19.95,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 10.89,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 55°W"
+     }
+    },
+    {
+     "id": "precip-0,-145",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": -145,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.46,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.29,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 145°W"
+     }
+    },
+    {
+     "id": "precip--50,-5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -5,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.14,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -16.08,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°W"
+     }
+    },
+    {
+     "id": "precip-40,-65",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -65,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 17.64,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 5.57,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "40°N, 65°W"
+     }
+    },
+    {
+     "id": "precip-20,-95",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -95,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 6.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 3.95,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mexico",
+     "metadata": {
+      "cell": "20°N, 95°W"
+     }
+    },
+    {
+     "id": "precip-20,-105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -105,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.05,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 6.26,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mexico",
+     "metadata": {
+      "cell": "20°N, 105°W"
+     }
+    },
+    {
+     "id": "precip--10,165",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 165,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.12,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.85,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coral Sea",
+     "metadata": {
+      "cell": "10°S, 165°E"
+     }
+    },
+    {
+     "id": "precip-40,-85",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -85,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "40°N, 85°W"
+     }
+    },
+    {
+     "id": "precip--40,155",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 155,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.18,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.5,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Tasman Sea",
+     "metadata": {
+      "cell": "40°S, 155°E"
+     }
+    },
+    {
+     "id": "precip--30,-105",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -105,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 15.49,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 11.02,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 105°W"
+     }
+    },
+    {
+     "id": "precip-20,145",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 145,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 14.99,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 5.56,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 145°E"
+     }
+    },
+    {
+     "id": "precip-30,-95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -95,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 10.32,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -4.35,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 95°W"
+     }
+    },
+    {
+     "id": "precip--30,75",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 75,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.41,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -1.08,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "30°S, 75°E"
+     }
+    },
+    {
+     "id": "precip--50,5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 5,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -13.49,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°E"
+     }
+    },
+    {
+     "id": "precip-50,-65",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": -65,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.01,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Canada",
+     "metadata": {
+      "cell": "50°N, 65°W"
+     }
+    },
+    {
+     "id": "precip--50,-45",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -45,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.34,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.32,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,175",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 175,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.12,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.61,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,175",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 175,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.23,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.31,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,-55",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -55,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.54,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.08,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "10°S, 55°W"
+     }
+    },
+    {
+     "id": "precip--50,25",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 25,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.45,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 10.33,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "50°S, 25°E"
+     }
+    },
+    {
+     "id": "precip-30,145",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 145,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 8.11,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 4.48,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "30°N, 145°E"
+     }
+    },
+    {
+     "id": "precip--40,-35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -35,
+     "timestamp": "2026-10-04",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.05,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.52,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 35°W"
+     }
+    }
+   ]
+  },
+  {
+   "timestepIndex": 3,
+   "dateLabel": "2026-10-05",
+   "timestamp": "2026-10-05",
+   "observations": [
+    {
+     "id": "precip-20,105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 105,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 93.02,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 61.32,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Vietnam",
+     "metadata": {
+      "cell": "20°N, 105°E"
+     }
+    },
+    {
+     "id": "precip-10,-85",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -85,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 4.88,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.38,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Costa Rica",
+     "metadata": {
+      "cell": "10°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-30,-85",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -85,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 69.39,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 61.6,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 85°W"
+     }
+    },
+    {
+     "id": "precip-0,15",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 15,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.55,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -54.75,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Congo",
+     "metadata": {
+      "cell": "0°N, 15°E"
+     }
+    },
+    {
+     "id": "precip--40,-45",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -45,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.12,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -52.72,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,-45",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -45,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 3.82,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -4.02,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 45°W"
+     }
+    },
+    {
+     "id": "precip-0,65",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 65,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.03,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -11,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 65°E"
+     }
+    },
+    {
+     "id": "precip-10,165",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 165,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 8.61,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.11,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 165°E"
+     }
+    },
+    {
+     "id": "precip-20,155",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 155,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 31.93,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -12.42,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-25",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -25,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 21.84,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -16.72,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Atlantic",
+     "metadata": {
+      "cell": "10°N, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-115",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -115,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 20.51,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -17.2,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern North Pacific",
+     "metadata": {
+      "cell": "20°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,-55",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -55,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.16,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "30°S, 55°W"
+     }
+    },
+    {
+     "id": "precip-30,115",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 115,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -3.65,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 115°E"
+     }
+    },
+    {
+     "id": "precip-10,-15",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -15,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.66,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.05,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Guinea",
+     "metadata": {
+      "cell": "10°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-25",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -25,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.02,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.06,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "30°S, 25°W"
+     }
+    },
+    {
+     "id": "precip-20,-15",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -15,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 26.59,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 24.34,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mauritania",
+     "metadata": {
+      "cell": "20°N, 15°W"
+     }
+    },
+    {
+     "id": "precip--30,-115",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -115,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.36,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.14,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 115°W"
+     }
+    },
+    {
+     "id": "precip--10,-155",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -155,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.97,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -16.58,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 155°W"
+     }
+    },
+    {
+     "id": "precip--20,35",
+     "phenomenon": "precipitation",
+     "latitude": -20,
+     "longitude": 35,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.01,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.96,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mozambique",
+     "metadata": {
+      "cell": "20°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-30,95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 95,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -11.93,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "China",
+     "metadata": {
+      "cell": "30°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-0,95",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": 95,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.91,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.13,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Equatorial Indian Ocean",
+     "metadata": {
+      "cell": "0°N, 95°E"
+     }
+    },
+    {
+     "id": "precip-50,155",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": 155,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.03,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.76,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Russia",
+     "metadata": {
+      "cell": "50°N, 155°E"
+     }
+    },
+    {
+     "id": "precip-10,-5",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -5,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 21.69,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 2.07,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Côte d'Ivoire",
+     "metadata": {
+      "cell": "10°N, 5°W"
+     }
+    },
+    {
+     "id": "precip-10,-115",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -115,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.03,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -8.96,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 115°W"
+     }
+    },
+    {
+     "id": "precip--30,125",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 125,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.21,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Australia",
+     "metadata": {
+      "cell": "30°S, 125°E"
+     }
+    },
+    {
+     "id": "precip--40,35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 35,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.23,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 1.21,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Agulhas region, off South Africa",
+     "metadata": {
+      "cell": "40°S, 35°E"
+     }
+    },
+    {
+     "id": "precip-10,-55",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": -55,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.62,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -18.33,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 55°W"
+     }
+    },
+    {
+     "id": "precip-0,-145",
+     "phenomenon": "precipitation",
+     "latitude": 0,
+     "longitude": -145,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.19,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -2.27,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "0°N, 145°W"
+     }
+    },
+    {
+     "id": "precip--50,-5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -5,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 2.16,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.02,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°W"
+     }
+    },
+    {
+     "id": "precip-40,-65",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -65,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.76,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -4.88,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "North Atlantic",
+     "metadata": {
+      "cell": "40°N, 65°W"
+     }
+    },
+    {
+     "id": "precip-20,-95",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -95,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 17.32,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 10.48,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Mexico",
+     "metadata": {
+      "cell": "20°N, 95°W"
+     }
+    },
+    {
+     "id": "precip-20,-105",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": -105,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 16.98,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 4.93,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Mexico",
+     "metadata": {
+      "cell": "20°N, 105°W"
+     }
+    },
+    {
+     "id": "precip--10,165",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 165,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.94,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -5.18,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coral Sea",
+     "metadata": {
+      "cell": "10°S, 165°E"
+     }
+    },
+    {
+     "id": "precip-40,-85",
+     "phenomenon": "precipitation",
+     "latitude": 40,
+     "longitude": -85,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "40°N, 85°W"
+     }
+    },
+    {
+     "id": "precip--40,155",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": 155,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.6,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -10.58,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Tasman Sea",
+     "metadata": {
+      "cell": "40°S, 155°E"
+     }
+    },
+    {
+     "id": "precip--30,-105",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": -105,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.06,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -15.43,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Eastern South Pacific",
+     "metadata": {
+      "cell": "30°S, 105°W"
+     }
+    },
+    {
+     "id": "precip-20,145",
+     "phenomenon": "precipitation",
+     "latitude": 20,
+     "longitude": 145,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.74,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -1.25,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "20°N, 145°E"
+     }
+    },
+    {
+     "id": "precip-30,-95",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": -95,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 0.85,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -9.47,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "United States",
+     "metadata": {
+      "cell": "30°N, 95°W"
+     }
+    },
+    {
+     "id": "precip--30,75",
+     "phenomenon": "precipitation",
+     "latitude": -30,
+     "longitude": 75,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 14.4,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 13.99,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "30°S, 75°E"
+     }
+    },
+    {
+     "id": "precip--50,5",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 5,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 1.71,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 0.87,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 5°E"
+     }
+    },
+    {
+     "id": "precip-50,-65",
+     "phenomenon": "precipitation",
+     "latitude": 50,
+     "longitude": -65,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.82,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 13.82,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Coast of Canada",
+     "metadata": {
+      "cell": "50°N, 65°W"
+     }
+    },
+    {
+     "id": "precip--50,-45",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": -45,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.66,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 12.32,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "50°S, 45°W"
+     }
+    },
+    {
+     "id": "precip-10,175",
+     "phenomenon": "precipitation",
+     "latitude": 10,
+     "longitude": 175,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 7.01,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -0.11,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°N, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,175",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": 175,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 8.91,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -4.32,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Central Equatorial Pacific",
+     "metadata": {
+      "cell": "10°S, 175°E"
+     }
+    },
+    {
+     "id": "precip--10,-55",
+     "phenomenon": "precipitation",
+     "latitude": -10,
+     "longitude": -55,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 13.2,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 11.66,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Brazil",
+     "metadata": {
+      "cell": "10°S, 55°W"
+     }
+    },
+    {
+     "id": "precip--50,25",
+     "phenomenon": "precipitation",
+     "latitude": -50,
+     "longitude": 25,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 9.67,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": -2.78,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Southern Indian Ocean",
+     "metadata": {
+      "cell": "50°S, 25°E"
+     }
+    },
+    {
+     "id": "precip-30,145",
+     "phenomenon": "precipitation",
+     "latitude": 30,
+     "longitude": 145,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.33,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 4.22,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "Western North Pacific",
+     "metadata": {
+      "cell": "30°N, 145°E"
+     }
+    },
+    {
+     "id": "precip--40,-35",
+     "phenomenon": "precipitation",
+     "latitude": -40,
+     "longitude": -35,
+     "timestamp": "2026-10-05",
+     "variable": "Daily precipitation (PRECTOTCORR)",
+     "value": 12.01,
+     "unit": "mm/day",
+     "normalizedValue": 0,
+     "delta": 11.96,
+     "source": "NASA POWER (MERRA-2 based), daily",
+     "regionName": "South Atlantic",
+     "metadata": {
+      "cell": "40°S, 35°W"
+     }
+    }
+   ]
+  }
+ ]
+}

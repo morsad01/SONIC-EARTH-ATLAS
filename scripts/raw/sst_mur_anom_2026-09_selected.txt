@@ -1,0 +1,47 @@
+# NASA JPL MUR SST anomaly, monthly (ERDDAP dataset jplMURSST41anommday, NOAA CoastWatch), time 2026-09-16T00:00:00Z (September 2026)
+# Request: sstAnom[(2026-09-16T00:00:00Z)][(-60):100:(60)][(-179.99):100:(180)]  -> 43560 cells (1 deg stride), 32095 valid (non-NaN)
+# Open-ocean filter: |lat|<=58 and no NaN (land/ice) cell within +-3 deg -> 25020 candidates
+# Selection: sorted by |anomaly|, greedy pick with >=12 deg spacing (cos-lat corrected), first 40
+# Area-weighted mean anomaly of all valid cells: +0.693 C ; fraction of valid cells warmer than normal: 0.763
+# Bay of Bengal sample cells (lat,lon,anom): 20,90,0.875 19,89,0.716 18,88,0.578 17,89,0.771 16,87,0.750 15,90,0.757 14,85,0.705 12,88,0.734 20,88,0.923
+lat,lon,anom_C
+-1,-92,7.11
+-42,25,6.46
+-1,-107,6.21
+-10,-83,5.39
+-1,-120,5.18
+0,-132,4.7
+-42,-53,-4.56
+46,167,4.53
+0,-146,4.25
+-40,9,4.11
+42,-51,4.04
+26,-120,3.66
+0,-158,3.5
+-45,80,3.47
+44,-173,3.45
+-39,53,-3.43
+-19,93,2.87
+47,-155,2.84
+-49,-35,2.73
+-44,-14,2.72
+12,55,2.71
+37,145,2.62
+22,-137,2.6
+-41,152,2.59
+-58,-66,-2.52
+-58,-122,2.29
+19,-109,2.26
+-35,110,2.18
+26,-64,2.17
+-21,-74,2.15
+-19,-101,2.14
+47,-9,2.1
+-45,99,-2.09
+11,68,2.08
+17,-149,2.07
+11,-174,2.04
+-33,39,2.02
+-57,165,-2.01
+-49,130,-1.98
+41,-31,1.98
