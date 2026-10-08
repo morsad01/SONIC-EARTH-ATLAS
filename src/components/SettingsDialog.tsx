@@ -23,6 +23,13 @@ const SHORTCUTS: [string, string, string][] = [
   ['?', 'Open this panel', 'এই প্যানেল খুলুন'],
 ];
 
+const Toggle: React.FC<{ label: string; on: boolean; onClick: () => void }> = ({ label, on, onClick }) => (
+  <button role="switch" aria-checked={on} onClick={onClick} className="w-full flex items-center justify-between py-2.5 cursor-pointer">
+    <span>{label}</span>
+    <span className={`w-11 h-6 rounded-full p-0.5 transition ${on ? 'bg-[var(--brass)]' : 'bg-[var(--line)]'}`}><span className={`block w-5 h-5 rounded-full bg-white transition ${on ? 'translate-x-5' : ''}`} /></span>
+  </button>
+);
+
 export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolume, spatialMode, onToggleSpatial, showDiagnostics, onToggleDiagnostics }) => {
   const p = usePrefs();
   const ref = useRef<HTMLDivElement>(null);
@@ -34,13 +41,6 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
     return () => window.removeEventListener('keydown', k);
   }, [open, onClose]);
   if (!open) return null;
-
-  const Toggle: React.FC<{ label: string; on: boolean; onClick: () => void }> = ({ label, on, onClick }) => (
-    <button role="switch" aria-checked={on} onClick={onClick} className="w-full flex items-center justify-between py-2.5 cursor-pointer">
-      <span>{label}</span>
-      <span className={`w-11 h-6 rounded-full p-0.5 transition ${on ? 'bg-[var(--brass)]' : 'bg-[var(--line)]'}`}><span className={`block w-5 h-5 rounded-full bg-white transition ${on ? 'translate-x-5' : ''}`} /></span>
-    </button>
-  );
 
   return (
     <div className="fixed inset-0 z-[70] bg-black/60 flex justify-end" onClick={onClose}>
