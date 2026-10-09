@@ -1,3 +1,5 @@
+import { isAlpha3 } from '../countries/iso';
+
 /** A small, versioned URL hash that restores a view: `#v1&track=frames&frame=eic-ghg&col=40&lang=bn`.
  *  New keys and track ids are only ever added, so older links keep decoding. */
 export const TRACK_IDS = ['atlas', 'frames', 'monsoon', 'pulse', 'about'] as const;
@@ -11,6 +13,7 @@ export interface ShareState {
   b?: string;
   col?: number; // needle column, 0..127
   lang?: 'en' | 'bn';
+  c?: string; // selected country, ISO alpha-3
 }
 
 export interface ShareChoices { frames: string[]; pairs: string[] }
@@ -22,6 +25,7 @@ export function encodeShare(s: ShareState): string {
   else if (s.frame) p.set('frame', s.frame);
   if (s.col !== undefined && s.col > 0) p.set('col', String(Math.round(s.col)));
   if (s.lang) p.set('lang', s.lang);
+  if (s.c && isAlpha3(s.c)) p.set('c', s.c);
   return `v1&${p.toString()}`;
 }
 
@@ -47,5 +51,7 @@ export function decodeShare(hash: string, ok: ShareChoices): ShareState | null {
   if (p.get('col') !== null && Number.isInteger(col) && col >= 0 && col <= 127) out.col = col;
   const lang = p.get('lang');
   if (lang === 'en' || lang === 'bn') out.lang = lang;
+  const c = p.get('c');
+  if (c && isAlpha3(c)) out.c = c;
   return Object.keys(out).length ? out : null;
 }

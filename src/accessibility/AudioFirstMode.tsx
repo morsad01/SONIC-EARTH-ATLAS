@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
+import { CountryPanel } from '../countries/CountryPanel';
+import type { Country } from '../countries/countries';
 import { Volume2, VolumeX, Radio, Flame, CloudRain, Waves } from 'lucide-react';
 
 interface AudioFirstModeProps {
@@ -9,6 +11,7 @@ interface AudioFirstModeProps {
   selectedObservation: EarthObservation | null;
   onSelectObservation: (obs: EarthObservation | null) => void;
   onExitAudioFirst: () => void;
+  countries?: { list: Country[]; country: Country | null; point: { lat: number; lon: number } | null; onSelect: (c: Country | null) => void };
 }
 
 export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
@@ -17,6 +20,7 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
   selectedObservation,
   onSelectObservation,
   onExitAudioFirst,
+  countries,
 }) => {
   const [speechEnabled, setSpeechEnabled] = useState(false);
   const [activePhenomenonFilter, setActivePhenomenonFilter] = useState<'all' | PhenomenonType>('all');
@@ -90,6 +94,8 @@ export const AudioFirstMode: React.FC<AudioFirstModeProps> = ({
           </button>
         </div>
       </div>
+
+      {countries && <CountryPanel list={countries.list} country={countries.country} point={countries.point} onSelect={countries.onSelect} />}
 
       {/* Phenomenon Filter Bar */}
       <div className="flex flex-wrap items-center gap-2">
