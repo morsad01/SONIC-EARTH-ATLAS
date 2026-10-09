@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { ArrowDown, Compass, Globe2, Headphones, Play } from 'lucide-react';
 import type { EarthObservation } from '../types/dataset';
 import { usePrefs } from '../lib/prefs';
@@ -6,6 +6,8 @@ import { TRACKS, type Track } from '../lib/nav';
 import { Footer } from '../components/Footer';
 import { gibsUrl } from '../lib/gibs';
 import { useScrollStage, type Stage } from './useScrollStage';
+
+const TopicCarousel = lazy(() => import('../stories/TopicCarousel').then((m) => ({ default: m.TopicCarousel })));
 
 interface Props {
   fireObs: EarthObservation[];
@@ -16,6 +18,7 @@ interface Props {
   onSilent: () => void;
   onAbout: () => void;
   onStage: (s: Stage) => void;
+  onTopic: (storyId: string) => void;
 }
 
 /** Bars drawn from the real data each track plays, so each "record" shows its own waveform. */
@@ -35,10 +38,10 @@ const Wave: React.FC<{ values: number[]; color: string; signed?: boolean }> = ({
 
 /**
  * Landing page. Sections: (1) hero, (2) split copy + globe, (3) immersive globe, (4) track records,
- * (5) how data becomes sound, (6) footer. The globe itself lives behind this layer (App's main canvas);
+ * (5) topic carousel and how data becomes sound, (6) footer. The globe itself lives behind this layer (App's main canvas);
  * the scroll stage of sections 1–3 sets its framing.
  */
-export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen, onTour, onSilent, onAbout, onStage }) => {
+export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen, onTour, onSilent, onAbout, onStage, onTopic }) => {
   const { t, reduceMotion } = usePrefs();
   const { ref, stage } = useScrollStage<HTMLDivElement>();
   useEffect(() => { onStage(stage); }, [stage, onStage]);
@@ -128,7 +131,8 @@ export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen,
           </ul>
         </section>
 
-        {/* 5 · How data becomes sound (the topic carousel joins here in Phase 4) */}
+        {/* 5 · Topic carousel (Feature D), then how data becomes sound */}
+        <Suspense fallback={<div className="min-h-[24rem]" />}><TopicCarousel onListen={onTopic} /></Suspense>
         <section className="reveal max-w-6xl mx-auto px-5 sm:px-10 py-14" aria-labelledby="how-title">
           <h2 id="how-title" className="font-display text-2xl font-semibold mb-4">{t('howTitle')}</h2>
           <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">

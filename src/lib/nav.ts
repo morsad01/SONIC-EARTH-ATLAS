@@ -1,8 +1,8 @@
 /** Views and the v3 sections they belong to (roadmap D2). */
-export type Track = 'atlas' | 'frames' | 'monsoon' | 'pulse' | 'about';
+export type Track = 'atlas' | 'frames' | 'monsoon' | 'pulse' | 'about' | 'jukebox';
 export type Section = 'explore' | 'jukebox' | 'about';
 type TrackKey = 'track1' | 'track2' | 'track3' | 'track4';
-export const TRACKS: { id: Exclude<Track, 'about'>; key: TrackKey; code: string }[] = [
+export const TRACKS: { id: Exclude<Track, 'about' | 'jukebox'>; key: TrackKey; code: string }[] = [
   { id: 'atlas', key: 'track1', code: 'A1' },
   { id: 'frames', key: 'track2', code: 'A2' },
   { id: 'monsoon', key: 'track3', code: 'B1' },

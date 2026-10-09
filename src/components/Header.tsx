@@ -3,6 +3,10 @@ import { Volume2, VolumeX, Settings, Database, Circle, Compass, Menu, X, Pause, 
 import { usePrefs } from '../lib/prefs';
 import { usePlayback } from '../lib/playbackContext';
 import { JUKEBOX_TRACKS, sectionOf, type Section, type Track } from '../lib/nav';
+import type { StringKey } from '../lib/strings';
+
+/** Collections row: the Jukebox's own stories view, then A2/B1/B2. */
+const COLLECTIONS: { id: Track; key: StringKey; code: string }[] = [{ id: 'jukebox', key: 'jbStoriesNav', code: '♪' }, ...JUKEBOX_TRACKS];
 
 interface Props {
   track: Track;
@@ -99,7 +103,7 @@ export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox
       {/* Jukebox collections: a second row only inside the Data Jukebox */}
       {section === 'jukebox' && (
         <nav className="flex gap-1 px-2 sm:px-4 pb-2 overflow-x-auto" aria-label={t('collections')}>
-          {JUKEBOX_TRACKS.map((tr) => (
+          {COLLECTIONS.map((tr) => (
             <button key={tr.id} onClick={() => go(tr.id)} aria-current={track === tr.id ? 'page' : undefined} className="nav-link shrink-0">
               <span className="tnum text-[11px] font-semibold">{tr.code}</span>{t(tr.key)}
             </button>
@@ -115,7 +119,7 @@ export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox
               <li>
                 <button className="nav-link w-full min-h-[44px]" onClick={() => go(lastJukebox)} aria-current={section === 'jukebox' ? 'page' : undefined}>{t('navJukebox')}</button>
                 <ul className="ml-4 mt-1 flex flex-col gap-1 border-l border-[var(--line)] pl-2" aria-label={t('collections')}>
-                  {JUKEBOX_TRACKS.map((tr) => (
+                  {COLLECTIONS.map((tr) => (
                     <li key={tr.id}><button className="nav-link w-full min-h-[44px]" onClick={() => go(tr.id)} aria-current={track === tr.id && !onLanding ? 'page' : undefined}><span className="tnum text-[11px] font-semibold">{tr.code}</span>{t(tr.key)}</button></li>
                   ))}
                 </ul>

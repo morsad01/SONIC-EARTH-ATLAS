@@ -106,6 +106,30 @@ body { background: var(--abyss); }
 html.rm .reveal { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .reveal { animation: none !important; } }
 
+/* Data Jukebox: phone = one column picked by data-tab; tablet = two columns, filters in a drawer; desktop = three columns */
+.jb-grid { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (max-width: 767px) {
+  .jb-grid:not([data-tab='filters']) > [data-col='filters'], .jb-grid:not([data-tab='timeline']) > [data-col='timeline'], .jb-grid:not([data-tab='story']) > [data-col='story'] { display: none; }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .jb-grid { grid-template-columns: minmax(200px, .8fr) minmax(320px, 1.6fr); }
+  .jb-grid > [data-col='filters'] { display: none; }
+  .jb-grid[data-drawer='true'] > [data-col='filters'] { display: block; position: fixed; z-index: 60; top: var(--header-h); bottom: 0; left: 0; width: min(360px, 90vw); overflow-y: auto; padding: var(--space-3); background: var(--abyss); border-right: 1px solid var(--line); }
+  .jb-backdrop { position: fixed; inset: var(--header-h) 0 0 0; z-index: 55; background: rgb(0 0 0 / .55); border: 0; }
+}
+@media (min-width: 1024px) { .jb-grid { grid-template-columns: minmax(220px, 1fr) minmax(200px, .8fr) minmax(360px, 1.6fr); } }
+.story-row { scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scroll-padding-inline: var(--space-2); }
+.story-card { scroll-snap-align: center; width: min(78vw, 240px); }
+@media (min-width: 1024px) { .story-card { width: 260px; } }
+
+/* Topic carousel (landing): each stage remounts and plays one short entrance; "Skip animation" and reduced motion drop the movement */
+@keyframes topic-in { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes topic-fade { from { opacity: 0; } to { opacity: 1; } }
+.topic-stage { animation: topic-in var(--dur-slow) var(--ease-out) both; }
+.topic-carousel[data-skip='true'] .topic-stage { animation: none; }
+html.rm .topic-stage { animation-name: topic-fade; }
+@media (prefers-reduced-motion: reduce) { .topic-stage { animation-name: topic-fade; } }
+
 /* High contrast mode */
 html.hc { --panel: #000; --panel-2: #0b0b0b; --line: #f5f5f5; --ink: #fff; --ink-2: #fff; --ink-3: #e5e5e5; --brass: #ffd60a; }
 html.hc .panel { background: #000; backdrop-filter: none; }

@@ -33,6 +33,7 @@ describe('navigation', () => {
     expect(TRACKS.map((t) => sectionOf(t.id))).toEqual(['explore', 'jukebox', 'jukebox', 'jukebox']);
     expect(JUKEBOX_TRACKS.map((t) => t.id)).toEqual(['frames', 'monsoon', 'pulse']);
     expect(sectionOf('about')).toBe('about');
+    expect(sectionOf('jukebox')).toBe('jukebox');
   });
 });
 

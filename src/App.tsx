@@ -34,6 +34,7 @@ const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ defa
 const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
 const BangladeshMonsoon = lazy(() => import('./tracks/BangladeshMonsoon').then((m) => ({ default: m.BangladeshMonsoon })));
 const VitalSigns = lazy(() => import('./tracks/VitalSigns').then((m) => ({ default: m.VitalSigns })));
+const JukeboxView = lazy(() => import('./jukebox/JukeboxView').then((m) => ({ default: m.JukeboxView })));
 const AboutPage = lazy(() => import('./about/AboutPage').then((m) => ({ default: m.AboutPage })));
 
 type View = '3d-globe' | '2d-map' | 'audio-first';
@@ -46,7 +47,9 @@ export function App() {
   const [showHero, setShowHero] = useState(!initialShare?.track);
   const [autoListen, setAutoListen] = useState(false);
   const [track, setTrack] = useState<Track>(initialShare?.track ?? 'atlas');
-  const [lastJukebox, setLastJukebox] = useState<Track>(initialShare?.track && sectionOf(initialShare.track) === 'jukebox' ? initialShare.track : 'frames');
+  const [lastJukebox, setLastJukebox] = useState<Track>(initialShare?.track && sectionOf(initialShare.track) === 'jukebox' ? initialShare.track : 'jukebox');
+  // What the Jukebox opens on; `n` remounts it when the landing carousel or a country profile asks for a story.
+  const [jbStart, setJbStart] = useState<{ story?: string; t?: string; n: number }>(() => (initialShare?.track === 'jukebox' ? { story: initialShare.story, t: initialShare.t, n: 0 } : { n: 0 }));
   const [stage, setStage] = useState<Stage>(0);
   const [globeFailed, setGlobeFailed] = useState(false);
   const [view, setView] = useState<View>('3d-globe');
@@ -128,6 +131,7 @@ export function App() {
 
   const navigate = (tr: Track) => { setTrack(tr); if (sectionOf(tr) === 'jukebox') setLastJukebox(tr); };
   const goAbout = () => { navigate('about'); setShowHero(false); setTourOpen(false); };
+  const openJukebox = (story?: string) => { setJbStart((j) => ({ story, n: j.n + 1 })); navigate('jukebox'); setShowHero(false); setTourOpen(false); };
   const pickTrack = async (tr: Track) => {
     navigate(tr);
     setShowHero(false);
@@ -176,8 +180,14 @@ export function App() {
 
   const profileData = useMemo(() => ({
     slices, snapshotDates: data?.snapshotDates, isFallback: !!data?.isFallback, loading: !data,
-    onExplore: (c: string) => { navigate(c === 'BGD' ? 'monsoon' : lastJukebox); setShowHero(false); setTourOpen(false); },
-  }), [slices, data, lastJukebox]); // eslint-disable-line react-hooks/exhaustive-deps
+    onExplore: (c: string) => openJukebox(`c-${c.toLowerCase()}-temp`),
+  }), [slices, data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // A Jukebox story opens its full collection; an EIC picture opens on that frame (FrameJukebox reads the hash on mount).
+  const openCollection = (tr: Track, frameId?: string) => {
+    if (tr === 'frames' && frameId) history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${encodeShare({ track: 'frames', frame: frameId, c: cty.id ?? undefined })}`);
+    pickTrack(tr);
+  };
 
   const imageryUrl = imagery && slice && /^\d{4}-\d{2}-\d{2}$/.test(slice.dateLabel) ? gibsUrl('VIIRS_SNPP_CorrectedReflectance_TrueColor', slice.dateLabel, 'jpeg', 2048) : null;
 
@@ -195,7 +205,7 @@ export function App() {
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
       <a href={showHero ? '#landing' : '#main'} className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
       {showHero && <Landing fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onExplore={() => pickTrack('atlas')}
-        onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} onAbout={goAbout} onStage={setStage} />}
+        onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} onAbout={goAbout} onStage={setStage} onTopic={openJukebox} />}
 
       <Header track={track} onLanding={showHero} onTrack={(tr) => { navigate(tr); setShowHero(false); setTourOpen(false); }} lastJukebox={lastJukebox}
         audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())} onListen={listenNow}
@@ -235,6 +245,8 @@ export function App() {
               {track === 'frames' && <FrameJukebox autoPlay={autoListen} onAutoPlayed={() => setAutoListen(false)} onPlay={() => { if (!audioReady) soundOn(); }} />}
               {track === 'monsoon' && <BangladeshMonsoon />}
               {track === 'pulse' && <VitalSigns />}
+              {track === 'jukebox' && <JukeboxView key={jbStart.n} initialStory={jbStart.story} initialT={jbStart.t} onOpenCollection={openCollection}
+                countries={{ list: cty.list, country: cty.country, point: cty.point, onSelect: cty.select }} />}
               {track === 'about' && <AboutPage onOpenMethod={() => setDataOpen(true)} />}
             </Suspense>
           )}
