@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { ArrowDown, Compass, Globe2, Headphones, Play } from 'lucide-react';
+import { Compass, Globe2, Headphones, Play } from 'lucide-react';
 import type { EarthObservation } from '../types/dataset';
 import { usePrefs } from '../lib/prefs';
 import { TRACKS, type Track } from '../lib/nav';
@@ -81,7 +81,6 @@ export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen,
             </div>
             <p className="mt-3 text-sm text-[var(--ink-3)] flex items-start gap-2"><Headphones className="w-4 h-4 mt-0.5 shrink-0" />{t('heroHeadphones')} {t('heroNote')}</p>
           </div>
-          <button className="btn btn-ghost self-start" onClick={() => scrollTo('landing-split')}><ArrowDown className="w-4 h-4" />{t('scrollHint')}</button>
         </div>
       </section>
 
