@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Play, Square, Loader2, Upload } from 'lucide-react';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';
+import { usePlaybackReport } from '../lib/playbackContext';
 
 interface Pt { year: number; value: number }
 interface Series { id: string; unit: string; source: string; points: Pt[]; baseline?: number }
@@ -32,7 +33,7 @@ function parseCsv(text: string): Pt[] {
 }
 
 export const VitalSigns: React.FC = () => {
-  const { lang, narration } = usePrefs();
+  const { t, lang, narration } = usePrefs();
   const [data, setData] = useState<Record<string, Series> | null>(null);
   const [tab, setTab] = useState<Tab>('temp');
   const [own, setOwn] = useState<{ name: string; points: Pt[] } | null>(null);
@@ -66,8 +67,9 @@ export const VitalSigns: React.FC = () => {
     drone.current = null;
     setPlaying(false);
   };
+  usePlaybackReport('pulse', t('track4'), playing, stop);
   useEffect(() => () => stop(), []); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { stop(); setI(-1); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+  const chooseTab = (k: Tab) => { if (k === tab) return; stop(); setI(-1); setTab(k); };
 
   const note = (ctx: AudioContext, dest: AudioNode, hz: number, wave: OscillatorType, pan: number, bright: number, gain = 0.16) => {
     const now = ctx.currentTime;
@@ -192,11 +194,17 @@ export const VitalSigns: React.FC = () => {
   return (
     <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="vital-title">
       <div className="max-w-6xl mx-auto">
-        <h2 id="vital-title" className="font-display text-3xl sm:text-4xl font-extrabold">{lang === 'bn' ? 'পৃথিবীর প্রাণচিহ্ন' : "Earth's vital signs"}</h2>
+        <h1 id="vital-title" className="font-display text-3xl sm:text-4xl font-extrabold">{lang === 'bn' ? 'পৃথিবীর প্রাণচিহ্ন' : "Earth's vital signs"}</h1>
         <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{lang === 'bn' ? 'NASA যে তিনটি মূল সংকেত দিয়ে জলবায়ু পরিবর্তন দেখায়, প্রতি বছরে একটি সুর।' : 'Three of the signals NASA uses to show climate change, one note per year. Or bring your own data.'}</p>
+        <p className="mt-1 text-sm text-[var(--ink-3)]">
+          {lang === 'bn' ? 'এই তথ্য নাসার আর্থ ইনফরমেশন সেন্টারেও দেখা যায়: ' : 'These records also appear in NASA’s Earth Information Center: '}
+          <a href="https://earth.gov/themes/greenhouse-gases" target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">{lang === 'bn' ? 'গ্রিনহাউস গ্যাস' : 'greenhouse gases'}</a>
+          {' · '}
+          <a href="https://earth.gov/themes/sea-level-change" target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">{lang === 'bn' ? 'সমুদ্রস্তর পরিবর্তন' : 'sea level change'}</a>
+        </p>
 
-        <div className="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Series">
-          {tabs.map((tb) => <button key={tb.id} role="tab" aria-selected={tab === tb.id} aria-pressed={tab === tb.id} className="btn" onClick={() => setTab(tb.id)}>{tb.label}</button>)}
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Series">
+          {tabs.map((tb) => <button key={tb.id} type="button" aria-pressed={tab === tb.id} className="btn" onClick={() => chooseTab(tb.id)}>{tb.label}</button>)}
         </div>
 
         {tab === 'own' && (

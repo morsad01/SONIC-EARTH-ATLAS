@@ -132,7 +132,7 @@ describe('UX & Judge Presentation Enhancements (P0/P1)', () => {
   });
 
   it('Guided tour numbers match the bundled NASA snapshots', async () => {
-    const { TOUR } = await import('../demo/TourBar');
+    const { TOUR } = await import('../demo/tour');
     const fs = await import(/* @vite-ignore */ 'node:fs' as string);
     const firms = JSON.parse(fs.readFileSync('public/data/firms_snapshot.json', 'utf8'));
     const precip = JSON.parse(fs.readFileSync('public/data/precip_snapshot.json', 'utf8'));

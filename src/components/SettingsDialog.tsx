@@ -23,6 +23,13 @@ const SHORTCUTS: [string, string, string][] = [
   ['?', 'Open this panel', 'এই প্যানেল খুলুন'],
 ];
 
+const Toggle: React.FC<{ label: string; on: boolean; onClick: () => void; note?: string }> = ({ label, on, onClick, note }) => (
+  <button role="switch" aria-checked={on} onClick={onClick} className="w-full flex items-center justify-between gap-3 py-2.5 cursor-pointer text-left">
+    <span>{label}{note && <span className="block text-xs text-[var(--ink-3)] mt-0.5">{note}</span>}</span>
+    <span className={`w-11 h-6 shrink-0 rounded-full p-0.5 transition ${on ? 'bg-[var(--brass)]' : 'bg-[var(--line)]'}`}><span className={`block w-5 h-5 rounded-full bg-white transition ${on ? 'translate-x-5' : ''}`} /></span>
+  </button>
+);
+
 export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolume, spatialMode, onToggleSpatial, showDiagnostics, onToggleDiagnostics }) => {
   const p = usePrefs();
   const ref = useRef<HTMLDivElement>(null);
@@ -34,13 +41,6 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
     return () => window.removeEventListener('keydown', k);
   }, [open, onClose]);
   if (!open) return null;
-
-  const Toggle: React.FC<{ label: string; on: boolean; onClick: () => void }> = ({ label, on, onClick }) => (
-    <button role="switch" aria-checked={on} onClick={onClick} className="w-full flex items-center justify-between py-2.5 cursor-pointer">
-      <span>{label}</span>
-      <span className={`w-11 h-6 rounded-full p-0.5 transition ${on ? 'bg-[var(--brass)]' : 'bg-[var(--line)]'}`}><span className={`block w-5 h-5 rounded-full bg-white transition ${on ? 'translate-x-5' : ''}`} /></span>
-    </button>
-  );
 
   return (
     <div className="fixed inset-0 z-[70] bg-black/60 flex justify-end" onClick={onClose}>
@@ -62,9 +62,10 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
         <div className="mt-5 divide-y divide-[var(--line)]">
           <Toggle label={p.t('narration')} on={p.narration} onClick={() => p.set({ narration: !p.narration })} />
           <Toggle label={p.t('reduceMotion')} on={p.reduceMotion} onClick={() => p.set({ reduceMotion: !p.reduceMotion })} />
+          <Toggle label={p.t('calmBackground')} on={p.calmBackground} note={p.t('calmBackgroundNote')} onClick={() => p.set({ calmBackground: !p.calmBackground })} />
           <Toggle label={p.t('highContrast')} on={p.highContrast} onClick={() => p.set({ highContrast: !p.highContrast })} />
           <Toggle label={`${p.t('spatial')}: ${spatialMode === 'spatial-hrtf' ? p.t('hrtf') : p.t('stereo')}`} on={spatialMode === 'spatial-hrtf'} onClick={onToggleSpatial} />
-          <Toggle label="Performance diagnostics" on={showDiagnostics} onClick={onToggleDiagnostics} />
+          <Toggle label={p.t('diagnostics')} on={showDiagnostics} onClick={onToggleDiagnostics} />
         </div>
 
         <label className="block mt-5">
@@ -78,7 +79,7 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
             <div key={k} className="flex gap-3"><dt className="w-16 shrink-0"><kbd className="chip font-semibold text-[var(--ink)]">{k}</kbd></dt><dd className="text-[var(--ink-2)]">{p.lang === 'bn' ? bn : en}</dd></div>
           ))}
         </dl>
-        <p className="mt-6 text-xs text-[var(--ink-3)] leading-relaxed">Screen readers: every view has headings and live descriptions. The List view reads each observation as a table row; press Enter on a row to hear it.</p>
+        <p className="mt-6 text-xs text-[var(--ink-3)] leading-relaxed">{p.t('srNote')}</p>
       </div>
     </div>
   );

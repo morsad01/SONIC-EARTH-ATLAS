@@ -6,9 +6,10 @@ export interface Prefs {
   reduceMotion: boolean;
   highContrast: boolean;
   narration: boolean;
+  calmBackground: boolean; // pauses non-essential motion (starfield, idle globe spin, clouds) without changing the rest
 }
 
-const DEFAULTS: Prefs = { lang: 'en', reduceMotion: false, highContrast: false, narration: false };
+const DEFAULTS: Prefs = { lang: 'en', reduceMotion: false, highContrast: false, narration: false, calmBackground: false };
 const KEY = 'sea-prefs-v1';
 
 function load(): Prefs {
@@ -37,6 +38,7 @@ export const PrefsProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.lang = prefs.lang;
     root.classList.toggle('rm', prefs.reduceMotion);
     root.classList.toggle('hc', prefs.highContrast);
+    root.classList.toggle('calm', prefs.calmBackground);
   }, [prefs]);
 
   const value = useMemo<Ctx>(() => ({

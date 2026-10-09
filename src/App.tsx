@@ -1,3 +1,4 @@
+import { decodeShare, encodeShare } from './lib/shareLink';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
@@ -6,8 +7,13 @@ import { SonificationEngine } from './audio/sonificationEngine';
 import { recordOutput } from './audio/recorder';
 import { Accessible2DMap } from './map/Accessible2DMap';
 import { AudioFirstMode } from './accessibility/AudioFirstMode';
-import { Header, type Track } from './components/Header';
-import { LandingHero } from './components/LandingHero';
+import { Header } from './components/Header';
+import { sectionOf, type Track } from './lib/nav';
+import { Landing } from './landing/Landing';
+import type { Stage } from './landing/useScrollStage';
+import { GlobeBoundary, GlobeStill } from './components/GlobeBoundary';
+import type { Framing } from './globe/framing';
+import { usePlaybackReport } from './lib/playbackContext';
 import { InspectLocationModal } from './components/InspectLocationModal';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel';
 import { SettingsDialog } from './components/SettingsDialog';
@@ -18,21 +24,34 @@ import { TimelineBar } from './atlas/TimelineBar';
 import { PlacePanel } from './atlas/PlacePanel';
 import { TourBar } from './demo/TourBar';
 import { usePrefs } from './lib/prefs';
+import { useCountry } from './countries/useCountry';
+import { CountryPanel } from './countries/CountryPanel';
+import { ProfileDataContext } from './countries/profileContext';
 import { gibsUrl } from './lib/gibs';
-import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin } from 'lucide-react';
+import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin, MapPinned } from 'lucide-react';
 
 const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
 const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
 const BangladeshMonsoon = lazy(() => import('./tracks/BangladeshMonsoon').then((m) => ({ default: m.BangladeshMonsoon })));
 const VitalSigns = lazy(() => import('./tracks/VitalSigns').then((m) => ({ default: m.VitalSigns })));
+const JukeboxView = lazy(() => import('./jukebox/JukeboxView').then((m) => ({ default: m.JukeboxView })));
+const AboutPage = lazy(() => import('./about/AboutPage').then((m) => ({ default: m.AboutPage })));
 
 type View = '3d-globe' | '2d-map' | 'audio-first';
 const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: true, sst: true };
+const STAGE_FRAMING: Framing[] = ['hero', 'split', 'immersive'];
 
 export function App() {
-  const { t } = usePrefs();
-  const [showHero, setShowHero] = useState(true);
-  const [track, setTrack] = useState<Track>('atlas');
+  const { t, lang, set } = usePrefs();
+  const [initialShare] = useState(() => decodeShare(window.location.hash, { frames: [], pairs: [] }));
+  const [showHero, setShowHero] = useState(!initialShare?.track);
+  const [autoListen, setAutoListen] = useState(false);
+  const [track, setTrack] = useState<Track>(initialShare?.track ?? 'atlas');
+  const [lastJukebox, setLastJukebox] = useState<Track>(initialShare?.track && sectionOf(initialShare.track) === 'jukebox' ? initialShare.track : 'jukebox');
+  // What the Jukebox opens on; `n` remounts it when the landing carousel or a country profile asks for a story.
+  const [jbStart, setJbStart] = useState<{ story?: string; t?: string; n: number }>(() => (initialShare?.track === 'jukebox' ? { story: initialShare.story, t: initialShare.t, n: 0 } : { n: 0 }));
+  const [stage, setStage] = useState<Stage>(0);
+  const [globeFailed, setGlobeFailed] = useState(false);
   const [view, setView] = useState<View>('3d-globe');
   const [audioReady, setAudioReady] = useState(false);
   const [volume, setVolume] = useState(0.7);
@@ -53,8 +72,11 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [diagnostics, setDiagnostics] = useState(false);
   const [recording, setRecording] = useState<string | null>(null);
-  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | null>(null);
+  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | 'country' | null>(null);
   const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
+  const cty = useCountry(initialShare?.c);
+
+  useEffect(() => { if (initialShare?.lang && initialShare.lang !== lang) set({ lang: initialShare.lang }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     DatasetAdapter.loadDatasets('live').then(setData).catch(() => DatasetAdapter.loadDatasets('demo').then(setData));
@@ -68,6 +90,20 @@ export function App() {
     observations.forEach((o) => c[o.phenomenon]++);
     return c;
   }, [observations]);
+
+  // Mirror the view into the share hash. A hash that already names this track is kept (it may carry frame/col keys).
+  useEffect(() => {
+    const cur = decodeShare(window.location.hash, { frames: [], pairs: [] })?.track;
+    const url = window.location.pathname + window.location.search;
+    if (showHero) { if (window.location.hash) history.replaceState(null, '', url); }
+    else if (cur !== track) history.replaceState(null, '', `${url}#${encodeShare({ track, c: cty.id ?? undefined })}`);
+    else { // same track: only add, change or drop the country key, leaving frame/col keys alone
+      const p = new URLSearchParams(window.location.hash.replace(/^#v1&/, ''));
+      if ((p.get('c') ?? null) !== cty.id) { if (cty.id) p.set('c', cty.id); else p.delete('c'); history.replaceState(null, '', `${url}#v1&${p.toString()}`); }
+    }
+  }, [track, showHero, cty.id]);
+
+  usePlaybackReport('atlas', t('track1'), playing && track === 'atlas' && !showHero, () => setPlaying(false));
 
   useEffect(() => { AudioContextManager.setMasterVolume(volume); }, [volume, audioReady]);
   useEffect(() => { SonificationEngine.getInstance().setHearChangeMode(hearChange); }, [hearChange]);
@@ -93,10 +129,18 @@ export function App() {
     SonificationEngine.getInstance().setSpatialMode(next);
   };
 
+  const navigate = (tr: Track) => { setTrack(tr); if (sectionOf(tr) === 'jukebox') setLastJukebox(tr); };
+  const goAbout = () => { navigate('about'); setShowHero(false); setTourOpen(false); };
+  const openJukebox = (story?: string) => { setJbStart((j) => ({ story, n: j.n + 1 })); navigate('jukebox'); setShowHero(false); setTourOpen(false); };
   const pickTrack = async (tr: Track) => {
-    setTrack(tr);
+    navigate(tr);
     setShowHero(false);
     if (tr === 'atlas' && !audioReady) await soundOn();
+  };
+  // One click from the landing page: sound on and an Earth Information Center frame playing.
+  const listenNow = async () => {
+    navigate('frames'); setShowHero(false); setAutoListen(true);
+    if (!audioReady) await soundOn();
   };
   const startTour = async () => {
     setTrack('atlas'); setView('3d-globe'); setShowHero(false);
@@ -134,6 +178,17 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   });
 
+  const profileData = useMemo(() => ({
+    slices, snapshotDates: data?.snapshotDates, isFallback: !!data?.isFallback, loading: !data,
+    onExplore: (c: string) => openJukebox(`c-${c.toLowerCase()}-temp`),
+  }), [slices, data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // A Jukebox story opens its full collection; an EIC picture opens on that frame (FrameJukebox reads the hash on mount).
+  const openCollection = (tr: Track, frameId?: string) => {
+    if (tr === 'frames' && frameId) history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${encodeShare({ track: 'frames', frame: frameId, c: cty.id ?? undefined })}`);
+    pickTrack(tr);
+  };
+
   const imageryUrl = imagery && slice && /^\d{4}-\d{2}-\d{2}$/.test(slice.dateLabel) ? gibsUrl('VIIRS_SNPP_CorrectedReflectance_TrueColor', slice.dateLabel, 'jpeg', 2048) : null;
 
   const layersPanel = (
@@ -141,42 +196,59 @@ export function App() {
       statuses={data?.layerStatuses} isFallback={!!data?.isFallback} statusMessage={data?.statusMessage ?? 'Loading NASA data…'}
       audioReady={audioReady} onOpenData={() => setDataOpen(true)} />
   );
-  const placePanel = <PlacePanel place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
+  const countryPanel = <CountryPanel list={cty.list} country={cty.country} point={cty.point} onSelect={cty.select} />;
+  const placePanel = <PlacePanel key={place ? `${place.lat},${place.lon}` : 'none'} place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
   const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
   return (
+    <ProfileDataContext.Provider value={profileData}>
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
-      <a href="#main" className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
-      {showHero && <LandingHero fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onTour={startTour} onSilent={() => { setShowHero(false); setTrack('atlas'); }} />}
+      <a href={showHero ? '#landing' : '#main'} className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
+      {showHero && <Landing fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onExplore={() => pickTrack('atlas')}
+        onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} onAbout={goAbout} onStage={setStage} onTopic={openJukebox} />}
 
-      <Header track={track} onTrack={(tr) => { setTrack(tr); setTourOpen(false); }} audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())}
-        onHome={() => { setShowHero(true); setTourOpen(false); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
+      <Header track={track} onLanding={showHero} onTrack={(tr) => { navigate(tr); setShowHero(false); setTourOpen(false); }} lastJukebox={lastJukebox}
+        audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())} onListen={listenNow}
+        onHome={() => { setShowHero(true); setTourOpen(false); setStage(0); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
         recording={recording} onRecord={record} />
 
       <main id="main" className="flex-1 relative w-full overflow-hidden">
         {/* First child = the visual canvas (the landing hero shows the globe from here). */}
         <div className="absolute inset-0">
+          {track === 'atlas' && !showHero && <h1 className="sr-only">{t('navExplore')}: {t('track1')}</h1>}
           {(track === 'atlas' || showHero) && view === '3d-globe' && (
-            <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">Loading globe…</div>}>
-              <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
-                onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
-                onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place} />
-            </Suspense>
+            <GlobeBoundary onFail={() => setGlobeFailed(true)} fallback={showHero
+              ? <GlobeStill label={t('globeStill')} />
+              : <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
+                countries={cty.list} country={cty.country} onSelectCountry={cty.select} />}>
+              <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingGlobe')}</div>}>
+                <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
+                  onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
+                  onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
+                  framing={showHero ? STAGE_FRAMING[stage] : 'explore'}
+                  countries={showHero ? undefined : cty.list} country={showHero ? null : cty.country} countryPoint={cty.point} onSelectCountry={showHero ? undefined : cty.select} />
+              </Suspense>
+            </GlobeBoundary>
           )}
           {track === 'atlas' && !showHero && view === '2d-map' && (
-            <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected} />
+            <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
+                countries={cty.list} country={cty.country} onSelectCountry={cty.select} />
           )}
           {track === 'atlas' && !showHero && view === 'audio-first' && (
             <div className="w-full h-full overflow-y-auto py-6 lg:pl-[340px]">
               <AudioFirstMode observations={observations.filter((o) => enabled[o.phenomenon])} currentDateLabel={slice?.dateLabel ?? ''} selectedObservation={selected}
-                onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')} />
+                onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')}
+                countries={{ list: cty.list, country: cty.country, point: cty.point, onSelect: cty.select }} />
             </div>
           )}
           {track !== 'atlas' && !showHero && (
-            <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">Loading…</div>}>
-              {track === 'frames' && <FrameJukebox />}
+            <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingView')}</div>}>
+              {track === 'frames' && <FrameJukebox autoPlay={autoListen} onAutoPlayed={() => setAutoListen(false)} onPlay={() => { if (!audioReady) soundOn(); }} />}
               {track === 'monsoon' && <BangladeshMonsoon />}
               {track === 'pulse' && <VitalSigns />}
+              {track === 'jukebox' && <JukeboxView key={jbStart.n} initialStory={jbStart.story} initialT={jbStart.t} onOpenCollection={openCollection}
+                countries={{ list: cty.list, country: cty.country, point: cty.point, onSelect: cty.select }} />}
+              {track === 'about' && <AboutPage onOpenMethod={() => setDataOpen(true)} />}
             </Suspense>
           )}
         </div>
@@ -188,16 +260,17 @@ export function App() {
 
             {/* Desktop side column */}
             <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-3 bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
+              {view !== 'audio-first' && countryPanel}
               {layersPanel}
               {hearingPanel}
             </div>
 
             {/* View switch and globe options */}
             <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
-              <div className="panel p-1 flex gap-1" role="group" aria-label="View">
+              <div className="panel p-1 flex gap-1" role="group" aria-label={t('viewGroup')}>
                 {([['3d-globe', Globe, 'globe'], ['2d-map', MapIcon, 'map'], ['audio-first', List, 'list']] as const).map(([v, Icon, key]) => (
-                  <button key={v} className="btn btn-ghost min-h-[36px] px-2.5" aria-pressed={view === v} onClick={() => setView(v)}>
-                    <Icon className="w-4 h-4" /><span className="hidden sm:inline">{t(key)}</span>
+                  <button key={v} className="btn btn-ghost min-h-[36px] pointer-coarse:min-h-[44px] px-2.5" aria-pressed={view === v} aria-label={t(key)} onClick={() => setView(v)}>
+                    <Icon className="w-4 h-4" aria-hidden="true" /><span className="hidden sm:inline" aria-hidden="true">{t(key)}</span>
                   </button>
                 ))}
               </div>
@@ -214,18 +287,20 @@ export function App() {
             <div className="lg:hidden absolute left-3 top-3 z-20 flex flex-col gap-2">
               <button className="btn panel" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
               <button className="btn panel" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
+              {view !== 'audio-first' && <button className="btn panel" onClick={() => setSheet('country')}><MapPinned className="w-4 h-4" />{t('country')}</button>}
               <button className="btn panel" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
             </div>
             {sheet && (
               <div className="lg:hidden fixed inset-0 z-50 bg-black/60 flex items-end" onClick={() => setSheet(null)}>
                 <div className="w-full max-h-[78dvh] overflow-y-auto bg-[var(--abyss)] rounded-t-2xl p-3 pb-6 border-t border-[var(--line)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
                   <div className="flex justify-end"><button className="btn btn-ghost btn-icon" onClick={() => setSheet(null)} aria-label={t('close')}><X className="w-5 h-5" /></button></div>
-                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : hearingPanel}
+                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : sheet === 'country' ? countryPanel : hearingPanel}
                 </div>
               </div>
             )}
 
             <div className="absolute bottom-2 sm:bottom-3 left-2 right-2 lg:left-[340px] lg:right-3 z-20">
+              {globeFailed && view === '3d-globe' && <p role="status" className="panel px-3 py-2 mb-2 text-sm text-[var(--ink-2)] w-fit max-w-full">{t('webglOff')}</p>}
               <TimelineBar slices={slices} index={day} onChange={setDay} playing={playing} onTogglePlay={() => setPlaying(!playing)}
                 hearChange={hearChange} onToggleHearChange={() => setHearChange(!hearChange)} enabled={enabled} />
             </div>
@@ -236,9 +311,10 @@ export function App() {
       <InspectLocationModal observation={selected} onClose={() => setSelected(null)} />
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} volume={volume} onVolume={setVolume} spatialMode={spatialMode}
         onToggleSpatial={toggleSpatial} showDiagnostics={diagnostics} onToggleDiagnostics={() => setDiagnostics(!diagnostics)} />
-      <DataMethodDialog open={dataOpen} onClose={() => setDataOpen(false)} sstGlobal={data?.sstGlobal} />
+      <DataMethodDialog open={dataOpen} onClose={() => setDataOpen(false)} sstGlobal={data?.sstGlobal} onAbout={track === 'about' && !showHero ? undefined : () => { setDataOpen(false); goAbout(); }} />
       {diagnostics && <DiagnosticsPanel activeDatasetCount={observations.length} currentTimestep={day} totalTimesteps={slices.length} isOpen onToggle={() => setDiagnostics(false)} />}
     </div>
+    </ProfileDataContext.Provider>
   );
 }
 export default App;

@@ -33,4 +33,6 @@ export interface SoundEvent {
   parameters: SonificationParameters;
 }
 
+export type { PlayerState } from '../sonification/series/playbackState';
+/** Legacy three-state view. New players use `PlayerState` (idle → loading → ready → playing ⇄ paused → ended, error). */
 export type PlaybackState = 'playing' | 'paused' | 'stopped';

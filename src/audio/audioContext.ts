@@ -62,6 +62,12 @@ export class AudioContextManager {
       this.masterGain.connect(this.ctx.destination);
 
       this.isInitialized = true;
+
+      // iOS puts the context in an "interrupted" state after a call or when Safari is backgrounded.
+      // Bring it back when the page is visible again (a user-initiated Stop uses "suspended", which is left alone).
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && (this.ctx?.state as string) === 'interrupted') this.ctx?.resume().catch(() => {});
+      });
     }
 
     await this.unlockMobileAudio();

@@ -1,6 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
+import { findCountrySync, outlinePath, type Country } from '../countries/countries';
+import { useGeoContains } from '../countries/useGeoContains';
+import { usePrefs } from '../lib/prefs';
+import { countryLabel } from '../lib/placesBn';
 import { ZoomIn, ZoomOut, RotateCcw, Volume2, Navigation } from 'lucide-react';
 
 interface Accessible2DMapProps {
@@ -8,6 +12,9 @@ interface Accessible2DMapProps {
   enabledPhenomena: Record<PhenomenonType, boolean>;
   selectedObservation: EarthObservation | null;
   onSelectObservation: (obs: EarthObservation | null) => void;
+  countries?: Country[];
+  country?: Country | null;
+  onSelectCountry?: (c: Country) => void;
 }
 
 export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
@@ -15,10 +22,15 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
   enabledPhenomena,
   selectedObservation,
   onSelectObservation,
+  countries,
+  country = null,
+  onSelectCountry,
 }) => {
+  const { t, lang } = usePrefs();
+  const geoContains = useGeoContains();
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [crosshair, setCrosshair] = useState<{ lat: number; lon: number }>({ lat: 0, lon: 0 });
+  const [crosshair, setCrosshair] = useState<{ lat: number; lon: number }>(() => (selectedObservation ? { lat: selectedObservation.latitude, lon: selectedObservation.longitude } : { lat: 0, lon: 0 }));
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +72,9 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
     return closest;
   }, [visibleObs]);
 
+  // Country under a point (null over open ocean, or until borders have loaded)
+  const countryAt = useCallback((lat: number, lon: number) => (geoContains && countries ? findCountrySync(geoContains, countries, lat, lon) : null), [geoContains, countries]);
+
   // Keyboard navigation for accessibility
   const handleKeyDown = (e: React.KeyboardEvent) => {
     const step = e.shiftKey ? 15 : 5;
@@ -78,6 +93,11 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
     } else if (e.key === 'ArrowRight') {
       newLon = Math.min(180, crosshair.lon + step);
       e.preventDefault();
+    } else if (e.key.toLowerCase() === 'c' && onSelectCountry) {
+      e.preventDefault();
+      const c = countryAt(crosshair.lat, crosshair.lon);
+      if (c) onSelectCountry(c);
+      return;
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       const nearest = findNearestObservation(crosshair.lat, crosshair.lon);
@@ -123,6 +143,9 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
     const geo = pixelToGeo(px, py, rect.width, rect.height);
     setCrosshair(geo);
 
+    const c = onSelectCountry ? countryAt(geo.lat, geo.lon) : null;
+    if (c) onSelectCountry?.(c);
+
     const nearest = findNearestObservation(geo.lat, geo.lon);
     if (nearest) {
       onSelectObservation(nearest);
@@ -130,17 +153,17 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
     }
   };
 
-  // Sync crosshair when selectedObservation changes externally
-  useEffect(() => {
-    if (selectedObservation) {
-      setCrosshair({
-        lat: selectedObservation.latitude,
-        lon: selectedObservation.longitude,
-      });
-    }
-  }, [selectedObservation]);
+  // Sync crosshair when selectedObservation changes externally (adjusted during render, not in an effect)
+  const [prevSel, setPrevSel] = useState(selectedObservation);
+  if (selectedObservation !== prevSel) {
+    setPrevSel(selectedObservation);
+    if (selectedObservation) setCrosshair({ lat: selectedObservation.latitude, lon: selectedObservation.longitude });
+  }
 
   const nearestActive = findNearestObservation(crosshair.lat, crosshair.lon);
+  const focusCountry = useMemo(() => countryAt(crosshair.lat, crosshair.lon), [countryAt, crosshair.lat, crosshair.lon]);
+  const selPath = useMemo(() => (country ? outlinePath(country) : ''), [country]);
+  const lblPt = country ? { x: ((country.bbox[0] <= country.bbox[2] ? (country.bbox[0] + country.bbox[2]) / 2 : 180) + 180) / 360 * 1000, y: (90 - (country.bbox[1] + country.bbox[3]) / 2) / 180 * 500 } : null;
 
   return (
     <div
@@ -197,7 +220,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       <div className="hidden md:block absolute top-16 right-16 z-20 panel px-3.5 py-2.5 text-xs max-w-[260px]">
         <div className="text-slate-400 flex items-center gap-1.5 mb-1 font-sans text-xs font-semibold">
           <Navigation className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Keyboard focus point · arrows move, Enter listens</span>
+          <span>Keyboard focus point · arrows move, Enter listens{onSelectCountry ? ', C selects the country' : ''}</span>
         </div>
         <div className="text-slate-100 flex items-center gap-2">
           <span>Lat: {crosshair.lat >= 0 ? `+${crosshair.lat.toFixed(1)}°N` : `${crosshair.lat.toFixed(1)}°S`}</span>
@@ -208,6 +231,13 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
           <Volume2 className="w-3 h-3" />
           <span>Stereo Pan: {(crosshair.lon / 180).toFixed(2)} ({-crosshair.lon > 0 ? 'Left' : 'Right'})</span>
         </div>
+        {onSelectCountry && countries && (
+          <div className="mt-1.5 text-[11px] text-slate-300" aria-live="polite">
+            <span className="text-slate-400">{t('countryUnderFocus')}: </span>
+            <span className="font-semibold text-white">{focusCountry ? countryLabel(focusCountry.id, focusCountry.name, lang) : t('countryOcean')}</span>
+            {focusCountry && focusCountry.id !== country?.id && <span className="text-cyan-300"> · {t('countrySelectKey')}</span>}
+          </div>
+        )}
         {nearestActive && (
           <div className="mt-2 pt-1.5 border-t border-slate-800 text-[11px] text-slate-300">
             <span className="text-slate-400">Nearest Observation: </span>
@@ -327,6 +357,15 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
               </g>
             );
           })}
+
+          {/* Selected country: brass outline, plus a text label (never colour alone) */}
+          {country && selPath && (
+            <g pointerEvents="none">
+              <path d={selPath} fill="rgba(233,196,106,0.12)" stroke="#071019" strokeWidth="4.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              <path d={selPath} fill="none" stroke="#e9c46a" strokeWidth="2.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+              {lblPt && <text x={lblPt.x} y={lblPt.y} textAnchor="middle" fill="#ffffff" fontSize="13" fontWeight="700" paintOrder="stroke" stroke="#071019" strokeWidth="3.5">{countryLabel(country.id, country.name, lang)} · {t('selectedBadge')}</text>}
+            </g>
+          )}
 
           {/* Audio Focus Reticle / Crosshair */}
           <g>

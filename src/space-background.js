@@ -10,8 +10,10 @@ function setupSpaceBackground() {
   }
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let w, h, stars = [], raf;
+  // Cheap 2D canvas. It stops (one static frame) under reduced motion, with "pause background motion" and while the tab is hidden.
+  const mq = matchMedia('(prefers-reduced-motion: reduce)');
+  const still = () => mq.matches || document.documentElement.classList.contains('rm') || document.documentElement.classList.contains('calm');
+  let w, h, stars = [], raf = 0, reduce = still();
 
   const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
 
@@ -52,17 +54,21 @@ function setupSpaceBackground() {
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
-    raf = requestAnimationFrame(draw);
+    raf = reduce || document.hidden ? 0 : requestAnimationFrame(draw);
   }
+  const restart = () => {
+    cancelAnimationFrame(raf);
+    reduce = still();
+    raf = document.hidden ? 0 : requestAnimationFrame(draw);
+  };
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) cancelAnimationFrame(raf);
-    else raf = requestAnimationFrame(draw);
-  });
-  addEventListener('resize', init);
+  document.addEventListener('visibilitychange', restart);
+  mq.addEventListener?.('change', restart);
+  new MutationObserver(restart).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  addEventListener('resize', () => { init(); restart(); });
 
   init();
-  raf = requestAnimationFrame(draw);
+  restart();
 }
 
 setupSpaceBackground();
