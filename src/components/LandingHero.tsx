@@ -77,27 +77,6 @@ export const LandingHero: React.FC<Props> = ({ fireObs, onPick, onTour, onSilent
           </ul>
         </section>
 
-        <section className="mt-10 max-w-3xl pb-6" aria-labelledby="how-title">
-          <h2 id="how-title" className="font-display text-xl font-semibold mb-3">{lang === 'bn' ? 'ডেটা কীভাবে শব্দ হয়' : 'How data becomes sound'}</h2>
-          <ol className="grid sm:grid-cols-4 gap-3 text-sm">
-            {(lang === 'bn' ? [
-              ['নাসার ডেটা', 'FIRMS, POWER, MUR, GISTEMP, GIBS থেকে আসল মান'],
-              ['স্কেল', 'প্রতিটি মান ০ থেকে ১-এ, লেখা সূত্রে'],
-              ['সংশ্লেষণ', 'ব্রাউজারে Web Audio দিয়ে সরাসরি শব্দ'],
-              ['শুনুন ও দেখুন', 'অবস্থান, মান আর শব্দ একসাথে ব্যাখ্যা করা'],
-            ] : [
-              ['NASA data', 'Real values from FIRMS, POWER, MUR, GISTEMP and GIBS'],
-              ['Scale', 'Each value mapped to 0–1 with a published formula'],
-              ['Synthesise', 'Sound generated live with Web Audio in your browser'],
-              ['Hear and see', 'Place, value and sound explained side by side'],
-            ]).map(([h, d], k) => (
-              <li key={h} className="border-t-2 border-[var(--brass)] pt-2">
-                <div className="font-semibold"><span className="tnum text-[var(--brass)] mr-1.5">{k + 1}</span>{h}</div>
-                <p className="text-[var(--ink-2)] mt-1 leading-snug">{d}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
       </div>
     </div>
   );
