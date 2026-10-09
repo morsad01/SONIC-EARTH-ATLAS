@@ -16,8 +16,6 @@ interface GlobeCanvasProps {
   autoRotate?: boolean;
   targetFocus?: { lat: number; lon: number } | null;
   imageryUrl?: string | null;
-  onPickPlace?: (p: { lat: number; lon: number }) => void;
-  pickedPlace?: { lat: number; lon: number } | null;
   framing?: Framing;
   countries?: Country[]; // borders for hover/click selection
   country?: Country | null; // selected: brass outline
@@ -48,8 +46,6 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   autoRotate = false,
   targetFocus = null,
   imageryUrl = null,
-  onPickPlace,
-  pickedPlace = null,
   framing = 'explore',
   countries,
   country = null,
@@ -65,7 +61,6 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const lastHoverRef = useRef(0);
   const [hoverCountry, setHoverCountry] = useState<{ c: Country; x: number; y: number } | null>(null);
   const earthMeshRef = useRef<THREE.Mesh | null>(null);
-  const pinRef = useRef<THREE.Mesh | null>(null);
   const downPosRef = useRef({ x: 0, y: 0 });
   const earthMatRef = useRef<THREE.MeshPhongMaterial | null>(null);
   const baseMapRef = useRef<THREE.Texture | null>(null);
@@ -207,11 +202,6 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
     earthMeshRef.current = earthMesh;
-    // Pin for "Hear any place"
-    const pin = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.075, 32), new THREE.MeshBasicMaterial({ color: 0xe9c46a, side: THREE.DoubleSide, transparent: true, opacity: 0.95 }));
-    pin.visible = false;
-    globeGroup.add(pin);
-    pinRef.current = pin;
 
     // Revolving Atmospheric Cloud Sphere Layer (Clean & Transparent)
     const cloudGeometry = new THREE.SphereGeometry(earthRadius * 1.008, segments, segments);
@@ -379,8 +369,6 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       earthMaterial.dispose();
       earthTexture.dispose();
       extras.forEach((x) => x.dispose());
-      pin.geometry.dispose();
-      (pin.material as THREE.Material).dispose();
       cloudGeometry.dispose();
       cloudMaterial.dispose();
       cloudTexture.dispose();
@@ -397,17 +385,6 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     if (!el || !el.clientHeight) return;
     frameRef.current = framingTarget(framing, el.clientWidth / el.clientHeight);
   }, [framing]);
-
-  // --- Pin position for the picked place ---
-  useEffect(() => {
-    const pin = pinRef.current;
-    if (!pin) return;
-    if (!pickedPlace) { pin.visible = false; return; }
-    const [x, y, z] = latLonToXYZ(pickedPlace.lat, pickedPlace.lon, 2.03);
-    pin.position.set(x, y, z);
-    pin.lookAt(x * 2, y * 2, z * 2);
-    pin.visible = true;
-  }, [pickedPlace]);
 
   // --- d3-geo's geoContains, loaded once for hover/click lookups ---
   useEffect(() => { let on = true; import('d3-geo').then((m) => { if (on) geoContainsRef.current = m.geoContains as never; }); return () => { on = false; }; }, []);
@@ -633,14 +610,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       SonificationEngine.getInstance().playObservation(obs);
       return;
     }
-    // Empty spot on Earth (and not the end of a drag): pick that place
+    // Empty spot on Earth (and not the end of a drag): select the country there
     const moved = Math.hypot(e.clientX - downPosRef.current.x, e.clientY - downPosRef.current.y);
-    if (!onPickPlace || moved > 6 || !earthMeshRef.current || !globeGroupRef.current) return;
-    const ll = hitLatLon(e.clientX, e.clientY);
-    if (!ll) return;
+    if (moved > 6 || !earthMeshRef.current || !globeGroupRef.current) return;
     const c = countryAt(e.clientX, e.clientY);
     if (c) onSelectCountry?.(c);
-    onPickPlace({ lat: Math.round(ll.lat * 100) / 100, lon: Math.round(ll.lon * 100) / 100 });
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -668,14 +642,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         </button>
       )}
       {hoverCountry && !hoveredObs && (
-        <div className="absolute z-30 pointer-events-none px-2.5 py-1.5 rounded-lg panel-solid shadow-2xl text-sm -translate-x-1/2 -translate-y-full" style={{ left: hoverCountry.x, top: hoverCountry.y - 14 }}>
+        <div className="absolute z-30 pointer-events-none px-2.5 py-1.5 rounded-lg glass-pop text-sm -translate-x-1/2 -translate-y-full" style={{ left: hoverCountry.x, top: hoverCountry.y - 14 }}>
           {t('countryHover', { name: countryLabel(hoverCountry.c.id, hoverCountry.c.name, lang) })}
         </div>
       )}
       {/* Dynamic Hover Tooltip */}
       {hoveredObs && tooltipPos && (
         <div
-          className="absolute z-30 pointer-events-none p-2.5 rounded-lg panel-solid shadow-2xl text-sm -translate-x-1/2 -translate-y-full"
+          className="absolute z-30 pointer-events-none p-2.5 rounded-lg glass-pop text-sm -translate-x-1/2 -translate-y-full"
           style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y - 12}px` }}
         >
           <div className="font-semibold flex items-center gap-1.5">

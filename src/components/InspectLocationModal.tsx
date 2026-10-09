@@ -34,7 +34,7 @@ export const InspectLocationModal: React.FC<InspectLocationModalProps> = ({ obse
     <Overlay>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 scrim max-w-[100vw] overflow-x-hidden safe-pb safe-pt" onClick={onClose}>
         <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="inspect-title" onClick={(e) => e.stopPropagation()}
-          className="glass-strong max-w-lg w-full max-h-[85dvh] overflow-y-auto p-4 sm:p-5 text-[var(--ink)] space-y-3.5">
+          className="glass-pop max-w-lg w-full max-h-[85dvh] overflow-y-auto p-4 sm:p-5 text-[var(--ink)] space-y-3.5">
           <div className="flex items-start justify-between border-b border-[var(--line)] pb-3 gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: `color-mix(in srgb, ${tint} 20%, transparent)`, color: tint }}>

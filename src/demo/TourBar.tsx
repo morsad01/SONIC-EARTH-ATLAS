@@ -38,7 +38,7 @@ export const TourBar: React.FC<Props> = ({ open, onClose, onApply }) => {
   if (!open || done) return null;
   const s = TOUR[i];
   return (
-    <div className="absolute left-1/2 -translate-x-1/2 top-[calc(var(--header-h)+.75rem)] z-30 w-[min(720px,calc(100%-24px))] panel p-3 sm:p-4 shadow-2xl" role="region" aria-label={t('tourRegion')}>
+    <div className="absolute left-1/2 -translate-x-1/2 top-[calc(var(--header-h)+.75rem)] z-30 w-[min(720px,calc(100%-24px))] glass-pop p-3 sm:p-4" role="region" aria-label={t('tourRegion')}>
       <div className="flex items-start gap-3">
         <span className="tnum text-xs font-semibold rounded-full border border-[var(--brass)] text-[var(--brass)] px-2 py-0.5 mt-0.5 shrink-0">{i + 1}/{TOUR.length}</span>
         <p className="flex-1 text-base leading-snug" aria-live="polite">{lang === 'bn' ? s.bn : s.en}</p>

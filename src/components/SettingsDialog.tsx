@@ -41,7 +41,7 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
   return (
     <Overlay><div className="fixed inset-0 z-[70] scrim flex justify-end" onClick={onClose}>
       <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm h-full glass-strong rounded-none border-0 border-l p-5 overflow-y-auto">
+        className="w-full max-w-sm h-full glass-pop rounded-none border-0 border-l p-5 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 id="settings-title" className="font-display text-2xl font-bold">{p.t('settings')}</h2>
           <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={p.t('close')}><X className="w-5 h-5" /></button>
