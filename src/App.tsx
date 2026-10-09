@@ -84,15 +84,13 @@ export function App() {
     return c;
   }, [observations]);
 
-  // Mirror the view into the share hash. A hash that already names this track is kept (it may carry frame/col keys).
   useEffect(() => {
-    const cur = decodeShare(window.location.hash, { frames: [], pairs: [] })?.track;
+    const curShare = decodeShare(window.location.hash, { frames: [], pairs: [] });
     const url = window.location.pathname + window.location.search;
-    if (showHero) { if (window.location.hash) history.replaceState(null, '', url); }
-    else if (cur !== track) history.replaceState(null, '', `${url}#${encodeShare({ track, c: cty.id ?? undefined })}`);
-    else { // same track: only add, change or drop the country key, leaving frame/col keys alone
-      const p = new URLSearchParams(window.location.hash.replace(/^#v1&/, ''));
-      if ((p.get('c') ?? null) !== cty.id) { if (cty.id) p.set('c', cty.id); else p.delete('c'); history.replaceState(null, '', `${url}#v1&${p.toString()}`); }
+    if (showHero) {
+      if (window.location.hash) history.replaceState(null, '', url);
+    } else {
+      history.replaceState(null, '', `${url}#${encodeShare({ ...curShare, track, c: cty.id ?? undefined })}`);
     }
   }, [track, showHero, cty.id]);
   // The landing page is laid out for a 90% type scale on desktop (see html.landing-open in index.css)
