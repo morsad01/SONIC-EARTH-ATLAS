@@ -24,8 +24,10 @@ import { TimelineBar } from './atlas/TimelineBar';
 import { PlacePanel } from './atlas/PlacePanel';
 import { TourBar } from './demo/TourBar';
 import { usePrefs } from './lib/prefs';
+import { useCountry } from './countries/useCountry';
+import { CountryPanel } from './countries/CountryPanel';
 import { gibsUrl } from './lib/gibs';
-import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin } from 'lucide-react';
+import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin, MapPinned } from 'lucide-react';
 
 const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
 const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
@@ -66,8 +68,9 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [diagnostics, setDiagnostics] = useState(false);
   const [recording, setRecording] = useState<string | null>(null);
-  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | null>(null);
+  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | 'country' | null>(null);
   const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
+  const cty = useCountry(initialShare?.c);
 
   useEffect(() => { if (initialShare?.lang && initialShare.lang !== lang) set({ lang: initialShare.lang }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -89,8 +92,12 @@ export function App() {
     const cur = decodeShare(window.location.hash, { frames: [], pairs: [] })?.track;
     const url = window.location.pathname + window.location.search;
     if (showHero) { if (window.location.hash) history.replaceState(null, '', url); }
-    else if (cur !== track) history.replaceState(null, '', `${url}#${encodeShare({ track })}`);
-  }, [track, showHero]);
+    else if (cur !== track) history.replaceState(null, '', `${url}#${encodeShare({ track, c: cty.id ?? undefined })}`);
+    else { // same track: only add, change or drop the country key, leaving frame/col keys alone
+      const p = new URLSearchParams(window.location.hash.replace(/^#v1&/, ''));
+      if ((p.get('c') ?? null) !== cty.id) { if (cty.id) p.set('c', cty.id); else p.delete('c'); history.replaceState(null, '', `${url}#v1&${p.toString()}`); }
+    }
+  }, [track, showHero, cty.id]);
 
   usePlaybackReport('atlas', t('track1'), playing && track === 'atlas' && !showHero, () => setPlaying(false));
 
@@ -173,6 +180,7 @@ export function App() {
       statuses={data?.layerStatuses} isFallback={!!data?.isFallback} statusMessage={data?.statusMessage ?? 'Loading NASA data…'}
       audioReady={audioReady} onOpenData={() => setDataOpen(true)} />
   );
+  const countryPanel = <CountryPanel list={cty.list} country={cty.country} point={cty.point} onSelect={cty.select} />;
   const placePanel = <PlacePanel place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
   const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
@@ -193,22 +201,26 @@ export function App() {
           {(track === 'atlas' || showHero) && view === '3d-globe' && (
             <GlobeBoundary onFail={() => setGlobeFailed(true)} fallback={showHero
               ? <GlobeStill label={t('globeStill')} />
-              : <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected} />}>
+              : <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
+                countries={cty.list} country={cty.country} onSelectCountry={cty.select} />}>
               <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">Loading globe…</div>}>
                 <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
                   onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
                   onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
-                  framing={showHero ? STAGE_FRAMING[stage] : 'explore'} />
+                  framing={showHero ? STAGE_FRAMING[stage] : 'explore'}
+                  countries={showHero ? undefined : cty.list} country={showHero ? null : cty.country} countryPoint={cty.point} onSelectCountry={showHero ? undefined : cty.select} />
               </Suspense>
             </GlobeBoundary>
           )}
           {track === 'atlas' && !showHero && view === '2d-map' && (
-            <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected} />
+            <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
+                countries={cty.list} country={cty.country} onSelectCountry={cty.select} />
           )}
           {track === 'atlas' && !showHero && view === 'audio-first' && (
             <div className="w-full h-full overflow-y-auto py-6 lg:pl-[340px]">
               <AudioFirstMode observations={observations.filter((o) => enabled[o.phenomenon])} currentDateLabel={slice?.dateLabel ?? ''} selectedObservation={selected}
-                onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')} />
+                onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')}
+                countries={{ list: cty.list, country: cty.country, point: cty.point, onSelect: cty.select }} />
             </div>
           )}
           {track !== 'atlas' && !showHero && (
@@ -228,6 +240,7 @@ export function App() {
 
             {/* Desktop side column */}
             <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-3 bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
+              {view !== 'audio-first' && countryPanel}
               {layersPanel}
               {hearingPanel}
             </div>
@@ -254,13 +267,14 @@ export function App() {
             <div className="lg:hidden absolute left-3 top-3 z-20 flex flex-col gap-2">
               <button className="btn panel" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
               <button className="btn panel" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
+              {view !== 'audio-first' && <button className="btn panel" onClick={() => setSheet('country')}><MapPinned className="w-4 h-4" />{t('country')}</button>}
               <button className="btn panel" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
             </div>
             {sheet && (
               <div className="lg:hidden fixed inset-0 z-50 bg-black/60 flex items-end" onClick={() => setSheet(null)}>
                 <div className="w-full max-h-[78dvh] overflow-y-auto bg-[var(--abyss)] rounded-t-2xl p-3 pb-6 border-t border-[var(--line)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
                   <div className="flex justify-end"><button className="btn btn-ghost btn-icon" onClick={() => setSheet(null)} aria-label={t('close')}><X className="w-5 h-5" /></button></div>
-                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : hearingPanel}
+                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : sheet === 'country' ? countryPanel : hearingPanel}
                 </div>
               </div>
             )}

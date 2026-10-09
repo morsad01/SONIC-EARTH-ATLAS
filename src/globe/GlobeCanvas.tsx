@@ -1,9 +1,12 @@
+import { RotateCcw } from 'lucide-react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
 import { usePrefs } from '../lib/prefs';
 import { framingTarget, idleSpin, type Framing } from './framing';
+import { findCountrySync, latLonToXYZ, outlineSegments, xyzToLatLon, type Country } from '../countries/countries';
+import { countryLabel } from '../lib/placesBn';
 
 interface GlobeCanvasProps {
   observations: EarthObservation[];
@@ -16,6 +19,25 @@ interface GlobeCanvasProps {
   onPickPlace?: (p: { lat: number; lon: number }) => void;
   pickedPlace?: { lat: number; lon: number } | null;
   framing?: Framing;
+  countries?: Country[]; // borders for hover/click selection
+  country?: Country | null; // selected: brass outline
+  countryPoint?: { lat: number; lon: number } | null; // fly-to target
+  onSelectCountry?: (c: Country) => void;
+}
+
+// Selected outline is drawn as stacked rings just above the surface (WebGL lines are 1 px, this reads as one thicker line).
+const OUTLINE_R = [2.012, 2.015, 2.018];
+function makeOutline(c: Country, color: number, radii: number[], opacity: number) {
+  const g = new THREE.Group();
+  for (const r of radii) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(outlineSegments(c, r), 3));
+    g.add(new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false })));
+  }
+  return g;
+}
+function disposeGroup(g: THREE.Group) {
+  g.children.forEach((o) => { const m = o as THREE.LineSegments; m.geometry.dispose(); (m.material as THREE.Material).dispose(); });
 }
 
 export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
@@ -29,8 +51,19 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   onPickPlace,
   pickedPlace = null,
   framing = 'explore',
+  countries,
+  country = null,
+  countryPoint = null,
+  onSelectCountry,
 }) => {
-  const { reduceMotion } = usePrefs();
+  const { reduceMotion, lang, t } = usePrefs();
+  const flyRef = useRef<{ lat: number; lon: number; until: number } | null>(null);
+  const selOutlineRef = useRef<THREE.Group | null>(null);
+  const hoverOutlineRef = useRef<THREE.Group | null>(null);
+  const geoContainsRef = useRef<Parameters<typeof findCountrySync>[0] | null>(null);
+  const hoverIdRef = useRef<string | null>(null);
+  const lastHoverRef = useRef(0);
+  const [hoverCountry, setHoverCountry] = useState<{ c: Country; x: number; y: number } | null>(null);
   const earthMeshRef = useRef<THREE.Mesh | null>(null);
   const pinRef = useRef<THREE.Mesh | null>(null);
   const downPosRef = useRef({ x: 0, y: 0 });
@@ -246,9 +279,10 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       camera.position.z += (ft.z - camera.position.z) * k;
 
       // Smooth camera interpolation toward guided demo target region
-      if (targetFocusRef.current && !isDraggingRef.current && globeGroupRef.current) {
-        const target = targetFocusRef.current;
-        const targetY = -target.lon * (Math.PI / 180);
+      const fly = flyRef.current && performance.now() < flyRef.current.until ? flyRef.current : null; // runs until it arrives (or the safety timeout)
+      if ((targetFocusRef.current || fly) && !isDraggingRef.current && globeGroupRef.current) {
+        const target = (targetFocusRef.current ?? fly)!;
+        const targetY = -(target.lon + 90) * (Math.PI / 180); // turns lon to face the camera (+z)
         const targetX = Math.max(-0.65, Math.min(0.65, target.lat * (Math.PI / 180)));
 
         let diffY = (targetY - globeGroupRef.current.rotation.y) % (Math.PI * 2);
@@ -258,6 +292,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         const kf = reduce ? 1 : 0.045;
         globeGroupRef.current.rotation.y += diffY * kf;
         globeGroupRef.current.rotation.x += (targetX - globeGroupRef.current.rotation.x) * kf;
+        if (fly && Math.abs(diffY) < 0.004 && Math.abs(targetX - globeGroupRef.current.rotation.x) < 0.004) flyRef.current = null;
       } else if (autoRotateRef.current && !isDraggingRef.current && globeGroupRef.current) {
         globeGroupRef.current.rotation.y += idleSpin(framingRef.current, reduce);
       }
@@ -315,6 +350,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         container.removeChild(rendererRef.current.domElement);
         rendererRef.current.dispose();
       }
+      if (selOutlineRef.current) disposeGroup(selOutlineRef.current);
+      if (hoverOutlineRef.current) disposeGroup(hoverOutlineRef.current);
       earthGeometry.dispose();
       earthMaterial.dispose();
       earthTexture.dispose();
@@ -340,12 +377,37 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const pin = pinRef.current;
     if (!pin) return;
     if (!pickedPlace) { pin.visible = false; return; }
-    const phi = (90 - pickedPlace.lat) * (Math.PI / 180), theta = (pickedPlace.lon + 180) * (Math.PI / 180), r = 2.03;
-    const x = -r * Math.sin(phi) * Math.sin(theta), y = r * Math.cos(phi), z = r * Math.sin(phi) * Math.cos(theta);
+    const [x, y, z] = latLonToXYZ(pickedPlace.lat, pickedPlace.lon, 2.03);
     pin.position.set(x, y, z);
     pin.lookAt(x * 2, y * 2, z * 2);
     pin.visible = true;
   }, [pickedPlace]);
+
+  // --- d3-geo's geoContains, loaded once for hover/click lookups ---
+  useEffect(() => { let on = true; import('d3-geo').then((m) => { if (on) geoContainsRef.current = m.geoContains as never; }); return () => { on = false; }; }, []);
+
+  // --- Selected country: brass outline, and a fly-to (a jump with reduced motion, see the animation loop) ---
+  useEffect(() => {
+    const gg = globeGroupRef.current;
+    if (!gg) return;
+    if (selOutlineRef.current) { gg.remove(selOutlineRef.current); disposeGroup(selOutlineRef.current); selOutlineRef.current = null; }
+    if (!country) return;
+    const o = makeOutline(country, 0xe9c46a, OUTLINE_R, 1);
+    gg.add(o); selOutlineRef.current = o;
+  }, [country]);
+  useEffect(() => {
+    if (countryPoint) flyRef.current = { ...countryPoint, until: performance.now() + 12000 };
+  }, [countryPoint]);
+
+  // --- Hover country: thin cyan outline ---
+  useEffect(() => {
+    const gg = globeGroupRef.current;
+    if (!gg) return;
+    if (hoverOutlineRef.current) { gg.remove(hoverOutlineRef.current); disposeGroup(hoverOutlineRef.current); hoverOutlineRef.current = null; }
+    if (!hoverCountry || hoverCountry.c.id === country?.id) return;
+    const o = makeOutline(hoverCountry.c, 0x7dd3fc, [2.011], 0.9);
+    gg.add(o); hoverOutlineRef.current = o;
+  }, [hoverCountry, country]);
 
   // --- Optional NASA GIBS imagery of the selected day as the globe surface ---
   useEffect(() => {
@@ -401,12 +463,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     visibleObs.forEach((obs) => {
       // Calculate 3D position from lat/lon
-      const phi = (90 - obs.latitude) * (Math.PI / 180);
-      const theta = (obs.longitude + 180) * (Math.PI / 180);
-
-      const x = -earthRadius * Math.sin(phi) * Math.sin(theta);
-      const y = earthRadius * Math.cos(phi);
-      const z = earthRadius * Math.sin(phi) * Math.cos(theta);
+      const [x, y, z] = latLonToXYZ(obs.latitude, obs.longitude, earthRadius);
 
       // Color mapping
       let colorHex = 0xff7a3d;
@@ -454,7 +511,24 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   }, [observations, enabledPhenomena, selectedObservation]);
 
   // --- Mouse & Touch Controls ---
+  /** Surface lat/lon under a screen point, or null when it misses the globe. */
+  const hitLatLon = (clientX: number, clientY: number) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect || !cameraRef.current || !earthMeshRef.current || !globeGroupRef.current) return null;
+    const rc = new THREE.Raycaster();
+    rc.setFromCamera(new THREE.Vector2(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1), cameraRef.current);
+    const hit = rc.intersectObject(earthMeshRef.current)[0];
+    if (!hit) return null;
+    const local = globeGroupRef.current.worldToLocal(hit.point.clone()).normalize();
+    return xyzToLatLon(local.x, local.y, local.z);
+  };
+  const countryAt = (clientX: number, clientY: number) => {
+    const ll = hitLatLon(clientX, clientY), gc = geoContainsRef.current;
+    return ll && gc && countries ? findCountrySync(gc, countries, ll.lat, ll.lon) : null;
+  };
+
   const handlePointerDown = (e: React.PointerEvent) => {
+    flyRef.current = null; // the user took over
     downPosRef.current = { x: e.clientX, y: e.clientY };
     isDraggingRef.current = true;
     previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
@@ -495,6 +569,16 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     } else {
       setHoveredObs(null);
       setTooltipPos(null);
+      // No marker under the pointer: outline the country there (mouse only, throttled; touch has no hover)
+      if (countries && e.pointerType === 'mouse') {
+        const now = performance.now();
+        if (now - lastHoverRef.current > 70) {
+          lastHoverRef.current = now;
+          const c = countryAt(e.clientX, e.clientY);
+          if (c?.id !== hoverIdRef.current) { hoverIdRef.current = c?.id ?? null; setHoverCountry(c ? { c, x: e.clientX - rect.left, y: e.clientY - rect.top } : null); }
+          else if (c) setHoverCountry({ c, x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }
+      }
     }
   };
 
@@ -526,13 +610,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     // Empty spot on Earth (and not the end of a drag): pick that place
     const moved = Math.hypot(e.clientX - downPosRef.current.x, e.clientY - downPosRef.current.y);
     if (!onPickPlace || moved > 6 || !earthMeshRef.current || !globeGroupRef.current) return;
-    const hit = raycaster.intersectObject(earthMeshRef.current)[0];
-    if (!hit) return;
-    const local = globeGroupRef.current.worldToLocal(hit.point.clone()).normalize();
-    const lat = Math.asin(local.y) * (180 / Math.PI);
-    let lon = Math.atan2(-local.x, local.z) * (180 / Math.PI) - 180;
-    if (lon < -180) lon += 360;
-    onPickPlace({ lat: Math.round(lat * 100) / 100, lon: Math.round(lon * 100) / 100 });
+    const ll = hitLatLon(e.clientX, e.clientY);
+    if (!ll) return;
+    const c = countryAt(e.clientX, e.clientY);
+    if (c) onSelectCountry?.(c);
+    onPickPlace({ lat: Math.round(ll.lat * 100) / 100, lon: Math.round(ll.lon * 100) / 100 });
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -554,6 +636,16 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       onClick={handleClick}
       onWheel={handleWheel}
     >
+      {onSelectCountry && (
+        <button type="button" className="btn panel absolute z-20 left-1/2 -translate-x-1/2 top-[236px] sm:top-3 min-h-[40px]" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); flyRef.current = { lat: 0, lon: 0, until: performance.now() + 12000 }; frameRef.current = framingTarget(framingRef.current, (containerRef.current?.clientWidth ?? 1) / (containerRef.current?.clientHeight || 1)); }}>
+          <RotateCcw className="w-4 h-4" aria-hidden="true" />{t('resetView')}
+        </button>
+      )}
+      {hoverCountry && !hoveredObs && (
+        <div className="absolute z-30 pointer-events-none px-2.5 py-1.5 rounded-lg panel-solid shadow-2xl text-sm -translate-x-1/2 -translate-y-full" style={{ left: hoverCountry.x, top: hoverCountry.y - 14 }}>
+          {t('countryHover', { name: countryLabel(hoverCountry.c.id, hoverCountry.c.name, lang) })}
+        </div>
+      )}
       {/* Dynamic Hover Tooltip */}
       {hoveredObs && tooltipPos && (
         <div

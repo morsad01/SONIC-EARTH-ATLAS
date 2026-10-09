@@ -1,7 +1,7 @@
 # Sonic Earth Atlas — Roadmap v3 (implementation plan)
 
 **Source:** the team's brief in [`roadmap-v3-brief.md`](roadmap-v3-brief.md) ("EarthSound" master prompt), applied to the existing Sonic Earth Atlas codebase.
-**Status:** Phase 0 (audit and plan) and Phase 1 (design foundation) done. **Current phase: 2, country selection.**
+**Status:** Phases 0 (audit and plan), 1 (design foundation) and 2 (country selection) done. **Current phase: 3, data registry and country profile.**
 **Scope:** the whole asked roadmap, Features A–G, Phases 0–7. Where I adapt something to the codebase, the reason is in §3.
 
 ---
@@ -224,8 +224,8 @@ Selected state is shown with outline + label + text in the panel, never colour a
 |---|---|---|
 | Existing deployed functionality remains available | all | ✅ today; re-check each phase |
 | Global navigation works on all views | 1 | ✅ (Explore Earth · Data Jukebox · About the Science; mobile menu) |
-| Country selectable via globe **and** searchable control | 2 | ☐ |
-| Selected country clearly indicated (not colour alone) | 2 | ☐ |
+| Country selectable via globe **and** searchable control | 2 | ✅ (globe click, 2D-map click, combobox on globe / map / list views; also `C` on the 2D map's focus point) |
+| Selected country clearly indicated (not colour alone) | 2 | ✅ (outline + “Selected country” card with name, code and point; “· Selected” label on the 2D map) |
 | Only genuinely available datasets listed per region | 3 | ☐ |
 | Source, units, period and limitations visible | 3 | ◐ (Data & Method dialog only) |
 | Timeline selection updates the active data story | 4 | ◐ (A1 / A2 only) |
@@ -236,7 +236,7 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | Horizontal story row: keyboard, pointer, touch | 4 | ☐ |
 | No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ landing and About checked at 320 px; re-check Jukebox in 4 |
 | Reduced motion respected | 1, 6 | ✅ `--dur-*` zeroed, globe framing jumps, idle spin, clouds and starfield stop; re-check in 6 |
-| WebGL failure doesn't block country exploration | 2 | ◐ (`GlobeBoundary`: still globe on landing, 2D map in the Atlas; picker in 2) |
+| WebGL failure doesn't block country exploration | 2 | ✅ (WebGL off: 2D map in the Atlas with the same picker, outline and click selection; checked in Chromium with `--disable-webgl`) |
 | Empty, loading, stale and API-error states usable | 3 | ◐ |
 | No fabricated data presented as official | all | ✅ today (offline sample is labelled) |
 | Production build and automated tests pass | each | ✅ today |
@@ -274,7 +274,7 @@ Results are reported as actually run. Failures are listed, not suppressed.
 |---|---|---|---|---|
 | 0 Audit and plan | ✅ Done | — | test 47/47 · lint 2 warnings · build ✅ | This document |
 | 1 Design foundation | ✅ Done | `feat/design-foundation` | test 65/65 (6 files) · lint 0 errors, 11 warnings (`main` has 12 with this oxlint) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright check (Chromium): landing stages 0→1→2, every nav item and collection, old `#v1&track=frames&frame=…&col=40` link, `#v1&track=about&lang=bn`, 320 px with no horizontal scroll, mobile menu focus trap + Esc, WebGL off, header playback chip pause, 0 page errors | See Phase 1 notes below |
-| 2 Country selection | ☐ | `feat/country-selection` | | |
+| 2 Country selection | ✅ Done | `feat/country-selection` | test 83/83 (8 files) · lint 0 errors, 11 warnings (same count as Phase 1) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright (Chromium, swiftshader): `#…&c=BGD` restores the selection, keyboard-only type → Enter selects and writes `c=NPL`, globe hover + click selects and fly-to arrives, WebGL off → 2D map + picker + click, list view has one picker, 360 px বাংলা sheet with no horizontal scroll, old `frame`/`col` link untouched, 0 page errors | See Phase 2 notes below |
 | 3 Data registry and profile | ☐ | `feat/data-registry` | | |
 | 4 Data Jukebox | ☐ | `feat/data-jukebox` | | |
 | 5 Series sonification | ☐ | `feat/series-sonification` | | |
@@ -290,7 +290,17 @@ Results are reported as actually run. Failures are listed, not suppressed.
 - The view is mirrored into the share hash (`#v1&track=…`). A hash that already names the current track is kept, so frame and column keys survive. `about` is a new track id, and unknown keys (`story`, `c`) are ignored.
 - Not done here (by plan): component tests (RTL arrives with Phase 2's combobox), a VoiceOver/NVDA pass (Phase 6).
 
-**Next safe action:** Phase 2. Create `feat/country-selection` from `main` after this PR merges, and start with `src/countries/countries.ts` (`loadCountries`, `findCountry`, `representativePoint`) plus its unit tests.
+**Phase 2 notes**
+- `src/countries/`: `iso.ts` (numeric → alpha-3 for every 110m/50m shape that has an ISO code), `countries.ts` (`loadCountries('110m'|'50m')`, `findCountry`, `representativePoint`, `outlineSegments`, `outlinePath`, `latLonToXYZ` / `xyzToLatLon`), `search.ts`, `useCountry.ts`, `CountryPicker.tsx` (ARIA 1.2 combobox, “n countries found” live region), `CountryPanel.tsx`. `lib/power.ts` `countryName` now uses the same list. Share hash gains `c=<alpha3>`, validated against the ISO table; old links decode unchanged.
+- Shapes with no ISO id (N. Cyprus, Somaliland, Kosovo, Siachen, Indian Ocean Ter.) are not selectable. 174 countries at 110m. 50m is a separate lazy chunk (757 kB) that nothing requests yet, it is there for Phase 3 if the coarse 110m borders hurt.
+- Globe: separate `LineSegments` outlines (selected = brass, three stacked rings because WebGL lines are 1 px; hover = thin cyan + a text tooltip), a click selects only when it was not a drag (6 px) and not on a marker, fly-to the representative point runs until it arrives (a jump under reduced motion), **Reset view** button. The Atlas still picks the place for “Hear any place” on the same click.
+- **Pre-existing bug fixed:** the globe's lat/lon → xyz formula (pin, observation markers, click-to-place, tour fly-to) was 90° off from the texture, so markers sat in the wrong place and a click on the Sahara read as Myanmar. One shared `latLonToXYZ` / `xyzToLatLon` now matches three's sphere UV layout, with a unit test that compares it with `SphereGeometry` vertices. Fire/rain/SST markers and the tour regions now land on the right place.
+- 2D map: selected outline + “Country · Selected” label, click selects, and `C` selects the country at the keyboard focus point (the HUD names it). Known, pre-existing: every arrow key / click on the map opens the observation modal, which takes focus. The picker is the reliable keyboard route there.
+- List view (`AudioFirstMode`) has the picker; the side-column copy is hidden in that view so there is one combobox. On phones a “Country” button opens the same panel as a sheet.
+- Dev dependencies added (planned in §2): `@testing-library/react`, `@testing-library/dom`, `jsdom` (component test uses a per-file `@vitest-environment jsdom`).
+- Not done here: Bengali names cover ~150 common countries, the rest fall back to English in বাংলা mode. No VoiceOver/NVDA pass yet (Phase 6). The Jukebox left column gets the picker in Phase 4.
+
+**Next safe action:** Phase 3. Create `feat/data-registry` from `main` after this PR merges. Start with `src/datasets/registry.ts` (the dataset metadata the picker's selection will query) and `countryCoverage` with its tests, then the adapters.
 
 ---
 

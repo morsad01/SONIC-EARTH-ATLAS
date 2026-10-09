@@ -20,7 +20,7 @@ describe('share link', () => {
     expect(encodeShare({ track: 'about' })).toBe('v1&track=about');
     expect(decodeShare('#v1&track=about', ok)).toEqual({ track: 'about' });
     for (const tr of ['atlas', 'frames', 'monsoon', 'pulse'] as const) expect(decodeShare(`#v1&track=${tr}`, ok)).toEqual({ track: tr });
-    expect(decodeShare('#v1&track=frames&frame=eic-ghg&col=40&lang=bn&story=x&c=BGD', ok)).toEqual({ track: 'frames', frame: 'eic-ghg', col: 40, lang: 'bn' });
+    expect(decodeShare('#v1&track=frames&frame=eic-ghg&col=40&lang=bn&story=x&c=BGD', ok)).toEqual({ track: 'frames', frame: 'eic-ghg', col: 40, lang: 'bn', c: 'BGD' });
   });
 
   it('ignores unknown versions, ids and out-of-range values', () => {
@@ -37,5 +37,18 @@ describe('EIC story', () => {
     const ids = new Set(EIC_FRAMES.map((f) => f.id));
     expect(EIC_STORY.length).toBeGreaterThanOrEqual(3);
     for (const s of EIC_STORY) { expect(ids.has(s.frameId)).toBe(true); expect(s.en.length).toBeGreaterThan(30); expect(s.bn.length).toBeGreaterThan(20); }
+  });
+
+  it('round-trips the selected country and rejects anything that is not a known alpha-3', () => {
+    const h = encodeShare({ track: 'atlas', c: 'BGD', lang: 'bn' });
+    expect(h).toBe('v1&track=atlas&lang=bn&c=BGD');
+    expect(decodeShare('#' + h, ok)).toEqual({ track: 'atlas', lang: 'bn', c: 'BGD' });
+    expect(decodeShare('#v1&track=frames&frame=eic-ghg&col=40&c=BGD', ok)).toEqual({ track: 'frames', frame: 'eic-ghg', col: 40, c: 'BGD' });
+    expect(decodeShare('#v1&c=bgd', ok)).toBeNull();
+    expect(decodeShare('#v1&c=ZZZ', ok)).toBeNull();
+    expect(decodeShare('#v1&track=atlas&c=<script>', ok)).toEqual({ track: 'atlas' });
+    expect(encodeShare({ track: 'atlas', c: 'nope' })).toBe('v1&track=atlas');
+    // old links (no c) still decode exactly as before
+    expect(decodeShare('#v1&track=atlas', ok)).toEqual({ track: 'atlas' });
   });
 });
