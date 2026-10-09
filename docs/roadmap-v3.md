@@ -1,7 +1,7 @@
 # Sonic Earth Atlas — Roadmap v3 (implementation plan)
 
 **Source:** the team's brief in [`roadmap-v3-brief.md`](roadmap-v3-brief.md) ("EarthSound" master prompt), applied to the existing Sonic Earth Atlas codebase.
-**Status:** Phases 0 (audit and plan), 1 (design foundation), 2 (country selection) and 3 (data registry and country profile) done. **Current phase: 4, Data Jukebox.**
+**Status:** Phases 0 (audit and plan), 1 (design foundation), 2 (country selection), 3 (data registry and country profile) and 4 (Data Jukebox) done. **Current phase: 5, series sonification.**
 **Scope:** the whole asked roadmap, Features A–G, Phases 0–7. Where I adapt something to the codebase, the reason is in §3.
 
 ---
@@ -165,7 +165,7 @@ Selected state is shown with outline + label + text in the panel, never colour a
 
 **Gate:** every number on screen can be traced to a source, a unit, a period and a method. A country with no data shows the empty state, not filler.
 
-### Phase 4 — Data Jukebox: synchronized timeline, story row and topic carousel (Features C, D) · branch `feat/data-jukebox`
+### Phase 4 — Data Jukebox: synchronized timeline, story row and topic carousel (Features C, D) · branch `feat/data-jukebox` ✅
 
 | File | Change |
 |---|---|
@@ -228,13 +228,13 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | Selected country clearly indicated (not colour alone) | 2 | ✅ (outline + “Selected country” card with name, code and point; “· Selected” label on the 2D map) |
 | Only genuinely available datasets listed per region | 3 | ✅ (`availableFor`: gridded layers only with a cell or point inside the border, monsoon only for Bangladesh, global records labelled as context) |
 | Source, units, period and limitations visible | 3 | ✅ (`ProvenanceCard` on every country figure; Data & Method dialog for the Atlas layers) |
-| Timeline selection updates the active data story | 4 | ◐ (A1 / A2 only) |
-| Timeline, chart and audio synchronized | 4–5 | ◐ (A1 / A2 only) |
+| Timeline selection updates the active data story | 4 | ✅ (Jukebox: timeline, chart click, step bar and share link all drive one reducer; chart cursor, caption, table row and hash move together) |
+| Timeline, chart and audio synchronized | 4–5 | ◐ (timeline + chart + caption ✅ in the Jukebox; audio for series stories is Phase 5) |
 | Sonification mapping deterministic and documented | 5 | ◐ (existing tracks yes; series sonifier ☐) |
 | Play, pause, resume, stop, volume and error handling | 5 | ◐ |
 | No audio starts unexpectedly | 1–5 | ✅ today |
-| Horizontal story row: keyboard, pointer, touch | 4 | ☐ |
-| No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ landing and About checked at 320 px; re-check Jukebox in 4 |
+| Horizontal story row: keyboard, pointer, touch | 4 | ✅ (←/→/Home/End, arrow buttons, scroll-snap, `overscroll-behavior-x: contain`; vertical wheel over the row scrolls the page) |
+| No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ landing, About and Jukebox checked at 320 px (Jukebox: `scrollWidth` = 320) |
 | Reduced motion respected | 1, 6 | ✅ `--dur-*` zeroed, globe framing jumps, idle spin, clouds and starfield stop; re-check in 6 |
 | WebGL failure doesn't block country exploration | 2 | ✅ (WebGL off: 2D map in the Atlas with the same picker, outline and click selection; checked in Chromium with `--disable-webgl`) |
 | Empty, loading, stale and API-error states usable | 3 | ✅ (`DataState`; profile empty state, POWER error + retry, offline sample) |
@@ -276,7 +276,7 @@ Results are reported as actually run. Failures are listed, not suppressed.
 | 1 Design foundation | ✅ Done | `feat/design-foundation` | test 65/65 (6 files) · lint 0 errors, 11 warnings (`main` has 12 with this oxlint) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright check (Chromium): landing stages 0→1→2, every nav item and collection, old `#v1&track=frames&frame=…&col=40` link, `#v1&track=about&lang=bn`, 320 px with no horizontal scroll, mobile menu focus trap + Esc, WebGL off, header playback chip pause, 0 page errors | See Phase 1 notes below |
 | 2 Country selection | ✅ Done | `feat/country-selection` | test 83/83 (8 files) · lint 0 errors, 11 warnings (same count as Phase 1) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright (Chromium, swiftshader): `#…&c=BGD` restores the selection, keyboard-only type → Enter selects and writes `c=NPL`, globe hover + click selects and fly-to arrives, WebGL off → 2D map + picker + click, list view has one picker, 360 px বাংলা sheet with no horizontal scroll, old `frame`/`col` link untouched, 0 page errors | See Phase 2 notes below |
 | 3 Data registry and profile | ✅ Done | `feat/data-registry` | test 112/112 (11 files) · lint 0 errors, 11 warnings (same count as Phase 2) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright (Chromium): `#…&c=PNG` shows 3 fire cells, strongest 286.91 MW, 4 days, snapshot badge and method; `c=BGD` shows “nothing inside the border” for all three layers, the monsoon line and global context; POWER blocked → error + retry; 0 page errors | See Phase 3 notes below |
-| 4 Data Jukebox | ☐ | `feat/data-jukebox` | | |
+| 4 Data Jukebox | ✅ Done | `claude/festive-feynman-0pz0ie` (session branch, in place of `feat/data-jukebox`) | test 139/139 (14 files) · lint 0 errors, 11 warnings (same count as Phase 3) · build ✅ (same >500 kB `GlobeCanvas` warning; main `index` chunk unchanged at 388 kB, Jukebox 26.5 kB and carousel 6 kB lazy) · Playwright (Chromium): `#…&track=jukebox&story=gistemp&t=1998` restores story + cursor, timeline click and ↓ update chart cursor, caption and hash together, wheel over the rail moves the cursor, country search adds Bangladesh stories, step-through runs and stops, tablet drawer opens with focus and Esc returns focus, 320 px বাংলা with reduced motion has no horizontal scroll, vertical wheel over the story row scrolls the page, carousel → Jukebox on `co2`, profile “Explore its sound” on PNG → `c-png-temp`, old `frame`/`col` link untouched, 0 page errors | See Phase 4 notes below |
 | 5 Series sonification | ☐ | `feat/series-sonification` | | |
 | 6 Polish, a11y, perf | ☐ | `feat/polish-a11y-perf` | | |
 | 7 Testing and submission | ☐ | `chore/release-checks` | | |
@@ -310,7 +310,15 @@ Results are reported as actually run. Failures are listed, not suppressed.
 - **Deviation:** “Explore its sound” opens the Data Jukebox on the last collection (Bangladesh opens the monsoon). Country stories, and therefore a Jukebox that opens on the country, arrive with Phase 4, and the button note says so. The other “latest source timestamp” fields show the file's `generated` date (the files carry no other stamp).
 - Not done here: the 50m borders are still not requested (110m is enough for the cell-centre test; a cell within ~110 km of a border can fall on either side and the method text says so). No `PlacePanel` refactor to share profile parts beyond the POWER adapter. VoiceOver/NVDA pass is Phase 6.
 
-**Next safe action:** Phase 4. Create `feat/data-jukebox` from `main` after this PR merges. Start with `src/stories/stories.ts` and its integrity test (every story resolves to a registry dataset), then the `useJukebox` reducer with origin-tagged actions and its tests, then the views.
+**Phase 4 notes**
+- `src/stories/stories.ts`: 17 fixed stories (5 global series, 4 EIC pictures, 8 Bangladesh divisions) plus per-country stories built on demand (`c-<a3>-temp`, `c-<a3>-rain` from POWER monthly at the representative point, `c-<a3>-fire` only when a fire cell lies inside the border). `remapStoryId` keeps the same kind of story across a country change. `src/stories/loadStory.ts` turns a story into a `DataSeries` from the same files and APIs (bundled files fetched once and shared), with pure `fireWeekSeries` (strongest cell per day) and `sstMonthSeries` (the file's own area-weighted mean). A test loads every global and Bangladesh story from the real files and asserts a non-sample, non-live series with source, unit, method and limits.
+- `src/jukebox/useJukebox.ts`: one reducer (`setStories`, `selectStory`, `seriesLoaded`, `setCursor(origin)`, `step`, `setFilter`, `resetFilters`, `setPlaying`). Loop breakers: a cursor set to its current value returns the same state object, scroll-origin moves are ignored while step-through runs, late series answers for another story are dropped, the cursor snaps to the nearest real date (also across granularities, `1998` → `1998-01`), a period filter is swapped when reversed and cleared when the new series lacks those years. Tested, including an "echo every change back" fixed-point check.
+- Views (`src/jukebox/`): `JukeboxView` (lazy; story row, then filters · timeline · story; tablet drawer with focus + Esc; phone Filters / Timeline / Story switch and a pinned step bar), `TimelineFilters` (country picker + summary, period from the years present, topic / region / source, Reset), `TimelineView` (roving tabindex, ↑/↓/Home/End, buckets above 150 points by year or decade with →/← and gap counts, `aria-current` + filled marker + bold; IntersectionObserver sync only on wheel / touch / scrollbar intent and never within 700 ms of a programmatic scroll or a pick), `SeriesChart` (SVG, breaks at gaps, unit axis, zero line for anomalies, click to set the cursor, table alternative), `StoryPanel` (title, blurb, EIC picture or chart, caption with the change from the last real value, `ProvenanceCard`, and a button to the collection that plays it). `src/stories/StoryRow.tsx` and `src/stories/TopicCarousel.tsx` (landing section 5, lazy; six topics with an EIC picture or a sparkline of the real series; Overview → Split → Immersive with Back, Skip animation, reduced motion = fade only).
+- Navigation: `jukebox` is a new track id and the default target of “Data Jukebox”; the collections row starts with “Stories”, then A2/B1/B2 unchanged. Share hash gains `story` and `t` (shape-checked; unknown story ids fall back to the first story). The country profile's “Explore its sound” now opens the Jukebox on `c-<a3>-temp`.
+- **Deviations:** (1) The work is on the session branch `claude/festive-feynman-0pz0ie`, not `feat/data-jukebox`. (2) Phase 4 makes no sound for series stories: “Step through” only moves the cursor and says so; each story with an existing player has “Hear it in …” (EIC pictures open the frame player on that frame). Country temperature/rain stories have no player until Phase 5 and say so. (3) The global fire story uses every day in `firms_snapshot.json` (2–7 Oct), not only the Atlas's 2–5. (4) The visual in the story panel is the EIC picture or the chart; no GIBS tile was added. (5) Bangladesh division stories are always listed (region “Bangladesh”), and come right after the country stories when Bangladesh is selected.
+- Not done here: the series player, mapping legend and live caption throttle (Phase 5), a VoiceOver / NVDA pass (Phase 6). Story periods on cards are shown in English month names in বাংলা mode.
+
+**Next safe action:** Phase 5. Branch from `main` after this PR merges. Start with the pure `src/sonification/series/mapping.ts` and `playbackState.ts` with their tests, then `SeriesPlayer` against a fake `AudioContext`, then replace the Jukebox step-through with `PlayerControls` (the reducer's `setPlaying` / `step('playback')` are the hook-in points).
 
 ---
 

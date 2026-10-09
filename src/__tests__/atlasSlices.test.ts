@@ -17,7 +17,9 @@ describe('DatasetAdapter.loadDatasets (live snapshots)', () => {
     expect(r.sstGlobal).toEqual({ areaWeightedMeanAnomalyC: 0.693, fractionWarmerThanNormal: 0.763, validCells: 32095 });
     expect(r.layerStatuses).toMatchSnapshot();
     expect(r.slices.map((s) => [s.timestepIndex, s.dateLabel, s.timestamp, s.observations.length])).toMatchSnapshot();
-    expect(r.slices).toMatchSnapshot();
+    // normalizedValue comes from Math.log/pow, whose last bits differ between CPUs and OSes: compare at 12 decimals.
+    const r12 = (v: number) => Math.round(v * 1e12) / 1e12;
+    expect(r.slices.map((s) => ({ ...s, observations: s.observations.map((o) => ({ ...o, normalizedValue: r12(o.normalizedValue) })) }))).toMatchSnapshot();
   });
   it('falls back to the labelled sample when nothing loads', async () => {
     vi.stubGlobal('fetch', async () => ({ ok: false, status: 404, json: async () => ({}) }));
