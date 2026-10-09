@@ -217,7 +217,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       </div>
 
       {/* Coordinate & Audio Focus Crosshair Status HUD */}
-      <div className="hidden md:block absolute top-16 right-16 z-20 panel px-3.5 py-2.5 text-xs max-w-[260px]">
+      <div className="hidden md:block absolute top-16 right-16 z-20 glass-pop px-3.5 py-2.5 text-xs max-w-[260px]">
         <div className="text-[var(--ink-3)] flex items-center gap-1.5 mb-1 font-sans text-xs font-semibold">
           <Navigation className="w-3.5 h-3.5 text-[var(--rain)]" />
           <span>Keyboard focus point · arrows move, Enter listens{onSelectCountry ? ', C selects the country' : ''}</span>

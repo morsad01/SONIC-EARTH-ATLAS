@@ -137,7 +137,7 @@ export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox
       )}
 
       {menu && (
-        <div ref={menuPanel} id="site-menu" className="lg:hidden absolute left-0 right-0 top-full glass-strong rounded-none p-3 max-h-[calc(100dvh-var(--header-h))] overflow-y-auto">
+        <div ref={menuPanel} id="site-menu" className="lg:hidden absolute left-0 right-0 top-full glass-pop rounded-none p-3 max-h-[calc(100dvh-var(--header-h))] overflow-y-auto">
           <nav aria-label={t('mainNav')}>
             <ul className="flex flex-col gap-1">
               <li><button className="nav-link w-full min-h-[44px]" onClick={() => go('atlas')} aria-current={section === 'explore' ? 'page' : undefined}>{t('navExplore')}</button></li>

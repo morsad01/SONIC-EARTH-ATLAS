@@ -55,7 +55,7 @@ export const DiagnosticsPanel: React.FC<DiagnosticsPanelProps> = ({
   return (
     <Overlay><div className="fixed bottom-3 right-3 z-30">
       {isOpen ? (
-        <div className="glass-strong p-3 w-72 text-xs font-mono text-[var(--ink-2)] space-y-2">
+        <div className="glass-pop p-3 w-72 text-xs font-mono text-[var(--ink-2)] space-y-2">
           <div className="flex items-center justify-between border-b border-[var(--line)] pb-1.5">
             <div className="flex items-center gap-1.5 text-[var(--rain)] font-semibold">
               <Terminal className="w-3.5 h-3.5" />

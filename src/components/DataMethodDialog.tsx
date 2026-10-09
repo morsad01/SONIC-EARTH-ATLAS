@@ -31,7 +31,7 @@ export const DataMethodDialog: React.FC<Props> = ({ open, onClose, onAbout, sstG
   const r = (k: StringKey, vars?: Record<string, string | number>) => rich(t(k, vars));
   return (
     <Overlay><div className="fixed inset-0 z-[70] scrim grid place-items-center p-3" onClick={onClose}>
-      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="data-title" onClick={(e) => e.stopPropagation()} className="glass-strong w-full max-w-4xl max-h-[92dvh] overflow-y-auto p-5 sm:p-8">
+      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="data-title" onClick={(e) => e.stopPropagation()} className="glass-pop w-full max-w-4xl max-h-[92dvh] overflow-y-auto p-5 sm:p-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 id="data-title" className="font-display text-3xl font-extrabold">{t('dataTitle')}</h2>

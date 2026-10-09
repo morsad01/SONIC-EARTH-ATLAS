@@ -20,14 +20,13 @@ import { DataMethodDialog } from './components/DataMethodDialog';
 import { LayersPanel } from './atlas/LayersPanel';
 import { HearingPanel } from './atlas/HearingPanel';
 import { TimelineBar } from './atlas/TimelineBar';
-import { PlacePanel } from './atlas/PlacePanel';
 import { TourBar } from './demo/TourBar';
 import { usePrefs } from './lib/prefs';
 import { useCountry } from './countries/useCountry';
 import { CountryPanel } from './countries/CountryPanel';
 import { ProfileDataContext } from './countries/profileContext';
 import { gibsUrl } from './lib/gibs';
-import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, MapPin, MapPinned } from 'lucide-react';
+import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, MapPinned } from 'lucide-react';
 
 const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
 const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
@@ -67,8 +66,7 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [diagnostics, setDiagnostics] = useState(false);
   const [recording, setRecording] = useState<string | null>(null);
-  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | 'country' | null>(null);
-  const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
+  const [sheet, setSheet] = useState<'layers' | 'hearing' | 'country' | null>(null);
   const cty = useCountry(initialShare?.c);
 
   useEffect(() => { if (initialShare?.lang && initialShare.lang !== lang) set({ lang: initialShare.lang }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -99,6 +97,8 @@ export function App() {
       if ((p.get('c') ?? null) !== cty.id) { if (cty.id) p.set('c', cty.id); else p.delete('c'); history.replaceState(null, '', `${url}#v1&${p.toString()}`); }
     }
   }, [track, showHero, cty.id]);
+  // The landing page is laid out for a 90% type scale on desktop (see html.landing-open in index.css)
+  useEffect(() => { document.documentElement.classList.toggle('landing-open', showHero); return () => document.documentElement.classList.remove('landing-open'); }, [showHero]);
 
   usePlaybackReport('atlas', t('track1'), playing && track === 'atlas' && !showHero, () => setPlaying(false));
 
@@ -195,7 +195,6 @@ export function App() {
       audioReady={audioReady} onOpenData={() => setDataOpen(true)} />
   );
   const countryPanel = <CountryPanel list={cty.list} country={cty.country} point={cty.point} onSelect={cty.select} />;
-  const placePanel = <PlacePanel key={place ? `${place.lat},${place.lon}` : 'none'} place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
   const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
   return (
@@ -220,7 +219,6 @@ export function App() {
               <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingGlobe')}</div>}>
                 <GlobeCanvas observations={observations} enabledPhenomena={enabled} selectedObservation={selected}
                   onSelectObservation={setSelected} autoRotate={autoRotate} targetFocus={focus} imageryUrl={imageryUrl}
-                  onPickPlace={(p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
                   framing="explore"
                   countries={cty.list} country={cty.country} countryPoint={cty.point} onSelectCountry={cty.select} />
               </Suspense>
@@ -276,7 +274,6 @@ export function App() {
                   <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={autoRotate} onClick={() => setAutoRotate(!autoRotate)} aria-label={t('spinHint')}><RotateCw className="w-4 h-4" /><span className="hidden sm:inline">{t('spin')}</span></button>
                 </div>
               )}
-              {view === '3d-globe' && <div className="hidden lg:block w-[300px] max-h-[calc(100dvh-330px)] overflow-y-auto scroll-thin">{placePanel}</div>}
             </div>
 
             {/* Mobile panel buttons */}
@@ -284,11 +281,10 @@ export function App() {
               <button className="btn panel shrink-0" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
               <button className="btn panel shrink-0" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
               {view !== 'audio-first' && <button className="btn panel shrink-0" onClick={() => setSheet('country')}><MapPinned className="w-4 h-4" />{t('country')}</button>}
-              <button className="btn panel shrink-0" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
             </div>
             {sheet && (
               <MobileSheet onClose={() => setSheet(null)}>
-                {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : sheet === 'country' ? countryPanel : hearingPanel}
+                {sheet === 'layers' ? layersPanel : sheet === 'country' ? countryPanel : hearingPanel}
               </MobileSheet>
             )}
 

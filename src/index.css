@@ -46,7 +46,11 @@
   --glass-hi: inset 0 1px 0 rgb(255 255 255 / .06);
   --glass-shadow: 0 10px 30px -12px rgb(0 0 0 / .55);
   --glass-blur: 16px;
-  --glass-blur-strong: 24px;
+  --glass-blur-strong: 32px;
+  /* Pop-ups (dropdowns, menus, tooltips, dialogs, drawers) float over other text: a heavy blur and a dense tint so nothing underneath reads through.
+     The tint matters most when a pop-up sits inside another blurred panel: a nested backdrop-filter can only blur what is inside that parent. */
+  --glass-bg-pop: color-mix(in srgb, var(--panel) 86%, transparent);
+  --glass-blur-pop: 44px;
   --font-display: 'Bricolage Grotesque', 'Bricolage Fallback', 'IBM Plex Sans', system-ui, sans-serif;
   --font-serif: 'Cormorant Garamond', 'Serif Fallback', Georgia, 'Times New Roman', serif; /* landing carousel titles; বাংলা falls back to the display face below */
   --font-body: 'IBM Plex Sans', 'Plex Fallback', 'Noto Sans Bengali', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -108,9 +112,10 @@ html[lang='bn'] #hero-title { line-height: 1.1; }
 .panel-solid { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur)) saturate(140%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%); }
 /* Behind dialogs and sheets: a light dim, so the glass panel on top still shows the page through its blur */
 .scrim { background: rgb(2 6 14 / .38); }
-@supports not (backdrop-filter: blur(1px)) { .glass, .panel, .glass-strong, .glass-flat, .panel-solid { background: var(--panel); } .scrim { background: rgb(0 0 0 / .6); } }
-@media (max-width: 640px) { :root { --glass-blur: 10px; --glass-blur-strong: 14px; } }
-html.calm { --glass-blur: 10px; --glass-blur-strong: 14px; }
+@supports not (backdrop-filter: blur(1px)) { .glass, .panel, .glass-strong, .glass-flat, .panel-solid, .glass-pop { background: var(--panel); } .scrim { background: rgb(0 0 0 / .6); } }
+.glass-pop { background: var(--glass-bg-pop); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi), 0 18px 48px -12px rgb(0 0 0 / .7); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur-pop)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur-pop)) saturate(150%); }
+@media (max-width: 640px) { :root { --glass-blur: 10px; --glass-blur-strong: 18px; --glass-blur-pop: 28px; } }
+html.calm { --glass-blur: 10px; --glass-blur-strong: 18px; --glass-blur-pop: 28px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 40px; padding: 0 .9rem; border-radius: var(--radius-md); border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-2) 62%, transparent); color: var(--ink); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-ui); cursor: pointer; white-space: nowrap; transition: background var(--dur-fast), border-color var(--dur-fast); }
 .btn:hover { border-color: #3b5a72; background: color-mix(in srgb, #183248 78%, transparent); }
 .btn[aria-pressed='true'] { border-color: var(--brass); color: var(--brass); }
@@ -146,7 +151,7 @@ html.calm { --glass-blur: 10px; --glass-blur-strong: 14px; }
 [dir=rtl] .fade-x { -webkit-mask-image: none; mask-image: none; }
 
 /* Glass header: fixed, content scrolls under it; denser once the page has scrolled */
-.site-header { position: fixed; inset-inline: 0; top: 0; background: color-mix(in srgb, var(--abyss) 55%, transparent); border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); transition: background var(--dur-med), box-shadow var(--dur-med); }
+.site-header { position: fixed; inset-inline: 0; top: 0; background: color-mix(in srgb, var(--abyss) 55%, transparent); border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(28px) saturate(150%); -webkit-backdrop-filter: blur(28px) saturate(150%); transition: background var(--dur-med), box-shadow var(--dur-med); }
 .site-header[data-scrolled='true'] { background: color-mix(in srgb, var(--abyss) 78%, transparent); box-shadow: 0 8px 24px -14px rgb(0 0 0 / .7); }
 @supports not (backdrop-filter: blur(1px)) { .site-header { background: color-mix(in srgb, var(--abyss) 92%, transparent); } }
 html.hc .site-header { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: var(--line); }
@@ -249,6 +254,10 @@ html.hc .lv1, html.hc .lv2 { background: #000; }
 html.rm .world-stage .lv[data-on='true'] { translate: none; }
 @media (max-width: 767px) { .world-stage .lv2[data-on='true'] { translate: 0 calc(32px * (1 - var(--o))); } } /* phones: the copy sits under the planet, so it rises instead */
 
+/* Landing on desktop: everything sized in rem (text, spacing, cards, buttons' padding) is set at 90%, the scale the page was designed at.
+   It is relative, so a larger browser font size still scales it up. Planets are sized in vmin/dvh and are not affected. */
+@media (min-width: 768px) { html.landing-open { font-size: 90%; } }
+
 /* Landing, below the carousel: no solid layer, the starfield shows through; the cards are glass. Titles share the carousel's serif voice. */
 .landing-more { position: relative; z-index: 1; } /* above the pinned stage */
 .land-title { font-family: var(--font-serif); font-weight: 500; font-size: clamp(2rem, 4.4vw, 3.25rem); line-height: 1.05; letter-spacing: .02em; text-transform: uppercase; }
@@ -274,7 +283,7 @@ html.rm .reveal { animation: none !important; }
 @media (min-width: 768px) and (max-width: 1023px) {
   .jb-grid { grid-template-columns: minmax(200px, .8fr) minmax(320px, 1.6fr); }
   .jb-grid > [data-col='filters'] { display: none; }
-  .jb-grid[data-drawer='true'] > [data-col='filters'] { display: block; position: fixed; z-index: 60; top: var(--header-h); bottom: 0; left: 0; width: min(360px, 90vw); overflow-y: auto; padding: var(--space-3); background: var(--glass-bg-strong); border-right: 1px solid var(--glass-border); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); }
+  .jb-grid[data-drawer='true'] > [data-col='filters'] { display: block; position: fixed; z-index: 60; top: var(--header-h); bottom: 0; left: 0; width: min(360px, 90vw); overflow-y: auto; padding: var(--space-3); background: var(--glass-bg-pop); border-right: 1px solid var(--glass-border); backdrop-filter: blur(var(--glass-blur-pop)) saturate(150%); -webkit-backdrop-filter: blur(var(--glass-blur-pop)) saturate(150%); }
   .jb-backdrop { position: fixed; inset: var(--header-h) 0 0 0; z-index: 55; background: rgb(0 0 0 / .55); border: 0; }
 }
 @media (min-width: 1024px) { .jb-grid { grid-template-columns: minmax(220px, 1fr) minmax(200px, .8fr) minmax(360px, 1.6fr); } }
@@ -299,7 +308,7 @@ html.rm .topic-stage { animation-name: topic-fade; }
 
 /* High contrast mode */
 html.hc { --panel: #000; --panel-2: #0b0b0b; --line: #f5f5f5; --ink: #fff; --ink-2: #fff; --ink-3: #e5e5e5; --brass: #ffd60a; }
-html.hc .glass-flat, html.hc .glass, html.hc .glass-strong, html.hc .panel, html.hc .panel-solid { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: var(--line); box-shadow: none; }
+html.hc .glass-flat, html.hc .glass, html.hc .glass-strong, html.hc .panel, html.hc .panel-solid, html.hc .glass-pop { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: var(--line); box-shadow: none; }
 html.hc .scrim { background: rgb(0 0 0 / .8); }
 
 /* Reduced motion (user setting or OS) */
