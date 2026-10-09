@@ -6,6 +6,7 @@ import { decodeShare, encodeShare } from '../lib/shareLink';
 import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, stepMs, timbreWord } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';
+import { usePlaybackReport } from '../lib/playbackContext';
 
 const ALL_FRAMES: NasaFrame[] = [...EIC_FRAMES, ...FRAMES];
 const COLS = 128, ROWS = 12, SWEEP_SEC = 20;
@@ -124,6 +125,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
     banks.current = { a: null, b: null };
     setPlaying(false);
   }, []);
+  usePlaybackReport('frames', t('track2'), playing, stop);
 
   // Load images whenever the selection changes.
   useEffect(() => {

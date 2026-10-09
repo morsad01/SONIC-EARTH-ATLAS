@@ -16,6 +16,13 @@ describe('share link', () => {
     expect(decodeShare(h, ok)).toEqual({ track: 'frames', pair: 'custom', a: 'eic-ghg', b: 'truecolor' });
   });
 
+  it('opens the About page and still decodes every older track link', () => {
+    expect(encodeShare({ track: 'about' })).toBe('v1&track=about');
+    expect(decodeShare('#v1&track=about', ok)).toEqual({ track: 'about' });
+    for (const tr of ['atlas', 'frames', 'monsoon', 'pulse'] as const) expect(decodeShare(`#v1&track=${tr}`, ok)).toEqual({ track: tr });
+    expect(decodeShare('#v1&track=frames&frame=eic-ghg&col=40&lang=bn&story=x&c=BGD', ok)).toEqual({ track: 'frames', frame: 'eic-ghg', col: 40, lang: 'bn' });
+  });
+
   it('ignores unknown versions, ids and out-of-range values', () => {
     expect(decodeShare('#v2&track=frames', ok)).toBeNull();
     expect(decodeShare('#', ok)).toBeNull();

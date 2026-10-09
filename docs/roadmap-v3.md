@@ -1,7 +1,7 @@
 # Sonic Earth Atlas — Roadmap v3 (implementation plan)
 
 **Source:** the team's brief in [`roadmap-v3-brief.md`](roadmap-v3-brief.md) ("EarthSound" master prompt), applied to the existing Sonic Earth Atlas codebase.
-**Status:** Phase 0 (audit and plan) done. Nothing has been implemented for v3 yet.
+**Status:** Phase 0 (audit and plan) and Phase 1 (design foundation) done. **Current phase: 2, country selection.**
 **Scope:** the whole asked roadmap, Features A–G, Phases 0–7. Where I adapt something to the codebase, the reason is in §3.
 
 ---
@@ -114,7 +114,7 @@ The current set already matches v3's palette: deep navy, restrained cyan (`--rai
 ### Phase 0 — Audit and safety ✅
 This document. **Gate met:** §1 lists what exists, §2–§3 say what will be kept and what will change.
 
-### Phase 1 — Design foundation · branch `feat/design-foundation`
+### Phase 1 — Design foundation · branch `feat/design-foundation` ✅
 
 Goal: one token set, the new navigation, the landing page structure with the scroll-linked hero (Feature A), the About page and the footer.
 
@@ -127,7 +127,7 @@ Goal: one token set, the new navigation, the landing page structure with the scr
 | `src/components/LandingHero.tsx` → `src/landing/Landing.tsx` (new folder; the old component becomes its first section) | Sections: (1) hero: headline, one line on data→sound, CTAs **Explore the globe** and **Listen to a data story** (the existing "Listen now" flow); (2) split: copy left, globe right; (3) immersive globe with an exploration prompt; (4) the existing track "records" with real waveforms; (5) topic carousel (Phase 4); (6) footer. |
 | `src/landing/useScrollStage.ts` (new) | IntersectionObserver → stage `0..2` as a data attribute. CSS `animation-timeline: view()` where supported. No wheel listeners. |
 | `src/globe/GlobeCanvas.tsx` | A `framing` prop (`'hero' \| 'split' \| 'immersive' \| 'explore'`) that eases the camera offset and zoom. Idle rotation slows down, and stops under reduced motion. |
-| `src/components/GlobeBoundary.tsx` (new) | Error boundary + WebGL check. Falls back to `public/images/sonic_earth_hero.jpg` in the hero and to `Accessible2DMap` in the Atlas. |
+| `src/components/GlobeBoundary.tsx` (new) | Error boundary + WebGL check. Falls back to a still globe in the hero (`GlobeStill`; see the Phase 1 notes on why not `sonic_earth_hero.jpg`) and to `Accessible2DMap` in the Atlas. |
 | `src/about/AboutPage.tsx` (new) | Sections: how sonification works, mapping tables (from `DATASET_CATALOG`), data sources, limitations, accessibility controls, credits. `DataMethodDialog` stays and links here. |
 | `src/components/Footer.tsx` (new) | Credits, NASA source links, repo link, "sound is data sonification, not a recording". |
 | `src/components/Header.tsx` (`Track` union), `src/lib/shareLink.ts` | Add `about` (and later `jukebox`) views. Old hashes still decode. |
@@ -223,7 +223,7 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | Check | Phase | Status |
 |---|---|---|
 | Existing deployed functionality remains available | all | ✅ today; re-check each phase |
-| Global navigation works on all views | 1 | ☐ |
+| Global navigation works on all views | 1 | ✅ (Explore Earth · Data Jukebox · About the Science; mobile menu) |
 | Country selectable via globe **and** searchable control | 2 | ☐ |
 | Selected country clearly indicated (not colour alone) | 2 | ☐ |
 | Only genuinely available datasets listed per region | 3 | ☐ |
@@ -234,9 +234,9 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | Play, pause, resume, stop, volume and error handling | 5 | ◐ |
 | No audio starts unexpectedly | 1–5 | ✅ today |
 | Horizontal story row: keyboard, pointer, touch | 4 | ☐ |
-| No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ today; re-check new views |
-| Reduced motion respected | 1, 6 | ✅ today; re-check new motion |
-| WebGL failure doesn't block country exploration | 2 | ☐ |
+| No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ landing and About checked at 320 px; re-check Jukebox in 4 |
+| Reduced motion respected | 1, 6 | ✅ `--dur-*` zeroed, globe framing jumps, idle spin, clouds and starfield stop; re-check in 6 |
+| WebGL failure doesn't block country exploration | 2 | ◐ (`GlobeBoundary`: still globe on landing, 2D map in the Atlas; picker in 2) |
 | Empty, loading, stale and API-error states usable | 3 | ◐ |
 | No fabricated data presented as official | all | ✅ today (offline sample is labelled) |
 | Production build and automated tests pass | each | ✅ today |
@@ -273,7 +273,7 @@ Results are reported as actually run. Failures are listed, not suppressed.
 | Phase | Status | Branch | Checks | Notes |
 |---|---|---|---|---|
 | 0 Audit and plan | ✅ Done | — | test 47/47 · lint 2 warnings · build ✅ | This document |
-| 1 Design foundation | ☐ | `feat/design-foundation` | | |
+| 1 Design foundation | ✅ Done | `feat/design-foundation` | test 65/65 (6 files) · lint 0 errors, 11 warnings (`main` has 12 with this oxlint) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright check (Chromium): landing stages 0→1→2, every nav item and collection, old `#v1&track=frames&frame=…&col=40` link, `#v1&track=about&lang=bn`, 320 px with no horizontal scroll, mobile menu focus trap + Esc, WebGL off, header playback chip pause, 0 page errors | See Phase 1 notes below |
 | 2 Country selection | ☐ | `feat/country-selection` | | |
 | 3 Data registry and profile | ☐ | `feat/data-registry` | | |
 | 4 Data Jukebox | ☐ | `feat/data-jukebox` | | |
@@ -281,7 +281,16 @@ Results are reported as actually run. Failures are listed, not suppressed.
 | 6 Polish, a11y, perf | ☐ | `feat/polish-a11y-perf` | | |
 | 7 Testing and submission | ☐ | `chore/release-checks` | | |
 
-**Next safe action:** create `feat/design-foundation` from `main` and start with the token consolidation in `src/index.css`.
+**Phase 1 notes**
+- One token set in `src/index.css`. Added `--surface`, `--accent`, `--accent-warm` (aliases, so high contrast flows through), `--teal`, `--radius-*`, `--space-*`, `--ease-*`, `--dur-*`, `--header-h`. Legacy `--bg-space-*` / `--accent-*` / `--text-*`, the `Outfit` / `JetBrains Mono` stack and unused utilities had no users (grep), so they were removed directly, not aliased. `src/App.css` was unimported Vite template CSS and is deleted. `contrast.test.ts` follows `var()` aliases and covers the new tokens.
+- Starfield (`space-background.js`) kept: it is a cheap 2D canvas. It now draws one still frame under reduced motion (OS or the app's setting) and stops while the tab is hidden.
+- Navigation: `src/lib/nav.ts` holds `Track`, `TRACKS`, `sectionOf`. The Data Jukebox is a section whose collections (A2/B1/B2) show as a second header row; it reopens the last collection. Below 1024 px a disclosure menu with a focus trap replaces the nav. "Listen now" stays in the header and becomes a "Playing: …" chip (pause) while any player runs (`src/lib/playbackContext.tsx`; each track reports with one `usePlaybackReport` line).
+- Landing (`src/landing/`): hero → split → immersive drive the globe `framing` through `useScrollStage` (IntersectionObserver only, no wheel listeners). Records, "how data becomes sound" and the footer follow. Sections 4–5 use `animation-timeline: view()` where supported. The topic carousel slot is left for Phase 4. `LandingHero.tsx` was merged into `Landing.tsx`.
+- **Deviation:** `public/images/sonic_earth_hero.jpg` is not used as the no-WebGL fallback. It shows a NASA logo, a "LIVE VISUALIZATION" label and charts with invented numbers, which breaks the no-fabricated-data and no-live-badge rules. `GlobeStill` draws the real Blue Marble texture on a static disc instead. The image is still in `public/` (unused). The team decides whether to delete it.
+- The view is mirrored into the share hash (`#v1&track=…`). A hash that already names the current track is kept, so frame and column keys survive. `about` is a new track id, and unknown keys (`story`, `c`) are ignored.
+- Not done here (by plan): component tests (RTL arrives with Phase 2's combobox), a VoiceOver/NVDA pass (Phase 6).
+
+**Next safe action:** Phase 2. Create `feat/country-selection` from `main` after this PR merges, and start with `src/countries/countries.ts` (`loadCountries`, `findCountry`, `representativePoint`) plus its unit tests.
 
 ---
 

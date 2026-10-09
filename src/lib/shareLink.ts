@@ -1,5 +1,6 @@
-/** A small, versioned URL hash that restores a view: `#v1&track=frames&frame=eic-ghg&col=40&lang=bn`. */
-export const TRACK_IDS = ['atlas', 'frames', 'monsoon', 'pulse'] as const;
+/** A small, versioned URL hash that restores a view: `#v1&track=frames&frame=eic-ghg&col=40&lang=bn`.
+ *  New keys and track ids are only ever added, so older links keep decoding. */
+export const TRACK_IDS = ['atlas', 'frames', 'monsoon', 'pulse', 'about'] as const;
 export type ShareTrack = (typeof TRACK_IDS)[number];
 
 export interface ShareState {
