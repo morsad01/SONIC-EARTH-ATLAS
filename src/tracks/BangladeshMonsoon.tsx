@@ -94,7 +94,7 @@ export const BangladeshMonsoon: React.FC = () => {
     timer.current = window.setInterval(tick, STEP_MS);
   };
 
-  if (err) return <p className="p-8">Bangladesh data could not be loaded.</p>;
+  if (err) return <p className="p-8">{t('bdLoadFail')}</p>;
   if (!data) return <div className="h-full grid place-items-center"><Loader2 className="w-5 h-5 animate-spin" /></div>;
 
   const today = [...data.cities].sort((a, b) => series(b)[day] - series(a)[day])[0];
@@ -104,25 +104,25 @@ export const BangladeshMonsoon: React.FC = () => {
   const yMax = 190;
 
   return (
-    <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="bd-title">
+    <section className="h-full overflow-y-auto px-4 sm:px-8 pb-6 pt-[calc(var(--header-h)+1.5rem)]" aria-labelledby="bd-title">
       <div className="max-w-6xl mx-auto">
         <h1 id="bd-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('monsoonTitle')}</h1>
         <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{t('monsoonLead')}</p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button onClick={playing ? stop : start} className="btn btn-brass min-w-[120px]">{playing ? <><Square className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> {t('play')} {lang === 'bn' ? bnNum(year) : year}</>}</button>
-          <div className="flex rounded-lg border border-[var(--line)] p-0.5" role="group" aria-label="Year">
+          <button onClick={playing ? stop : start} className="btn btn-brass min-w-[120px]">{playing ? <><Square className="w-4 h-4" /> {t('stop')}</> : <><Play className="w-4 h-4" /> {t('play')} {lang === 'bn' ? bnNum(year) : year}</>}</button>
+          <div className="flex rounded-lg border border-[var(--line)] p-0.5" role="group" aria-label={t('year')}>
             {[2026, 2025].map((y) => <button key={y} className="btn btn-ghost min-h-[36px]" aria-pressed={year === y} onClick={() => { stop(); setYear(y as 2026 | 2025); setDay(0); }}>{lang === 'bn' ? bnNum(y) : y}</button>)}
           </div>
           <div className="tnum text-sm" aria-live="off">
             <span className="text-[var(--ink-3)]">{fmtDate(dates[day])}</span>{' '}
-            <span className="text-[var(--ink)]">· {cityName(today)} {num(series(today)[day], 1)} mm</span>
+            <span className="text-[var(--ink)]">· {cityName(today)} {num(series(today)[day], 1)} {t('unitMm')}</span>
           </div>
         </div>
 
         <div className="mt-6 grid lg:grid-cols-[380px_1fr] gap-6 items-start">
           <figure className="panel-solid p-3">
-            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="group" aria-label={`Map of Bangladesh with 8 divisional cities. On ${fmtDate(dates[day])} the wettest is ${cityName(today)}.`}>
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="group" aria-label={t('bdMapLabel', { date: fmtDate(dates[day]), city: cityName(today) })}>
               {data.outline.map((ring, i) => (
                 <polygon key={i} points={ring.map(([x, y]) => `${px(x)},${py(y)}`).join(' ')} fill="#13324a" stroke="#3d6683" strokeWidth={1} />
               ))}
@@ -131,30 +131,30 @@ export const BangladeshMonsoon: React.FC = () => {
                 const r = 4 + Math.sqrt(Math.max(0, mm)) * 2.4;
                 const sel = c.name === focus;
                 return (
-                  <g key={c.name} onClick={() => setFocus(c.name)} className="cursor-pointer" role="button" tabIndex={0} aria-pressed={sel} aria-label={`${cityName(c)}: ${num(mm, 1)} mm`} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setFocus(c.name)}>
+                  <g key={c.name} onClick={() => setFocus(c.name)} className="cursor-pointer" role="button" tabIndex={0} aria-pressed={sel} aria-label={t('bdCityLabel', { city: cityName(c), mm: num(mm, 1) })} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setFocus(c.name)}>
                     <circle cx={px(c.lon)} cy={py(c.lat)} r={r} fill="var(--rain)" fillOpacity={0.35 + Math.min(0.6, mm / 120)} stroke={sel ? 'var(--brass)' : '#bfe9ff'} strokeWidth={sel ? 2.5 : 1} />
                     <text x={c.lon > 91.3 && c.lat < 23.5 ? px(c.lon) - r - 4 : px(c.lon) + r + 4} textAnchor={c.lon > 91.3 && c.lat < 23.5 ? 'end' : 'start'} y={py(c.lat) + 4} fontSize={13} fill="var(--ink)" paintOrder="stroke" stroke="#0d1b27" strokeWidth={3}>{cityName(c)}</text>
                   </g>
                 );
               })}
             </svg>
-            <figcaption className="text-xs text-[var(--ink-3)] mt-2">Circle size = rain that day. Click a city to see its season.</figcaption>
+            <figcaption className="text-xs text-[var(--ink-3)] mt-2">{t('bdCircle')}</figcaption>
           </figure>
 
           <div className="space-y-5 min-w-0">
             <figure className="panel-solid p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-display text-xl font-semibold">{cityName(fc)}: {lang === 'bn' ? 'দৈনিক বৃষ্টি' : 'daily rain'}, {lang === 'bn' ? bnNum(year) : year}</h2>
-                <span className="text-sm text-[var(--ink-3)]">mm/day · NASA POWER</span>
+                <h2 className="font-display text-xl font-semibold">{t('bdRainTitle', { city: cityName(fc), year: lang === 'bn' ? bnNum(year) : year })}</h2>
+                <span className="text-sm text-[var(--ink-3)]">{t('bdChartUnit')}</span>
               </div>
-              <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="w-full h-auto mt-2" role="img" aria-label={`Daily rain in ${fc.name}, ${year}. Wettest day ${num(Math.max(...series(fc)), 0)} millimetres.`}>
+              <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="w-full h-auto mt-2" role="img" aria-label={t('bdChartLabel', { city: cityName(fc), year: lang === 'bn' ? bnNum(year) : year, mm: num(Math.max(...series(fc)), 0) })}>
                 {[50, 100, 150].map((v) => <g key={v}><line x1={0} x2={chartW} y1={chartH - (v / yMax) * chartH} y2={chartH - (v / yMax) * chartH} stroke="#22384a" /><text x={chartW - 2} y={chartH - (v / yMax) * chartH - 3} fontSize={10} textAnchor="end" fill="var(--ink-3)">{v}</text></g>)}
                 {series(fc).map((v, i) => <rect key={i} x={i * bw + 0.5} width={Math.max(1, bw - 1)} y={chartH - (Math.min(v, yMax) / yMax) * chartH} height={(Math.min(v, yMax) / yMax) * chartH} fill={i === day ? 'var(--brass)' : 'var(--rain)'} fillOpacity={i <= day ? 0.95 : 0.4} />)}
                 {/* normal daily rate for each month, as a step line */}
                 <polyline fill="none" stroke="#f2f2f2" strokeDasharray="4 3" strokeWidth={1.5} points={dates.map((iso, i) => `${i * bw},${chartH - (fc.climP[+iso.slice(5, 7) - 1] / yMax) * chartH}`).join(' ')} />
                 {dates.map((iso, i) => (iso.endsWith('-01') ? <text key={iso} x={i * bw} y={chartH + 14} fontSize={11} fill="var(--ink-3)">{fmtDate(iso)}</text> : null))}
               </svg>
-              <figcaption className="text-xs text-[var(--ink-3)] mt-1">Dashed line: average daily rain for that month, 2001–2020 (NASA POWER climatology).</figcaption>
+              <figcaption className="text-xs text-[var(--ink-3)] mt-1">{t('bdDashed')}</figcaption>
             </figure>
 
             <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
@@ -162,18 +162,18 @@ export const BangladeshMonsoon: React.FC = () => {
                 const pct = Math.round((s.t26 / s.normal) * 100);
                 return (
                   <button key={s.c.name} onClick={() => setFocus(s.c.name)} aria-pressed={focus === s.c.name}
-                    className={`text-left rounded-xl border p-3 cursor-pointer ${focus === s.c.name ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] bg-[var(--panel)]'}`}>
+                    className={`text-left rounded-xl border p-3 cursor-pointer ${focus === s.c.name ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--glass-border)] bg-[color-mix(in_srgb,var(--panel)_50%,transparent)] backdrop-blur-md'}`}>
                     <div className="font-semibold">{cityName(s.c)}</div>
-                    <div className="tnum text-2xl font-display font-bold mt-1">{num(s.t26)} <span className="text-sm font-normal text-[var(--ink-3)]">mm</span></div>
+                    <div className="tnum text-2xl font-display font-bold mt-1">{num(s.t26)} <span className="text-sm font-normal text-[var(--ink-3)]">{t('unitMm')}</span></div>
                     <div className="text-xs text-[var(--ink-2)] mt-1 tnum">{num(pct)}% {t('ofNormal')}</div>
-                    <div className="text-xs text-[var(--ink-3)] tnum">2025: {num(s.t25)} mm</div>
+                    <div className="text-xs text-[var(--ink-3)] tnum">{t('bdYear', { year: lang === 'bn' ? bnNum(2025) : 2025, mm: num(s.t25) })}</div>
                   </button>
                 );
               })}
             </div>
             <p className="text-sm text-[var(--ink-2)] max-w-[75ch]">
-              {t('totalSince')} ({fmtDate(data.dates2026[0])}–{fmtDate(data.dates2026[data.dates2026.length - 1])} 2026). {cityName(fc)}: {num(fcS.t26)} mm, {t('wettest')} {fmtDate(data.dates2026[fcS.maxI])} ({num(fcS.max)} mm).
-              {' '}Source: {data.source}. Values are model-based estimates for the city location (about 50 km cells), not rain-gauge readings.
+              {t('bdTotalLine', { total: t('totalSince'), from: fmtDate(data.dates2026[0]), to: fmtDate(data.dates2026[data.dates2026.length - 1]), year: lang === 'bn' ? bnNum(2026) : 2026, city: cityName(fc), mm: num(fcS.t26), wettest: t('wettest'), day: fmtDate(data.dates2026[fcS.maxI]), max: num(fcS.max) })}
+              {' '}{t('bdCredit', { src: data.source })}
             </p>
           </div>
         </div>

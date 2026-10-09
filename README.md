@@ -19,7 +19,7 @@ The site has three sections:
 | B1 | **Bangladesh monsoon** | Eight divisional cities as eight voices across the stereo field, June to October 2026, against 2025 and the 2001–2020 normal. | POWER daily PRECTOTCORR and POWER climatology |
 | B2 | **Earth's vital signs** | Global temperature (1880–2025), CO₂ (1959–2025) and Arctic September sea ice (1979–2026), one note per year, alone or as a three-voice chord (temperature left, CO₂ centre, ice right). "Your data" plays any two-column CSV. | GISS GISTEMP v4; NOAA GML Mauna Loa CO₂ and NSIDC Sea Ice Index (the records on NASA's Vital Signs pages) |
 
-Also: a landing page with a scroll-linked globe and an Earth topic carousel, **Hear any place** (click anywhere on the globe or pick a city and hear 45 years of its NASA POWER temperature and rain, fetched live), a guided 40-second tour, "What you are hearing" panel that names every audible voice and its exact sound parameters, English and বাংলা interface, spoken narration, reduced motion, high contrast, keyboard shortcuts (press `?`), and a Record button that saves 30 seconds of the app's own audio.
+Also: a landing page with a three-level carousel of four 3D Earths (overview → detail → immersive dive) and an Earth topic carousel, **Hear any place** (click anywhere on the globe or pick a city and hear 45 years of its NASA POWER temperature and rain, fetched live), a guided 40-second tour, "What you are hearing" panel that names every audible voice and its exact sound parameters, English and বাংলা interface, spoken narration, reduced motion, high contrast, keyboard shortcuts (press `?`), and a Record button that saves 30 seconds of the app's own audio.
 
 ## Data honesty
 

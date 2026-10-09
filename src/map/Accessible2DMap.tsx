@@ -175,7 +175,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
       onPointerUp={handlePointerUp}
       onClick={handleClick}
       className="relative w-full h-full overflow-hidden bg-[#071019] select-none outline-none"
-      aria-label="World map of the observations. Use the arrow keys to move the focus point and press Enter or Space to hear the nearest observation."
+      aria-label={t('mapLabel')}
       role="application"
     >
       {/* Zoom / Pan Navigation Toolbar */}
@@ -185,9 +185,9 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
             e.stopPropagation();
             setZoom((z) => Math.min(3.5, z + 0.3));
           }}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition"
-          title="Zoom In"
-          aria-label="Zoom In"
+          className="p-2 text-[var(--ink-2)] hover:text-white hover:bg-[var(--panel-2)] rounded transition"
+          title={t('zoomIn')}
+          aria-label={t('zoomIn')}
         >
           <ZoomIn className="w-4 h-4" />
         </button>
@@ -196,9 +196,9 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
             e.stopPropagation();
             setZoom((z) => Math.max(1, z - 0.3));
           }}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition"
-          title="Zoom Out"
-          aria-label="Zoom Out"
+          className="p-2 text-[var(--ink-2)] hover:text-white hover:bg-[var(--panel-2)] rounded transition"
+          title={t('zoomOut')}
+          aria-label={t('zoomOut')}
         >
           <ZoomOut className="w-4 h-4" />
         </button>
@@ -208,9 +208,9 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
             setZoom(1);
             setPanOffset({ x: 0, y: 0 });
           }}
-          className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded transition"
-          title="Reset Map View"
-          aria-label="Reset Map View"
+          className="p-2 text-[var(--ink-2)] hover:text-white hover:bg-[var(--panel-2)] rounded transition"
+          title={t('resetMap')}
+          aria-label={t('resetMap')}
         >
           <RotateCcw className="w-4 h-4" />
         </button>
@@ -218,31 +218,31 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
 
       {/* Coordinate & Audio Focus Crosshair Status HUD */}
       <div className="hidden md:block absolute top-16 right-16 z-20 panel px-3.5 py-2.5 text-xs max-w-[260px]">
-        <div className="text-slate-400 flex items-center gap-1.5 mb-1 font-sans text-xs font-semibold">
-          <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="text-[var(--ink-3)] flex items-center gap-1.5 mb-1 font-sans text-xs font-semibold">
+          <Navigation className="w-3.5 h-3.5 text-[var(--rain)]" />
           <span>Keyboard focus point · arrows move, Enter listens{onSelectCountry ? ', C selects the country' : ''}</span>
         </div>
-        <div className="text-slate-100 flex items-center gap-2">
+        <div className="text-[var(--ink)] flex items-center gap-2">
           <span>Lat: {crosshair.lat >= 0 ? `+${crosshair.lat.toFixed(1)}°N` : `${crosshair.lat.toFixed(1)}°S`}</span>
-          <span className="text-slate-500">|</span>
+          <span className="text-[var(--ink-3)]">|</span>
           <span>Lon: {crosshair.lon >= 0 ? `+${crosshair.lon.toFixed(1)}°E` : `${crosshair.lon.toFixed(1)}°W`}</span>
         </div>
-        <div className="text-[11px] text-cyan-400/90 mt-1 flex items-center gap-1.5">
+        <div className="text-2xs text-[var(--rain)] mt-1 flex items-center gap-1.5">
           <Volume2 className="w-3 h-3" />
           <span>Stereo Pan: {(crosshair.lon / 180).toFixed(2)} ({-crosshair.lon > 0 ? 'Left' : 'Right'})</span>
         </div>
         {onSelectCountry && countries && (
-          <div className="mt-1.5 text-[11px] text-slate-300" aria-live="polite">
-            <span className="text-slate-400">{t('countryUnderFocus')}: </span>
+          <div className="mt-1.5 text-2xs text-[var(--ink-2)]" aria-live="polite">
+            <span className="text-[var(--ink-3)]">{t('countryUnderFocus')}: </span>
             <span className="font-semibold text-white">{focusCountry ? countryLabel(focusCountry.id, focusCountry.name, lang) : t('countryOcean')}</span>
-            {focusCountry && focusCountry.id !== country?.id && <span className="text-cyan-300"> · {t('countrySelectKey')}</span>}
+            {focusCountry && focusCountry.id !== country?.id && <span className="text-[var(--rain)]"> · {t('countrySelectKey')}</span>}
           </div>
         )}
         {nearestActive && (
-          <div className="mt-2 pt-1.5 border-t border-slate-800 text-[11px] text-slate-300">
-            <span className="text-slate-400">Nearest Observation: </span>
+          <div className="mt-2 pt-1.5 border-t border-[var(--line)] text-2xs text-[var(--ink-2)]">
+            <span className="text-[var(--ink-3)]">{t('nearestObs')} </span>
             <span className="font-semibold text-white">{nearestActive.regionName}</span>
-            <span className="ml-1 text-cyan-300">({nearestActive.value} {nearestActive.unit})</span>
+            <span className="ml-1 text-[var(--rain)]">({nearestActive.value} {nearestActive.unit})</span>
           </div>
         )}
       </div>

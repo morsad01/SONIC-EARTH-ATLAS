@@ -8,6 +8,7 @@ import { GLOBAL_STORIES, BGD_STORIES, SOURCES, type Topic } from './stories';
 import { loadStorySeries } from './loadStory';
 import { topicKey } from './labels';
 import { Spark } from './StoryRow';
+import { ImgOr } from '../components/ImgOr';
 
 /** Feature D as roadmap D5: six Earth topics, each with a real visual (an EIC picture or a sparkline of the bundled series) and the story it opens. */
 const TOPICS: { topic: Topic; story: string; frame?: string }[] = [
@@ -43,17 +44,18 @@ export function TopicCarousel({ onListen }: { onListen: (storyId: string) => voi
   const go = (d: 1 | -1) => { setI((k) => (k + d + n) % n); setStage('overview'); };
   const name = t(topicKey(cur.topic)), line = t(`topicLine_${cur.topic}` as StringKey), detail = t(`topicDetail_${cur.topic}` as StringKey);
   const visual = (big: boolean) => frame
-    ? <img src={frame.src} alt={frame.what} className={`w-full rounded-lg border border-[var(--line)] object-contain bg-black ${big ? 'max-h-[60vh]' : 'max-h-56'}`} loading="lazy" />
-    : <div role="img" aria-label={t('topicSparkAlt', { what: lang === 'bn' ? story.titleBn : story.title })} className="rounded-lg border border-[var(--line)] p-3 bg-[var(--panel)]"><Spark points={sparks[story.id]} className={`w-full ${big ? 'h-56' : 'h-28'}`} /></div>;
+    ? <ImgOr src={frame.src} alt={frame.what} className={`w-full rounded-lg border border-[var(--line)] object-contain bg-black ${big ? 'max-h-[60vh]' : 'max-h-56'}`} loading="lazy" />
+    : <div role="img" aria-label={t('topicSparkAlt', { what: lang === 'bn' ? story.titleBn : story.title })} className="rounded-lg border border-[var(--line)] p-3 bg-[color-mix(in_srgb,var(--panel)_40%,transparent)]"><Spark points={sparks[story.id]} className={`w-full ${big ? 'h-56' : 'h-28'}`} /></div>;
   const listen = <button type="button" className="btn btn-brass" onClick={() => onListen(story.id)}><Headphones className="w-4 h-4" aria-hidden="true" />{t('topicListen')}</button>;
   const back = (to: Stage) => <button type="button" className="btn btn-ghost" onClick={() => setStage(to)}><ArrowLeft className="w-4 h-4" aria-hidden="true" />{t('topicBack')}</button>;
 
   return (
-    <section className="topic-carousel reveal max-w-6xl mx-auto px-5 sm:px-10 pt-14" aria-roledescription="carousel" aria-labelledby="topics-title" data-skip={skip}>
-      <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
+    <section className="topic-carousel reveal max-w-6xl mx-auto px-5 sm:px-10 pt-20" aria-roledescription="carousel" aria-labelledby="topics-title" data-skip={skip}>
+      <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 mb-6">
         <div>
-          <h2 id="topics-title" className="font-display text-2xl font-semibold">{t('topicsTitle')}</h2>
-          <p className="text-sm text-[var(--ink-2)]">{t('topicsLead')}</p>
+          <h2 id="topics-title" className="land-title">{t('topicsTitle')}</h2>
+          <hr className="world-rule land-rule" />
+          <p className="land-lead">{t('topicsLead')}</p>
         </div>
         <button type="button" className="btn btn-ghost" aria-pressed={skip} onClick={() => setSkip(!skip)}>{t('topicSkip')}</button>
       </div>
@@ -62,7 +64,7 @@ export function TopicCarousel({ onListen }: { onListen: (storyId: string) => voi
         <button type="button" className="btn btn-icon shrink-0" onClick={() => go(-1)} aria-label={t('topicPrev')}><ChevronLeft className="w-5 h-5" /></button>
         <div className="flex-1 min-w-0">
           <p role="status" aria-live="polite" className="sr-only">{t('topicOf', { i: i + 1, n, name })}</p>
-          <div key={`${cur.topic}-${stage}`} className="topic-stage panel p-4 sm:p-5" role="group" aria-roledescription="slide" aria-label={t('topicOf', { i: i + 1, n, name })}>
+          <div key={`${cur.topic}-${stage}`} className="topic-stage glass-flat p-4 sm:p-5" role="group" aria-roledescription="slide" aria-label={t('topicOf', { i: i + 1, n, name })}>
             {stage === 'overview' && (
               <div className="grid gap-3 sm:grid-cols-[1fr_1.2fr] items-center">
                 <div className="space-y-2">
@@ -99,7 +101,7 @@ export function TopicCarousel({ onListen }: { onListen: (storyId: string) => voi
         </div>
         <button type="button" className="btn btn-icon shrink-0" onClick={() => go(1)} aria-label={t('topicNext')}><ChevronRight className="w-5 h-5" /></button>
       </div>
-      <div className="flex justify-center gap-1.5 mt-3" role="group" aria-label={t('topicsTitle')}>
+      <div className="flex flex-wrap justify-center gap-1.5 mt-3" role="group" aria-label={t('topicsTitle')}>
         {TOPICS.map((tp, k) => <button key={tp.topic} type="button" className={`chip min-h-[32px] cursor-pointer ${k === i ? 'border-[var(--brass)] text-[var(--ink)]' : ''}`} aria-pressed={k === i} onClick={() => { setI(k); setStage('overview'); }}>{t(topicKey(tp.topic))}</button>)}
       </div>
     </section>

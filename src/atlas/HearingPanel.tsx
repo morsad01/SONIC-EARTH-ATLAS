@@ -75,7 +75,7 @@ export const HearingPanel: React.FC<Props> = ({ observations, enabled, audioRead
               );
             })}
           </ol>
-          <p className="text-[11px] text-[var(--ink-3)] mt-2 leading-snug">
+          <p className="text-2xs text-[var(--ink-3)] mt-2 leading-snug">
             {lang === 'bn'
               ? 'অবস্থান = দ্রাঘিমাংশ। মান বাড়লে আগুন দ্রুত ও উজ্জ্বল চটচট করে, বৃষ্টির ফোঁটা ঘন ও উঁচু হয়, গরম সমুদ্রের গুঞ্জন উঁচু সুরে বাজে।'
               : 'Position follows longitude. Higher values make fire crackle faster and brighter, rain drip denser and higher, and warm-ocean drones rise in pitch.'}

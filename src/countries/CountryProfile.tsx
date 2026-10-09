@@ -27,7 +27,7 @@ function Spark({ years, temp }: { years: number[]; temp: number[] }) {
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={t('profileSparkAlt', { a: f(lo.toFixed(1)), b: f(hi.toFixed(1)), from: f(years[0]), to: f(years[n - 1]) })}>
         <polyline fill="none" stroke="var(--warm)" strokeWidth={2} points={pts} />
       </svg>
-      <div className="flex justify-between text-[11px] text-[var(--ink-3)] tnum"><span>{f(years[0])}</span><span>{f(lo.toFixed(1))}–{f(hi.toFixed(1))} °C</span><span>{f(years[n - 1])}</span></div>
+      <div className="flex justify-between text-2xs text-[var(--ink-3)] tnum"><span>{f(years[0])}</span><span>{f(lo.toFixed(1))}–{f(hi.toFixed(1))} °C</span><span>{f(years[n - 1])}</span></div>
       <details className="text-xs text-[var(--ink-2)]">
         <summary className="cursor-pointer min-h-[32px] flex items-center">{t('profileTable')}</summary>
         <table className="tnum w-full mt-1"><tbody>{years.map((y, k) => <tr key={y}><th scope="row" className="text-left font-normal text-[var(--ink-3)]">{f(y)}</th><td>{f(temp[k].toFixed(2))} °C</td></tr>)}</tbody></table>
@@ -117,7 +117,7 @@ export function CountryProfile({ country, point }: { country: Country; point: { 
       {data?.onExplore && (
         <div>
           <button type="button" className="btn btn-brass w-full" onClick={() => data.onExplore!(country.id)}><Headphones className="w-4 h-4" aria-hidden="true" />{t('profileExplore')}</button>
-          <p className="text-[11px] text-[var(--ink-3)] mt-1">{t('profileExploreNote')}</p>
+          <p className="text-2xs text-[var(--ink-3)] mt-1">{t('profileExploreNote')}</p>
         </div>)}
     </section>
   );

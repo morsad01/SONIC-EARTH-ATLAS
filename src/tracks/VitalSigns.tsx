@@ -192,7 +192,7 @@ export const VitalSigns: React.FC = () => {
   }
 
   return (
-    <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="vital-title">
+    <section className="h-full overflow-y-auto px-4 sm:px-8 pb-6 pt-[calc(var(--header-h)+1.5rem)]" aria-labelledby="vital-title">
       <div className="max-w-6xl mx-auto">
         <h1 id="vital-title" className="font-display text-3xl sm:text-4xl font-extrabold">{lang === 'bn' ? 'পৃথিবীর প্রাণচিহ্ন' : "Earth's vital signs"}</h1>
         <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{lang === 'bn' ? 'NASA যে তিনটি মূল সংকেত দিয়ে জলবায়ু পরিবর্তন দেখায়, প্রতি বছরে একটি সুর।' : 'Three of the signals NASA uses to show climate change, one note per year. Or bring your own data.'}</p>
@@ -203,7 +203,7 @@ export const VitalSigns: React.FC = () => {
           <a href="https://earth.gov/themes/sea-level-change" target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">{lang === 'bn' ? 'সমুদ্রস্তর পরিবর্তন' : 'sea level change'}</a>
         </p>
 
-        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Series">
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label={t('seriesLabel')}>
           {tabs.map((tb) => <button key={tb.id} type="button" aria-pressed={tab === tb.id} className="btn" onClick={() => chooseTab(tb.id)}>{tb.label}</button>)}
         </div>
 
@@ -220,7 +220,7 @@ export const VitalSigns: React.FC = () => {
         {view && (
           <>
             <div className="mt-5 flex flex-wrap items-center gap-4">
-              <button onClick={playing ? stop : start} className="btn btn-brass min-w-[120px]">{playing ? <><Square className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> {lang === 'bn' ? 'চালান' : 'Play'}</>}</button>
+              <button onClick={playing ? stop : start} className="btn btn-brass min-w-[120px]">{playing ? <><Square className="w-4 h-4" /> {t('stop')}</> : <><Play className="w-4 h-4" /> {t('play')}</>}</button>
               {readout}
             </div>
             <p className="mt-3 text-sm text-[var(--ink-2)]">{rule}</p>

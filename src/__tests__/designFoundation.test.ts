@@ -1,30 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { pickStage } from '../landing/useScrollStage';
 import { framingTarget, idleSpin } from '../globe/framing';
 import { sectionOf, TRACKS, JUKEBOX_TRACKS } from '../lib/nav';
 import { STRINGS } from '../lib/strings';
 
-describe('landing scroll stage', () => {
-  it('picks the most visible section and keeps the current one on a tie', () => {
-    expect(pickStage([0.9, 0.1, 0], 0)).toBe(0);
-    expect(pickStage([0.2, 0.7, 0.1], 0)).toBe(1);
-    expect(pickStage([0, 0.3, 0.6], 1)).toBe(2);
-    expect(pickStage([0.5, 0.5, 0], 1)).toBe(1);
-    expect(pickStage([0, 0, 0], 2)).toBe(2);
-  });
-});
-
 describe('globe framing', () => {
-  it('offsets the globe on wide screens and centres it in the Atlas', () => {
-    expect(framingTarget('hero', 1.8).x).toBeGreaterThan(1);
-    expect(framingTarget('immersive', 1.8).x).toBe(0);
+  it('centres the Atlas globe and pulls the camera back on tall screens', () => {
     expect(framingTarget('explore', 1.8)).toEqual({ x: 0, y: 0, z: 7.2 });
     expect(framingTarget('explore', 0.5)).toEqual({ x: 0, y: 0, z: 10.5 });
-    for (const f of ['hero', 'split', 'immersive'] as const) expect(framingTarget(f, 0.5).x).toBe(0); // phones: never off-screen
   });
-  it('spins slower on the landing page and not at all with reduced motion', () => {
-    expect(idleSpin('hero', false)).toBeLessThan(idleSpin('explore', false));
-    for (const f of ['hero', 'split', 'immersive', 'explore'] as const) expect(idleSpin(f, true)).toBe(0);
+  it('spins gently and not at all with reduced motion', () => {
+    expect(idleSpin('explore', false)).toBeGreaterThan(0.001);
+    expect(idleSpin('explore', false)).toBeLessThan(0.004);
+    expect(idleSpin('explore', true)).toBe(0);
   });
 });
 

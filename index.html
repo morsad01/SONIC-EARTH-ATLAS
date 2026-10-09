@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#071019" />
     <meta name="description" content="Sonic Earth Atlas: an Earth Information Jukebox. Real NASA Earth observations and NASA imagery, played as spatial sound you can explore by ear, keyboard or screen reader." />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="preload" href="/fonts/ibm-plex-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/cormorant-garamond-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
     <meta property="og:title" content="Sonic Earth Atlas: an Earth Information Jukebox" />
     <meta property="og:description" content="Real NASA Earth data and imagery played as spatial sound. Accessible by ear, keyboard and screen reader, in English and Bangla." />
     <title>Sonic Earth Atlas · Earth Information Jukebox</title>
@@ -16,6 +16,7 @@
   <body class="overflow-hidden">
     <div id="space-bg" aria-hidden="true"><canvas id="stars"></canvas></div>
     <div id="root"></div>
+    <div id="overlay-root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

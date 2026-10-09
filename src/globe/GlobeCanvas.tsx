@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
 import { usePrefs } from '../lib/prefs';
-import { framingTarget, idleSpin, type Framing } from './framing';
+import { easeK, framingTarget, idleSpin, type Framing } from './framing';
 import { findCountrySync, latLonToXYZ, outlineSegments, xyzToLatLon, type Country } from '../countries/countries';
 import { countryLabel } from '../lib/placesBn';
 
@@ -125,11 +125,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
     const light = window.matchMedia('(max-width: 640px)').matches || !!nav.connection?.saveData;
     const texSize = light ? 1024 : 2048, segments = light ? 32 : 64;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, light ? 1.5 : 2));
+    const baseDpr = Math.min(window.devicePixelRatio, light ? 1.5 : 2);
+    let curDpr = baseDpr;
+    renderer.setPixelRatio(baseDpr);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+    document.documentElement.classList.add('globe-on'); // the 2D starfield stops animating: one starfield at a time
 
     // --- Deep Space & Cosmic Starfield Background ---
     const starGeometry = new THREE.BufferGeometry();
@@ -274,8 +277,14 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     // --- Animation Loop ---
     let animationFrameId: number;
 
+    let lastT = performance.now();
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
+      const now = performance.now(), dt = Math.min(100, now - lastT);
+      lastT = now;
+      if (document.hidden) return; // nothing to see: skip the frame (the loop stays alive, which is cheap)
+      const want = baseDpr;
+      if (want !== curDpr) { curDpr = want; renderer.setPixelRatio(want); renderer.setSize(container.clientWidth, container.clientHeight); }
 
       const reduce = reduceRef.current, calm = reduce || calmRef.current;
       // Revolving cloud layer rotation (non-essential, off with reduced motion)
@@ -283,8 +292,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         cloudMeshRef.current.rotation.y += 0.00045;
       }
 
-      // Ease the framing (landing stages / Atlas). Reduced motion jumps.
-      const ft = frameRef.current, k = reduce ? 1 : 0.06;
+      // Ease the framing toward its target (time-based, so frame-rate independent). Reduced motion jumps.
+      const ft = frameRef.current, k = reduce ? 1 : easeK(dt, 120);
       globeGroup.position.x += (ft.x - globeGroup.position.x) * k;
       globeGroup.position.y += (ft.y - globeGroup.position.y) * k;
       camera.position.z += (ft.z - camera.position.z) * k;
@@ -300,12 +309,12 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         if (diffY > Math.PI) diffY -= Math.PI * 2;
         if (diffY < -Math.PI) diffY += Math.PI * 2;
 
-        const kf = reduce ? 1 : 0.045;
+        const kf = reduce ? 1 : easeK(dt, 360);
         globeGroupRef.current.rotation.y += diffY * kf;
         globeGroupRef.current.rotation.x += (targetX - globeGroupRef.current.rotation.x) * kf;
         if (fly && Math.abs(diffY) < 0.004 && Math.abs(targetX - globeGroupRef.current.rotation.x) < 0.004) flyRef.current = null;
       } else if (autoRotateRef.current && !isDraggingRef.current && globeGroupRef.current) {
-        globeGroupRef.current.rotation.y += idleSpin(framingRef.current, calm);
+        globeGroupRef.current.rotation.y += idleSpin(framingRef.current, calm) * (dt / 16.7); // time-based: same speed at any frame rate
       }
 
       // Synchronize visual acoustic emission beacons on Earth surface with Web Audio active voices
@@ -356,6 +365,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      document.documentElement.classList.remove('globe-on');
       gone = true;
       if (idle) window.cancelIdleCallback(later); else window.clearTimeout(later);
       window.removeEventListener('resize', handleResize);
@@ -653,8 +663,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       onWheel={handleWheel}
     >
       {onSelectCountry && (
-        <button type="button" className="btn panel absolute z-20 left-1/2 -translate-x-1/2 top-[236px] sm:top-3 min-h-[40px]" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); flyRef.current = { lat: 0, lon: 0, until: performance.now() + 12000 }; frameRef.current = framingTarget(framingRef.current, (containerRef.current?.clientWidth ?? 1) / (containerRef.current?.clientHeight || 1)); }}>
-          <RotateCcw className="w-4 h-4" aria-hidden="true" />{t('resetView')}
+        <button type="button" data-ctl="reset" aria-label={t('resetView')} className="btn panel absolute z-20 left-3 top-[calc(var(--header-h)+3.5rem)] lg:left-1/2 lg:-translate-x-1/2 lg:top-[calc(var(--header-h)+.75rem)] min-h-[40px]" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); flyRef.current = { lat: 0, lon: 0, until: performance.now() + 12000 }; frameRef.current = framingTarget(framingRef.current, (containerRef.current?.clientWidth ?? 1) / (containerRef.current?.clientHeight || 1)); }}>
+          <RotateCcw className="w-4 h-4" aria-hidden="true" /><span className="hidden sm:inline">{t('resetView')}</span>
         </button>
       )}
       {hoverCountry && !hoveredObs && (
@@ -682,10 +692,10 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
             />
             {hoveredObs.regionName || hoveredObs.variable}
           </div>
-          <div className="text-[11px] text-slate-300 mt-0.5">
+          <div className="text-2xs text-[var(--ink-2)] mt-0.5">
             {hoveredObs.value} {hoveredObs.unit} · {hoveredObs.variable}
           </div>
-          <div className="text-[10px] text-slate-400 mt-0.5">
+          <div className="text-2xs text-[var(--ink-3)] mt-0.5">
             {String(hoveredObs.metadata?.cell ?? `${hoveredObs.latitude}°, ${hoveredObs.longitude}°`)} · click to hear
           </div>
         </div>

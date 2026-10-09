@@ -55,7 +55,7 @@ export function SeriesChart({ points, cursor, unit, label, onCursor }: { points:
           </g>
         )}
       </svg>
-      {gaps > 0 && <figcaption className="text-[11px] text-[var(--ink-3)]">{t('jbGapsNote', { n: digits(gaps, lang) })}</figcaption>}
+      {gaps > 0 && <figcaption className="text-2xs text-[var(--ink-3)]">{t('jbGapsNote', { n: digits(gaps, lang) })}</figcaption>}
       <details className="text-xs text-[var(--ink-2)]">
         <summary className="cursor-pointer min-h-[32px] flex items-center">{t('profileTable')}</summary>
         <div className="max-h-56 overflow-y-auto scroll-thin">

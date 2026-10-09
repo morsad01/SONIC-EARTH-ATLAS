@@ -1,7 +1,7 @@
 # Sonic Earth Atlas — Roadmap v3 (implementation plan)
 
 **Source:** the team's brief in [`roadmap-v3-brief.md`](roadmap-v3-brief.md) ("EarthSound" master prompt), applied to the existing Sonic Earth Atlas codebase.
-**Status:** Phases 0 (audit and plan), 1 (design foundation), 2 (country selection), 3 (data registry and country profile), 4 (Data Jukebox), 5 (series sonification), 6 (polish, accessibility and performance) and 7 (testing and submission readiness, in-repo part) done. **Remaining: team-owned release steps (§7 Phase 7 notes, §9).**
+**Status:** Phases 0 (audit and plan), 1 (design foundation), 2 (country selection), 3 (data registry and country profile), 4 (Data Jukebox), 5 (series sonification), 6 (polish, accessibility and performance) and 7 (testing and submission readiness, in-repo part) done. **Phase 8 (UI audit and fixes, [`ui-fix-plan.md`](ui-fix-plan.md)) done: steps A–D implemented, step E verified.** **Phase 9 (landing carousel, [`landing-carousel-plan.md`](landing-carousel-plan.md)) done: the landing globe is replaced by a three-level carousel of four 3D Earths.** Remaining: team-owned release steps (§7 Phase 7 notes, §9).
 **Scope:** the whole asked roadmap, Features A–G, Phases 0–7. Where I adapt something to the codebase, the reason is in §3.
 
 ---
@@ -216,7 +216,19 @@ Selected state is shown with outline + label + text in the panel, never colour a
 
 **Gate:** a clean, reproducible build, all checks reported honestly, and an end-to-end demo rehearsed on production.
 
+### Phase 8 — UI audit and fixes · branch `fix/ui-polish` ✅ (built on the session branch `claude/stoic-albattani-moia8b`)
+
+The full findings and the step-by-step plan are in [`ui-fix-plan.md`](ui-fix-plan.md). Steps: A dialogs and Settings (P0), B landing globe performance (P0), C glass system, header and layout (P1), D fonts and type scale (P1), E verify.
+
+**Gate:** Settings and Data open from every view, including the landing page; the landing scroll holds ≥ 55 fps on a desktop; no overlapping controls at 320 px; no text under 12 px (EN) / 13 px (বাংলা); all existing checks green.
+
 ---
+### Phase 9 — Landing carousel · branch `feat/landing-carousel` ✅ (built on the session branch `claude/nice-curie-pdxbh4`)
+
+Plan in [`landing-carousel-plan.md`](landing-carousel-plan.md). Steps 9A worlds + CSS sphere, 9B carousel L1, 9C levels 2–3, 9D clean-up of the landing WebGL path, 9E verify.
+
+**Gate:** no WebGL context on the landing page; L1–L3 work by mouse, touch and keyboard; all existing checks green.
+
 
 ## 5. Feature acceptance checklist (v3 §13)
 
@@ -280,6 +292,10 @@ Results are reported as actually run. Failures are listed, not suppressed.
 | 5 Series sonification | ✅ Done | `claude/trusting-feynman-bc564j` (session branch, in place of `feat/series-sonification`) | test 158/158 (16 files) · lint 0 errors, 11 warnings (same count as Phase 4) · build ✅ (same >500 kB `GlobeCanvas` warning; main `index` chunk 388.8 kB, unchanged; Jukebox lazy chunk 26.5 → 48.6 kB) · Playwright (Chromium): `#…&story=gistemp&t=1998` → legend “0.61 °C → A4 (440 Hz)”, Play starts at 1998 and the cursor + hash move (2002 after 0.7 s), header shows “Playing: Global temperature since 1880”, seek slider while playing jumps the sound, Pause holds the cursor, 20× play + seek + story switch → Diagnostics “Series Audio Nodes: 1” (the persistent output gain), 8 while playing, 1 after Stop; 320 px বাংলা with reduced motion: no horizontal scroll, Play/compare (A then B) run; 0 page errors | See Phase 5 notes below |
 | 6 Polish, a11y, perf | ✅ Done | `claude/trusting-feynman-bc564j` (session branch, on top of the unpushed Phase 5 commit) | test 184/184 (17 files) · lint **0 warnings** (was 11) · build ✅ (main `index` 389.3 kB, Jukebox 43.1 kB, About 7.3 kB lazy; `GlobeCanvas` 553 kB still over the 500 kB warning, see notes) · axe-core 4.10 (scratchpad only, not a project dependency) on landing, Atlas, Jukebox, About, A2, B1, B2 at 1400 px and at 360 px in বাংলা + high contrast + reduced motion: **0 violations** (was 9 findings in 4 rules plus the landmark one on every view) · Playwright: 320 / 640 / 1400 px no horizontal scroll on every view, WebGL off → 2D map with the picker in the Atlas, B2 series buttons, A2 mode buttons, guided tour (T, Next, End), “Hear any place” Dhaka → Delhi resets the panel, 0 page errors | See Phase 6 notes below |
 | 7 Testing and submission | ✅ Done (in-repo part) | `claude/trusting-feynman-bc564j` (session branch, with the unpushed Phase 5 and 6 commits) | lint 0 warnings · test 184/184 (17 files) · build ✅ (same `GlobeCanvas` >500 kB warning) · `npm run test:e2e` 13/13 · `npm run test:a11y` 14/14, both also with `CI=1` (fresh build + preview server) · `tsc -b` now type-checks `e2e/` and `playwright.config.ts` | See Phase 7 notes below |
+| 8 UI audit and fixes | ✅ Done (steps A–D built, E verified) | `claude/stoic-albattani-moia8b` (push refused: 403, GitHub App not installed for the repo; commits are local and shipped as a zip) | lint 0 warnings · test 205/205 (20 files) · build ✅ (same `GlobeCanvas` >500 kB warning) · `npx playwright test` 51/52 on the first full run with 3 workers; the 1 failure (`dialogs` · About · 1400 px) was a 45 s page-load stall under load and passes alone in 1.5 s · new `dialogs`, `layout`, `fonts` e2e files | Landing scroll trace on software GL: 289 → 158 ms average frame. A real-GPU/phone trace (≥ 55 fps target) is a team check. Not done: Jukebox drawer and header menu keep their own focus code (the header sits inside the inert root). Fonts are self-hosted (~300 kB). Landing hero shows the NASA Space Apps Challenge logo (`public/images/space-apps-logo.png`, supplied by the team) above the "independent team entry" line. |
+| 9 Landing carousel | ✅ Done (9A–9E) | `claude/nice-curie-pdxbh4` | lint 0 warnings · test 211/211 (21 files) · build ✅ (same `GlobeCanvas` >500 kB warning, now Atlas-only) · Playwright 55/55 on the first full run (smoke, no-webgl, a11y, dialogs, layout, fonts) + `carousel` 5/5 | The three open questions in the plan §5 were answered with the recommended defaults (four Earths, no Bengali serif, track-records section dropped). Not done: a real-GPU/phone frame trace of the level 2→3 zoom (team check); the level-3 NASA GIBS pictures were only seen offline (bundled Blue Marble fallback). |
+| 9F 3D planets | ✅ Done | `claude/nice-curie-pdxbh4` | lint 0 warnings · test 211/211 · build ✅ · Playwright 57/57 with 3 workers | Team feedback: the CSS discs read as flat pictures. The four Earths are now three.js planets in one canvas (`WorldScene`), following the CSS anchors; level 3 dives into the 3D surface instead of a flat image. Software GL is detected and drawn lighter. Next safe action: a real-GPU/phone trace of the L2→L3 dive, then push and PR (push refused: 403). |
+| 9G Movement | ✅ Done | `claude/nice-curie-pdxbh4` | lint 0 warnings · test 211/211 · build ✅ · Playwright 57/57 + carousel 6/6 | Team spec: Earth only, with four movements: hero anchor, split (translate right, continuous axial rotation, key numbers), Z-zoom dive into the atmosphere with a blurred backdrop, and a sweep that pushes the current Earth out of frame. Other planets were dropped at the team's request (and no licensed textures were reachable). Next safe action: a real-GPU/phone check of the motion, then push and PR (push refused: 403). |
 
 **Phase 1 notes**
 - One token set in `src/index.css`. Added `--surface`, `--accent`, `--accent-warm` (aliases, so high contrast flows through), `--teal`, `--radius-*`, `--space-*`, `--ease-*`, `--dur-*`, `--header-h`. Legacy `--bg-space-*` / `--accent-*` / `--text-*`, the `Outfit` / `JetBrains Mono` stack and unused utilities had no users (grep), so they were removed directly, not aliased. `src/App.css` was unimported Vite template CSS and is deleted. `contrast.test.ts` follows `var()` aliases and covers the new tokens.
