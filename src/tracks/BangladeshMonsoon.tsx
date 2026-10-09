@@ -106,7 +106,7 @@ export const BangladeshMonsoon: React.FC = () => {
   return (
     <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="bd-title">
       <div className="max-w-6xl mx-auto">
-        <h2 id="bd-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('monsoonTitle')}</h2>
+        <h1 id="bd-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('monsoonTitle')}</h1>
         <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{t('monsoonLead')}</p>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -122,7 +122,7 @@ export const BangladeshMonsoon: React.FC = () => {
 
         <div className="mt-6 grid lg:grid-cols-[380px_1fr] gap-6 items-start">
           <figure className="panel-solid p-3">
-            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={`Map of Bangladesh with 8 divisional cities. On ${fmtDate(dates[day])} the wettest is ${cityName(today)}.`}>
+            <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="group" aria-label={`Map of Bangladesh with 8 divisional cities. On ${fmtDate(dates[day])} the wettest is ${cityName(today)}.`}>
               {data.outline.map((ring, i) => (
                 <polygon key={i} points={ring.map(([x, y]) => `${px(x)},${py(y)}`).join(' ')} fill="#13324a" stroke="#3d6683" strokeWidth={1} />
               ))}
@@ -131,7 +131,7 @@ export const BangladeshMonsoon: React.FC = () => {
                 const r = 4 + Math.sqrt(Math.max(0, mm)) * 2.4;
                 const sel = c.name === focus;
                 return (
-                  <g key={c.name} onClick={() => setFocus(c.name)} className="cursor-pointer" role="button" tabIndex={0} aria-label={`${cityName(c)}: ${num(mm, 1)} mm`} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setFocus(c.name)}>
+                  <g key={c.name} onClick={() => setFocus(c.name)} className="cursor-pointer" role="button" tabIndex={0} aria-pressed={sel} aria-label={`${cityName(c)}: ${num(mm, 1)} mm`} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setFocus(c.name)}>
                     <circle cx={px(c.lon)} cy={py(c.lat)} r={r} fill="var(--rain)" fillOpacity={0.35 + Math.min(0.6, mm / 120)} stroke={sel ? 'var(--brass)' : '#bfe9ff'} strokeWidth={sel ? 2.5 : 1} />
                     <text x={c.lon > 91.3 && c.lat < 23.5 ? px(c.lon) - r - 4 : px(c.lon) + r + 4} textAnchor={c.lon > 91.3 && c.lat < 23.5 ? 'end' : 'start'} y={py(c.lat) + 4} fontSize={13} fill="var(--ink)" paintOrder="stroke" stroke="#0d1b27" strokeWidth={3}>{cityName(c)}</text>
                   </g>
@@ -144,7 +144,7 @@ export const BangladeshMonsoon: React.FC = () => {
           <div className="space-y-5 min-w-0">
             <figure className="panel-solid p-4">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="font-display text-xl font-semibold">{cityName(fc)}: {lang === 'bn' ? 'দৈনিক বৃষ্টি' : 'daily rain'}, {lang === 'bn' ? bnNum(year) : year}</h3>
+                <h2 className="font-display text-xl font-semibold">{cityName(fc)}: {lang === 'bn' ? 'দৈনিক বৃষ্টি' : 'daily rain'}, {lang === 'bn' ? bnNum(year) : year}</h2>
                 <span className="text-sm text-[var(--ink-3)]">mm/day · NASA POWER</span>
               </div>
               <svg viewBox={`0 0 ${chartW} ${chartH + 20}`} className="w-full h-auto mt-2" role="img" aria-label={`Daily rain in ${fc.name}, ${year}. Wettest day ${num(Math.max(...series(fc)), 0)} millimetres.`}>

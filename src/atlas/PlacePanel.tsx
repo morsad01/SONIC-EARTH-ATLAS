@@ -4,16 +4,8 @@ import { AudioContextManager } from '../audio/audioContext';
 import { fetchPlaceClimate, trendPerDecade, countryName, type PlaceClimate } from '../lib/power';
 import { usePrefs, speak } from '../lib/prefs';
 import { placeLabel } from '../lib/placesBn';
+import { PRESETS } from './presets';
 
-export const PRESETS: { name: string; bn: string; lat: number; lon: number }[] = [
-  { name: 'Dhaka', bn: 'ঢাকা', lat: 23.81, lon: 90.41 },
-  { name: "Cox's Bazar", bn: 'কক্সবাজার', lat: 21.43, lon: 92.01 },
-  { name: 'Delhi', bn: 'দিল্লি', lat: 28.61, lon: 77.21 },
-  { name: 'Cairo', bn: 'কায়রো', lat: 30.04, lon: 31.24 },
-  { name: 'Amazon (Manaus)', bn: 'আমাজন (মানাউস)', lat: -3.12, lon: -60.02 },
-  { name: 'Svalbard', bn: 'স্বালবার্ড', lat: 78.22, lon: 15.65 },
-  { name: 'Houston', bn: 'হিউস্টন', lat: 29.76, lon: -95.37 },
-];
 
 const NOTE_MS = 220;
 const BN = '০১২৩৪৫৬৭৮৯';
@@ -21,11 +13,12 @@ const bnNum = (s: string | number) => String(s).replace(/\d/g, (d) => BN[+d]);
 
 interface Props { place: { lat: number; lon: number } | null; onPick: (p: { lat: number; lon: number }) => void; onClose: () => void }
 
-/** "Hear any place": click the globe or pick a city, then hear 45 years of its NASA POWER climate. */
+/** "Hear any place": click the globe or pick a city, then hear 45 years of its NASA POWER climate. The parent keys it by place, so a new place starts fresh. */
 export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
   const { lang, narration } = usePrefs();
   const [data, setData] = useState<PlaceClimate | null>(null);
-  const [name, setName] = useState<string | null>(null);
+  const preset = place ? PRESETS.find((p) => Math.abs(p.lat - place.lat) < 0.01 && Math.abs(p.lon - place.lon) < 0.01) : undefined;
+  const [name, setName] = useState<string | null>(preset ? (lang === 'bn' ? preset.bn : preset.name) : null);
   const [err, setErr] = useState<string | null>(null);
   const [i, setI] = useState(-1);
   const [playing, setPlaying] = useState(false);
@@ -36,10 +29,7 @@ export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
   useEffect(() => {
     if (!place) return;
     const ac = new AbortController();
-    stop(); setData(null); setErr(null); setI(-1); setName(null);
-    const preset = PRESETS.find((p) => Math.abs(p.lat - place.lat) < 0.01 && Math.abs(p.lon - place.lon) < 0.01);
-    if (preset) setName(lang === 'bn' ? preset.bn : preset.name);
-    else countryName(place.lat, place.lon).then((n) => setName(n ? placeLabel(n, lang) : (lang === 'bn' ? 'সমুদ্র' : 'Open ocean'))).catch(() => {});
+    if (!preset) countryName(place.lat, place.lon).then((n) => setName(n ? placeLabel(n, lang) : (lang === 'bn' ? 'সমুদ্র' : 'Open ocean'))).catch(() => {});
     fetchPlaceClimate(place.lat, place.lon, ac.signal).then(setData).catch((e) => { if (!ac.signal.aborted) setErr(e.message); });
     return () => ac.abort();
   }, [place?.lat, place?.lon]); // eslint-disable-line react-hooks/exhaustive-deps

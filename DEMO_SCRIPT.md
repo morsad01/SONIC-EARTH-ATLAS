@@ -4,22 +4,22 @@ Record at 1920×1080 with system audio. Wear headphones while recording and say 
 
 | Time | Screen | Say |
 |---|---|---|
-| 0:00–0:30 | Open **A2 EIC frames**, play the ocean heat content frame | "This is a NASA Earth Information Center frame: ocean heat since 1957. A needle sweeps it left to right, and the climbing line becomes a climbing sound. Earth, now audible. This is Sonic Earth Atlas." |
-| 0:30–1:05 | Landing page, click **Play the 40-second tour** | Let it run 3 steps. "Each crackle is a real VIIRS fire detection. Faster means more fire power. Left and right follow longitude: Idaho is far left, Congo on the right." |
-| 1:05–1:25 | Open **What you are hearing** | "Nothing here is a black box. For every voice we show the place, the value, and the exact pitch and rate it produces." |
-| 1:25–1:50 | Turn on **Rain** and **Ocean heat**, press **Hear the change**, step to 5 Oct | "On 5 October northern Vietnam got 93 mm in a day. In the Pacific, September water was up to 7 °C above normal, an El Niño-like pattern. Congo's fire jumped from 25 to 572 MW, and you hear it jump." |
-| 1:50–2:25 | **A2 NASA GIBS frames**, play true colour, then **Before / after** ocean heat 2025 → 2026 | "These are NASA GIBS images of the same week. The needle travels around the world. Before and after plays last year in your left ear and this year in your right." |
-| 2:25–2:55 | **B1 Bangladesh monsoon**, switch to বাংলা | "Our home. Eight divisions, eight voices. Sylhet got 118% of its normal monsoon rain. Everything also works in Bangla, with spoken narration." |
-| 2:55–3:10 | Back to A1, click Bangladesh on the globe, press **Hear 45 years** | "Click any place on Earth and NASA POWER answers live: here is 45 years of Dhaka, warming in your ears." |
-| 3:10–3:25 | **B2 Earth's vital signs**, **All three together** | "Temperature on the left, CO₂ in the middle, Arctic ice on the right. Two lines climb, the ice falls." |
-| 3:20–3:45 | Data & method, then a user quote | "All data is NASA's, raw files are in our repository, and every limit is written down. [User quote.] Earth is not silent. Now everyone can listen." |
+| 0:00–0:25 | Landing page, scroll once: the globe moves from the hero into the split view | "Sonic Earth Atlas turns NASA Earth data into sound you can explore. Every sound is generated live from real observations. Nothing is pre-recorded." |
+| 0:25–0:55 | **Explore the globe**, type "Bangladesh" in the country search with the keyboard, press Enter | "Pick any country by clicking or by typing. The globe flies there and outlines the border. The profile lists only what we really have: here, no fire cell or rain point falls inside the border this week, and it says so instead of inventing one. It has the monsoon story and 45 years of NASA POWER at a labelled point." |
+| 0:55–1:20 | Press **Explore its sound**: the Data Jukebox opens on the country's temperature story | "The Data Jukebox puts each story on one timeline. Every value shows its source, unit, period and method." |
+| 1:20–2:05 | Choose **Global temperature since 1880**, set Filters to 1951–1980, tick **Compare two periods**, B = 1996–2025, A left / B right, press **Play** | "Same mapping in both ears. 1951–1980 plays around B3 to E4. The last thirty years sit around G4 to E5, almost an octave higher. That is the warming you just heard." |
+| 2:05–2:30 | Pause, click a year in the timeline, read the **What you hear** legend | "Nothing is a black box. 1998: 0.61 °C, so A4. Four pulses, because it jumped from the year before. A warm tone, because it is above the 1951–1980 average." |
+| 2:30–2:55 | Story row → an **EIC frame** (ocean heat content) → **Hear it in EIC frames + NASA imagery** | "This is the challenge's core pairing: a NASA Earth Information Center frame, swept left to right into sound." |
+| 2:55–3:20 | **B1 Bangladesh monsoon**, switch to বাংলা | "Our home. Eight divisions, eight voices. Sylhet got 118% of its normal monsoon rain. Everything also works in Bangla." |
+| 3:20–3:45 | Settings: reduced motion, high contrast; then About the Science; then a user quote | "Keyboard only, text captions, reduced motion, high contrast, and it still works with WebGL off. Sound gives another way into Earth data; it supports the visuals, it does not replace them. Our limits are written down: snapshots, point samples, coarse borders. [User quote.]" |
 
 ## Before you submit
 
-- [ ] `npm run build` passes and the deployed site opens in an incognito window.
+- [ ] `npm run lint && npm test && npm run build` pass, then `npm run test:e2e && npm run test:a11y` pass (CI runs the same).
+- [ ] The deployed site opens in an incognito window; check `#v1&track=jukebox&story=gistemp&t=1998` and a country link such as `#v1&track=atlas&c=BGD`.
 - [ ] GitHub repository is public, includes `public/data/` and `scripts/raw/`, and contains no API key (search for your FIRMS key).
 - [ ] The NASA image frames load on the deployed site (needs internet).
-- [ ] Test once with a phone and once with a screen reader (NVDA or VoiceOver).
+- [ ] Test once with a phone and once with a screen reader (NVDA + Firefox or VoiceOver + Safari): country search, the Jukebox player and the “What you hear” legend. Not yet done.
 - [ ] Video uploaded and public; link pasted into the form.
 - [ ] Project name and description match PROJECT_SUMMARY.md.
 - [ ] Submit early, not at 11:50 PM.

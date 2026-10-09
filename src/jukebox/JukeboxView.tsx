@@ -1,6 +1,8 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, Pause, Play, SlidersHorizontal, X } from 'lucide-react';
+import { SlidersHorizontal, X } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
+import { usePlaybackReport } from '../lib/playbackContext';
+import { AudioContextManager } from '../audio/audioContext';
 import { countryLabel } from '../lib/placesBn';
 import { JUKEBOX_TRACKS, type Track } from '../lib/nav';
 import type { Country } from '../countries/countries';
@@ -16,7 +18,15 @@ import { useJukebox, visibleTimes, type Origin } from './useJukebox';
 import { TimelineFilters } from './TimelineFilters';
 import { TimelineView } from './TimelineView';
 import { StoryPanel, type StoryLoad } from './StoryPanel';
-import { digits, timeLabel } from './format';
+import { timeLabel } from './format';
+import { captionFor } from './caption';
+import { useSeriesPlayer } from './useSeriesPlayer';
+import { SoundOptions, Transport } from './PlayerControls';
+import { DEFAULT_SOUND, type SoundSettings } from './soundSettings';
+import { MappingLegend } from './MappingLegend';
+import { specFor } from '../sonification/series/specs';
+import { mapSeries } from '../sonification/series/mapping';
+import { pointsInYears } from '../sonification/series/compare';
 
 interface Props {
   countries: { list: Country[]; country: Country | null; point: { lat: number; lon: number } | null; onSelect: (c: Country | null) => void };
@@ -24,14 +34,15 @@ interface Props {
   initialT?: string;
   onOpenCollection: (track: Track, frameId?: string) => void;
 }
-const STEP_MS = 700;
 type Tab = 'filters' | 'timeline' | 'story';
 
 /**
  * Data Jukebox (roadmap Phase 4): story row on top, then filters · timeline · story. Desktop shows three columns,
  * tablet two with the filters in a drawer, phones one column chosen with Filters / Timeline / Story and the step bar pinned at the bottom.
- * `useJukebox` is the single source of truth; every view only dispatches.
+ * `useJukebox` is the single source of truth; every view only dispatches. The series player (Phase 5) moves the cursor with origin 'playback'.
  */
+const isPictureStory = (st: Story | null) => st?.visual === 'eic';
+
 export function JukeboxView({ countries, initialStory, initialT, onOpenCollection }: Props) {
   const { t, lang } = usePrefs();
   const profile = useContext(ProfileDataContext);
@@ -64,7 +75,7 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const cur: StoryLoad = load && load.key === key ? load.v : { status: 'loading', message: needsPoint ? t('profileLoadingPower') : undefined };
   const series = cur.status === 'ready' ? cur.series : null;
-  const visible = useMemo(() => new Set(visibleTimes(s)), [s]);
+  const visible = useMemo(() => new Set(visibleTimes({ times: s.times, filters: s.filters })), [s.times, s.filters]);
   const points: SeriesPoint[] = useMemo(() => (series ? series.points.filter((p) => visible.has(p.t)) : []), [series, visible]);
   const years = useMemo(() => [...new Set(s.times.map((x) => x.slice(0, 4)))], [s.times]);
 
@@ -89,16 +100,43 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
     history.replaceState(null, '', `${window.location.pathname}${window.location.search}#v1&${p.toString()}`);
   }, [s.storyId, s.cursor]);
 
-  // Step-through: advances the cursor with origin 'playback'; the reducer stops it at the end.
+  // Series player: loads what the chart shows (and period B when comparing); it reports cursor moves with origin 'playback'.
+  const [player, pstate] = useSeriesPlayer();
+  const [snd, setSnd] = useState<SoundSettings>(DEFAULT_SOUND);
+  const spec = useMemo(() => (series ? specFor(series.id, series.points.map((p) => p.v)) : null), [series]);
+  const mapped = useMemo(() => (spec ? mapSeries(points, spec) : []), [points, spec]);
+  const bPoints = useMemo(() => (series && snd.compare && years.length > 1 ? pointsInYears(series.points, snd.bFrom, snd.bTo) : null), [series, snd.compare, snd.bFrom, snd.bTo, years.length]);
+  const ptsRef = useRef(points);
+  useEffect(() => { ptsRef.current = points; }, [points]);
+  useEffect(() => player.listen({ cursor: (i) => { const p = ptsRef.current[i]; if (p) dispatch({ type: 'setCursor', t: p.t, origin: 'playback' }); } }), [player, dispatch]);
+  const loadState = isPictureStory(story) ? 'none' : cur.status;
   useEffect(() => {
-    if (!s.playing) return;
-    const id = window.setInterval(() => dispatch({ type: 'step', by: 1, origin: 'playback' }), STEP_MS);
-    return () => window.clearInterval(id);
-  }, [s.playing, dispatch]);
+    if (loadState === 'loading') player.markLoading();
+    else if (loadState === 'error' && cur.status === 'error') player.fail(cur.message);
+    else if (loadState === 'ready' && spec) player.load({ points, spec, compare: bPoints ? { b: bPoints, layout: snd.layout } : null });
+  }, [loadState, points, spec, bPoints, snd.layout, player]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { player.setVolume(snd.volume); player.setMute(snd.muted); }, [snd.volume, snd.muted, player]);
+  useEffect(() => { player.setSpeed(snd.speed); player.setTimeMode(snd.mode); }, [snd.speed, snd.mode, player]);
+  useEffect(() => { dispatch({ type: 'setPlaying', playing: pstate === 'playing' }); }, [pstate, dispatch]);
+  // A user move (timeline, chart, slider, prev/next) while sound runs jumps the sound there.
+  useEffect(() => {
+    if (s.origin !== 'user' || (player.state !== 'playing' && player.state !== 'paused')) return;
+    const i = points.findIndex((p) => p.t === s.cursor);
+    if (i >= 0) player.seek(i);
+  }, [s.seq]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [audioErr, setAudioErr] = useState(false);
+  const play = async () => {
+    if (player.state === 'paused') { player.resume(); return; }
+    try { await AudioContextManager.init(); } catch { /* reported below */ }
+    const i = s.cursor ? points.findIndex((p) => p.t === s.cursor) : -1;
+    setAudioErr(!AudioContextManager.isReady() || !player.start(i >= 0 && i < points.length - 1 ? i : 0));
+  };
+  usePlaybackReport('jukebox', story ? (lang === 'bn' ? story.titleBn : story.title) : t('navJukebox'), pstate === 'playing', () => player.pause());
 
   const onCursor = useCallback((tm: string, origin: Origin) => dispatch({ type: 'setCursor', t: tm, origin }), [dispatch]);
   const filters = s.filters.region === 'country' && !country ? { ...s.filters, region: 'all' as const } : s.filters;
-  const shown = stories.filter((x) => matchesFilters(x, filters));
+  const shown = useMemo(() => stories.filter((x) => matchesFilters(x, filters)), [stories, filters.topic, filters.source, filters.region]); // eslint-disable-line react-hooks/exhaustive-deps
+  const selectStory = useCallback((id: string) => dispatch({ type: 'selectStory', id }), [dispatch]);
   const open = (st: Story) => onOpenCollection(st.collection!, st.frameId);
 
   const [tab, setTab] = useState<Tab>('story');
@@ -113,7 +151,7 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
   }, [drawer]);
 
   const vt = visibleTimes(s), ci = s.cursor ? vt.indexOf(s.cursor) : -1;
-  const isPicture = story?.visual === 'eic';
+  const isPicture = isPictureStory(story);
 
   return (
     <div className="h-full overflow-y-auto overflow-x-hidden scroll-thin">
@@ -126,7 +164,7 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
           <button ref={drawerBtn} type="button" className="btn hidden md:inline-flex lg:hidden" aria-expanded={drawer} aria-controls="jb-filters" onClick={() => setDrawer(true)}><SlidersHorizontal className="w-4 h-4" aria-hidden="true" />{t('jbFilters')}</button>
         </header>
 
-        <StoryRow stories={shown} activeId={s.storyId} onSelect={(id) => dispatch({ type: 'selectStory', id })} sparks={sparks} />
+        <StoryRow stories={shown} activeId={s.storyId} onSelect={selectStory} sparks={sparks} />
 
         <div className="md:hidden flex gap-1 panel p-1" role="group" aria-label={t('jbShow')}>
           {(['filters', 'timeline', 'story'] as Tab[]).map((k) => (
@@ -157,23 +195,23 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
           </section>
 
           <div data-col="story" className="min-w-0 space-y-3">
-            {story ? <StoryPanel story={story} load={isPicture ? { status: 'ready', series: null } : cur} points={points} cursor={s.cursor} playing={s.playing}
-              onCursor={(tm) => onCursor(tm, 'user')} onRetry={() => setAttempt((a) => a + 1)} onOpenCollection={open} /> : <DataState status="loading" />}
+            {story ? <StoryPanel story={story} load={isPicture ? { status: 'ready', series: null } : cur} points={points} cursor={s.cursor}
+              onCursor={(tm) => onCursor(tm, 'user')} onRetry={() => setAttempt((a) => a + 1)} onOpenCollection={open}
+              sound={series && spec && <>
+                <MappingLegend spec={spec} unit={series.unit} points={points} mapped={mapped} cursor={s.cursor} caption={captionFor(series.variable, series.unit, points, s.cursor, lang, t)} playing={pstate === 'playing'} />
+                <SoundOptions value={snd} years={years} periodA={`${s.filters.from ?? years[0] ?? ''}–${s.filters.to ?? years[years.length - 1] ?? ''}`} onChange={(p) => setSnd((o) => ({ ...o, ...p }))} />
+                {audioErr && <p role="alert" className="text-sm text-[var(--warm)]">{t('audioBlocked')}</p>}
+              </>} /> : <DataState status="loading" />}
           </div>
         </div>
       </div>
 
       {story && !isPicture && vt.length > 0 && (
         <div className="jb-stepbar sticky bottom-0 z-20 border-t border-[var(--line)] bg-[color-mix(in_srgb,var(--abyss)_94%,transparent)] backdrop-blur-md safe-pb">
-          <div className="max-w-[1600px] mx-auto px-3 sm:px-5 pt-2 flex items-center gap-2">
-            <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'step', by: -1, origin: 'user' })} disabled={ci <= 0} aria-label={t('jbPrev')}><ChevronLeft className="w-4 h-4" /></button>
-            <button type="button" className="btn" onClick={() => dispatch({ type: 'setPlaying', playing: !s.playing })} aria-pressed={s.playing} disabled={vt.length < 2}>
-              {s.playing ? <Pause className="w-4 h-4" aria-hidden="true" /> : <Play className="w-4 h-4" aria-hidden="true" />}{t(s.playing ? 'jbStepStop' : 'jbStepPlay')}</button>
-            <button type="button" className="btn btn-icon" onClick={() => dispatch({ type: 'step', by: 1, origin: 'user' })} disabled={ci >= vt.length - 1} aria-label={t('jbNext')}><ChevronRight className="w-4 h-4" /></button>
-            <p className="text-sm text-[var(--ink-2)] tnum truncate min-w-0" aria-live="off">
-              {s.cursor && <><strong className="text-[var(--ink)]">{timeLabel(s.cursor, lang)}</strong> · {t('jbPosition', { i: digits(ci + 1, lang), n: digits(vt.length, lang) })}</>}
-            </p>
-            <p className="hidden xl:block ml-auto text-xs text-[var(--ink-3)]">{t('jbStepNote')}</p>
+          <div className="max-w-[1600px] mx-auto px-3 sm:px-5 pt-2">
+            <Transport state={pstate} index={ci} count={vt.length} label={(i) => timeLabel(vt[i], lang)}
+              onPlay={play} onPause={() => player.pause()} onStop={() => player.stop()}
+              onStep={(by) => dispatch({ type: 'step', by, origin: 'user' })} onSeek={(i) => vt[i] && onCursor(vt[i], 'user')} />
           </div>
         </div>)}
     </div>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ExternalLink, Headphones } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { EIC_FRAMES } from '../lib/eicFrames';
@@ -11,10 +12,10 @@ import { captionFor } from './caption';
 
 export type StoryLoad = { status: 'loading'; message?: string } | { status: 'error'; message: string } | { status: 'ready'; series: DataSeries | null };
 
-interface Props { story: Story; load: StoryLoad; points: SeriesPoint[]; cursor: string | null; playing: boolean; onCursor: (t: string) => void; onRetry: () => void; onOpenCollection: (s: Story) => void }
+interface Props { story: Story; load: StoryLoad; points: SeriesPoint[]; cursor: string | null; sound?: ReactNode; onCursor: (t: string) => void; onRetry: () => void; onOpenCollection: (s: Story) => void }
 
-/** Right column: title, explanation, the visual (EIC picture or chart with the cursor), a text caption, provenance and the way to hear it. */
-export function StoryPanel({ story, load, points, cursor, playing, onCursor, onRetry, onOpenCollection }: Props) {
+/** Right column: title, explanation, the visual (EIC picture or chart with the cursor), a text caption, the sound legend and options, provenance, and the full collection player. */
+export function StoryPanel({ story, load, points, cursor, sound, onCursor, onRetry, onOpenCollection }: Props) {
   const { t, lang } = usePrefs();
   const frame = story.frameId ? EIC_FRAMES.find((f) => f.id === story.frameId) : null;
   const series = load.status === 'ready' ? load.series : null;
@@ -40,14 +41,14 @@ export function StoryPanel({ story, load, points, cursor, playing, onCursor, onR
           <>
             <SeriesChart points={points} cursor={cursor} unit={series.unit} label={series.variable} onCursor={onCursor} />
             <p className="text-sm text-[var(--ink)] min-h-[2.5rem]" data-caption>{cap}</p>
-            <p role="status" aria-live="polite" className="sr-only">{playing ? '' : cap}</p>
+            {sound}
             <ProvenanceCard series={series} />
           </>)}
 
-      <div className="rounded-lg border border-[var(--line)] p-2.5 space-y-2">
-        <p className="text-xs text-[var(--ink-2)] flex gap-2"><Headphones className="w-4 h-4 shrink-0 text-[var(--brass)]" aria-hidden="true" />{t(coll ? 'jbSoundNote' : 'jbSoundNoneNote')}</p>
-        {coll && <button type="button" className="btn btn-brass" onClick={() => onOpenCollection(story)}>{t('jbOpenCollection', { name: t(coll.key) })}</button>}
-      </div>
+      {coll && <div className="rounded-lg border border-[var(--line)] p-2.5 space-y-2">
+        <p className="text-xs text-[var(--ink-2)] flex gap-2"><Headphones className="w-4 h-4 shrink-0 text-[var(--brass)]" aria-hidden="true" />{t(frame ? 'plNoSound' : 'jbSoundNote')}</p>
+        <button type="button" className="btn" onClick={() => onOpenCollection(story)}>{t('jbOpenCollection', { name: t(coll.key) })}</button>
+      </div>}
     </article>
   );
 }

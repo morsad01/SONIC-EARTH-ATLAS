@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { EIC_FRAMES } from '../lib/eicFrames';
@@ -19,7 +19,8 @@ export function Spark({ points, className = 'w-full h-10' }: { points?: SeriesPo
  * Horizontal story row: scroll-snap, overscroll contained on x only (vertical page scroll passes through), arrow buttons, ←/→ keys
  * between cards, the active card scrolled to the centre. Neighbours stay partly visible on wide screens.
  */
-export function StoryRow({ stories, activeId, onSelect, sparks }: { stories: Story[]; activeId: string | null; onSelect: (id: string) => void; sparks: Record<string, SeriesPoint[] | undefined> }) {
+/** Memoised: the cards (with sparklines) do not re-render on every playback cursor tick. */
+export const StoryRow = memo(function StoryRow({ stories, activeId, onSelect, sparks }: { stories: Story[]; activeId: string | null; onSelect: (id: string) => void; sparks: Record<string, SeriesPoint[] | undefined> }) {
   const { t, lang, reduceMotion } = usePrefs();
   const row = useRef<HTMLUListElement>(null), cards = useRef(new Map<string, HTMLButtonElement>());
   useEffect(() => {
@@ -54,7 +55,7 @@ export function StoryRow({ stories, activeId, onSelect, sparks }: { stories: Sto
               <li key={s.id} className="story-card shrink-0">
                 <button ref={(el) => { if (el) cards.current.set(s.id, el); else cards.current.delete(s.id); }} type="button" tabIndex={i === activeIdx ? 0 : -1}
                   aria-pressed={active} onClick={() => onSelect(s.id)} onKeyDown={(e) => onKey(e, i)}
-                  className={`w-full h-full text-left rounded-xl border p-3 flex flex-col gap-2 cursor-pointer transition-[border-color,transform] duration-[var(--dur-fast)] hover:-translate-y-0.5 ${active ? 'border-[var(--brass)] bg-[var(--panel-2)] shadow-[inset_0_-3px_0_var(--brass)]' : 'border-[var(--line)] bg-[color-mix(in_srgb,var(--panel)_85%,transparent)]'}`}>
+                  className={`w-full h-full text-left rounded-xl border p-3 flex flex-col gap-2 cursor-pointer lift ${active ? 'border-[var(--brass)] bg-[var(--panel-2)] shadow-[inset_0_-3px_0_var(--brass)]' : 'border-[var(--line)] bg-[color-mix(in_srgb,var(--panel)_85%,transparent)]'}`}>
                   <div className="flex flex-wrap gap-1 text-[11px]">
                     <span className="chip">{t(topicKey(s.topic))}</span>
                     <span className="chip">{regionLabel(s, lang, t)}</span>
@@ -70,4 +71,4 @@ export function StoryRow({ stories, activeId, onSelect, sparks }: { stories: Sto
         </ul>)}
     </section>
   );
-}
+});

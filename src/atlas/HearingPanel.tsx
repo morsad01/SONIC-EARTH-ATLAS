@@ -4,7 +4,7 @@ import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
 import { describeVoice } from '../audio/voiceParams';
 import { usePrefs, speak } from '../lib/prefs';
-import { LAYER_META } from './LayersPanel';
+import { LAYER_META } from './layerMeta';
 import { placeLabel } from '../lib/placesBn';
 
 interface Props {

@@ -5,6 +5,7 @@ import type { StringKey } from '../lib/strings';
 import type { PhenomenonType } from '../types/dataset';
 import { Footer } from '../components/Footer';
 import { REPO_URL } from '../lib/nav';
+import { SPECS } from '../sonification/series/specs';
 
 const LAYERS: { id: PhenomenonType; name: StringKey; color: string }[] = [
   { id: 'fire', name: 'fire', color: 'var(--fire)' },
@@ -28,7 +29,7 @@ const H2: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children 
 
 /** "About the Science": method, mapping tables (from DATASET_CATALOG), sources, limits, a11y and credits. */
 export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod }) => {
-  const { t } = usePrefs();
+  const { t, lang } = usePrefs();
   return (
     <div className="h-full overflow-y-auto">
       <article className="prose-sea max-w-5xl mx-auto px-5 sm:px-10 py-10" aria-labelledby="about-title">
@@ -70,6 +71,24 @@ export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod
                     </tr>
                   );
                 })}
+              </tbody>
+            </table>
+          </div>
+          <h3 className="font-display text-lg font-semibold mt-6">{t('aboutSeriesTitle')}</h3>
+          <p className="mt-1">{t('aboutSeriesLead')}</p>
+          <div className="mt-3 overflow-x-auto panel-solid" tabIndex={0} role="region" aria-label={t('aboutSeriesTitle')}>
+            <table className="w-full min-w-[640px] text-sm text-left align-top">
+              <thead className="text-[var(--ink-3)]">
+                <tr>{(['colSeries', 'colRange', 'colBaseline', 'colToSound'] as const).map((c) => <th key={c} scope="col" className="font-medium p-3 border-b border-[var(--line)]">{t(c)}</th>)}</tr>
+              </thead>
+              <tbody>
+                {Object.values(SPECS).map((sp) => (
+                  <tr key={sp.id} className="border-b border-[var(--line)] last:border-0 align-top">
+                    <th scope="row" className="p-3 font-semibold">{lang === 'bn' ? sp.label.bn : sp.label.en}</th>
+                    <td className="p-3 tnum whitespace-nowrap">{sp.ref[0]} – {sp.ref[1]} {sp.unit}{sp.curve === 'sqrt' && <div className="label mt-1">{t('aboutSqrt')}</div>}</td>
+                    <td className="p-3">{sp.baseline === null ? '—' : sp.baselineLabel ?? `${sp.baseline} ${sp.unit}`}</td>
+                    <td className="p-3 text-[var(--ink-2)]">{lang === 'bn' ? sp.legend.bn : sp.legend.en}</td>
+                  </tr>))}
               </tbody>
             </table>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useMemo } from 'react';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
 import { findCountrySync, outlinePath, type Country } from '../countries/countries';
@@ -30,7 +30,7 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
   const geoContains = useGeoContains();
   const [zoom, setZoom] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
-  const [crosshair, setCrosshair] = useState<{ lat: number; lon: number }>({ lat: 0, lon: 0 });
+  const [crosshair, setCrosshair] = useState<{ lat: number; lon: number }>(() => (selectedObservation ? { lat: selectedObservation.latitude, lon: selectedObservation.longitude } : { lat: 0, lon: 0 }));
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -153,15 +153,12 @@ export const Accessible2DMap: React.FC<Accessible2DMapProps> = ({
     }
   };
 
-  // Sync crosshair when selectedObservation changes externally
-  useEffect(() => {
-    if (selectedObservation) {
-      setCrosshair({
-        lat: selectedObservation.latitude,
-        lon: selectedObservation.longitude,
-      });
-    }
-  }, [selectedObservation]);
+  // Sync crosshair when selectedObservation changes externally (adjusted during render, not in an effect)
+  const [prevSel, setPrevSel] = useState(selectedObservation);
+  if (selectedObservation !== prevSel) {
+    setPrevSel(selectedObservation);
+    if (selectedObservation) setCrosshair({ lat: selectedObservation.latitude, lon: selectedObservation.longitude });
+  }
 
   const nearestActive = findNearestObservation(crosshair.lat, crosshair.lon);
   const focusCountry = useMemo(() => countryAt(crosshair.lat, crosshair.lon), [countryAt, crosshair.lat, crosshair.lon]);

@@ -90,7 +90,7 @@ export function TimelineView({ points, cursor, origin, seq, unit, label, onCurso
                 onClick={() => { setFocusKey(r.key); pick(r.t!); }} onKeyDown={(e) => onKey(e, i)} onFocus={() => setFocusKey(r.key)}
                 aria-label={`${timeLabel(r.t!, lang)}: ${gap ? t('jbGap') : valueLabel(r.v!, unit, lang)}${active ? `, ${t('jbActive')}` : ''}`}
                 className={`w-full min-h-[36px] flex items-center gap-2 ${r.bucket ? 'pl-6' : 'pl-2'} pr-2 text-left text-sm rounded-r-md border-l-2 transition-colors duration-[var(--dur-fast)] ${active ? 'border-[var(--brass)] bg-[var(--panel-2)] text-[var(--ink)] font-semibold' : 'border-transparent text-[var(--ink-2)] hover:bg-[var(--panel-2)]'}`}>
-                <span aria-hidden="true" className={`w-2.5 h-2.5 rounded-full shrink-0 ${gap ? 'border border-dashed border-[var(--ink-3)]' : active ? 'bg-[var(--brass)] ring-2 ring-[var(--brass)] ring-offset-1 ring-offset-[var(--panel)]' : 'border border-[var(--accent)]'}`} />
+                <span aria-hidden="true" className={`tl-marker w-2.5 h-2.5 rounded-full shrink-0 ${gap ? 'border border-dashed border-[var(--ink-3)]' : active ? 'bg-[var(--brass)] ring-2 ring-[var(--brass)] ring-offset-1 ring-offset-[var(--panel)]' : 'border border-[var(--accent)]'}`} />
                 <span className="tnum w-[7.5rem] shrink-0">{timeLabel(r.t!, lang)}</span>
                 <span className={`tnum ${gap ? 'italic text-[var(--ink-3)]' : ''}`}>{gap ? t('jbGap') : valueLabel(r.v!, unit, lang)}</span>
               </button>

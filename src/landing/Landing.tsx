@@ -118,7 +118,7 @@ export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen,
           <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {TRACKS.map((tr) => (
               <li key={tr.id}>
-                <button onClick={() => onPick(tr.id)} className="group w-full h-full text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_srgb,var(--panel)_85%,transparent)] hover:border-[var(--brass)] p-4 cursor-pointer transition-colors duration-[var(--dur-fast)]">
+                <button onClick={() => onPick(tr.id)} className="group w-full h-full text-left rounded-2xl border border-[var(--line)] bg-[color-mix(in_srgb,var(--panel)_85%,transparent)] hover:border-[var(--brass)] p-4 cursor-pointer lift">
                   <div className="flex items-center gap-3">
                     <span className="tnum font-display font-bold text-sm w-9 h-9 shrink-0 rounded-full grid place-items-center border-2 border-[var(--brass)] text-[var(--brass)] group-hover:bg-[var(--brass)] group-hover:text-[var(--brass-ink)]">{tr.code}</span>
                     <span className="font-display text-lg font-semibold leading-tight">{t(tr.key)}</span>
