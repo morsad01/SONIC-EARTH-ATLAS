@@ -3,11 +3,13 @@ import { usePrefs } from '../lib/prefs';
 import { countryLabel } from '../lib/placesBn';
 import type { Country } from './countries';
 import { CountryPicker } from './CountryPicker';
+import { CountryProfile } from './CountryProfile';
 
 /** Picker plus a text readout of the selection (never colour alone). */
 export function CountryPanel({ list, country, point, onSelect }: { list: Country[]; country: Country | null; point: { lat: number; lon: number } | null; onSelect: (c: Country | null) => void }) {
   const { t, lang } = usePrefs();
   return (
+    <div className="space-y-3">
     <section className="panel p-3 space-y-3" aria-label={t('country')}>
       <h2 className="font-display text-base font-bold flex items-center gap-2"><MapPinned className="w-4 h-4 text-[var(--brass)]" aria-hidden="true" />{t('country')}</h2>
       <CountryPicker list={list} selected={country} onSelect={onSelect} />
@@ -22,5 +24,7 @@ export function CountryPanel({ list, country, point, onSelect }: { list: Country
         ) : <p className="text-[var(--ink-3)]">{t('countryNoneSelected')}</p>}
       </div>
     </section>
+    {country && <CountryProfile country={country} point={point} />}
+    </div>
   );
 }

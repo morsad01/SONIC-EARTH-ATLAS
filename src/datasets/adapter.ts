@@ -1,6 +1,10 @@
 import type { DatasetTimeSlice, PhenomenonType, EarthObservation } from '../types/dataset';
 import { generateDemoTimeSlices } from './demoDatasets';
 import { normalizeValue } from '../sonification/normalizer';
+import { loadFirms, FIRMS_INFO } from './adapters/firms';
+import { loadPrecip } from './adapters/precip';
+import { loadSst } from './adapters/sst';
+import { byDate, validObs } from './adapters/common';
 
 export interface LayerLoadStatus {
   loaded: boolean;
@@ -15,17 +19,12 @@ export interface AdapterResult {
   statusMessage: string;
   isFallback: boolean;
   layerStatuses?: Record<PhenomenonType, LayerLoadStatus>;
+  snapshotDates?: Partial<Record<PhenomenonType, string>>; // `generated` stamp of each bundled file
   sstMonth?: string;
   sstGlobal?: { areaWeightedMeanAnomalyC: number; fractionWarmerThanNormal: number };
 }
 
 const DEMO_NOTE = 'Offline sample: the real NASA snapshots could not be loaded, so hand-made illustrative values are playing.';
-
-async function getJson(url: string) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`${url} ${r.status}`);
-  return r.json();
-}
 
 export class DatasetAdapter {
   private static cachedDemoSlices: DatasetTimeSlice[] | null = null;
@@ -42,18 +41,17 @@ export class DatasetAdapter {
     }
 
     const status: Record<PhenomenonType, LayerLoadStatus> = {
-      fire: { loaded: false, dateRange: '', sourceName: 'NASA FIRMS VIIRS S-NPP NRT', infoText: 'Not loaded' },
+      fire: { loaded: false, dateRange: '', sourceName: FIRMS_INFO.source, infoText: 'Not loaded' },
       precipitation: { loaded: false, dateRange: '', sourceName: 'NASA POWER PRECTOTCORR (MERRA-2 based)', infoText: 'Not loaded' },
       sst: { loaded: false, dateRange: '', sourceName: 'NASA JPL MUR SST anomaly via NOAA CoastWatch ERDDAP', infoText: 'Not loaded' },
     };
 
     const [fire, precip, sst] = await Promise.allSettled([
-      getJson('/data/firms_snapshot.json'),
-      getJson('/data/precip_snapshot.json'),
-      getJson('/data/sst_snapshot.json'),
+      loadFirms(),
+      loadPrecip(),
+      loadSst(),
     ]);
 
-    const byDate = (j: { slices: DatasetTimeSlice[] }) => new Map(j.slices.map((s) => [s.dateLabel, s.observations]));
     const fireByDate = fire.status === 'fulfilled' ? byDate(fire.value) : null;
     const precipByDate = precip.status === 'fulfilled' ? byDate(precip.value) : null;
     const sstJson = sst.status === 'fulfilled' ? sst.value : null;
@@ -74,13 +72,14 @@ export class DatasetAdapter {
     if (!dates.length) dates = ['2026-10-02'];
 
     const norm = (o: EarthObservation): EarthObservation => ({ ...o, normalizedValue: normalizeValue(o.phenomenon, o.value) });
-    const sstObs: EarthObservation[] = (sstJson?.slices?.[0]?.observations ?? []).map(norm);
+    const good = (os: EarthObservation[] | undefined) => (os ?? []).filter(validObs).map(norm);
+    const sstObs: EarthObservation[] = good(sstJson?.slices?.[0]?.observations);
 
     const slices: DatasetTimeSlice[] = dates.map((d, t) => ({
       timestepIndex: t,
       dateLabel: d,
       timestamp: d,
-      observations: [...(fireByDate?.get(d) ?? []).map(norm), ...(precipByDate?.get(d) ?? []).map(norm), ...sstObs],
+      observations: [...good(fireByDate?.get(d)), ...good(precipByDate?.get(d)), ...sstObs],
     }));
 
     return {
@@ -89,6 +88,11 @@ export class DatasetAdapter {
       isFallback: false,
       statusMessage: `Real NASA data, ${dates[0]} to ${dates[dates.length - 1]}`,
       layerStatuses: status,
+      snapshotDates: {
+        ...(fire.status === 'fulfilled' && fire.value.generated ? { fire: fire.value.generated.slice(0, 10) } : {}),
+        ...(precip.status === 'fulfilled' && precip.value.generated ? { precipitation: precip.value.generated.slice(0, 10) } : {}),
+        ...(sstJson?.generated ? { sst: sstJson.generated.slice(0, 10) } : {}),
+      },
       sstMonth: sstJson?.monthLabel,
       sstGlobal: sstJson?.globalStats,
     };

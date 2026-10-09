@@ -26,6 +26,7 @@ import { TourBar } from './demo/TourBar';
 import { usePrefs } from './lib/prefs';
 import { useCountry } from './countries/useCountry';
 import { CountryPanel } from './countries/CountryPanel';
+import { ProfileDataContext } from './countries/profileContext';
 import { gibsUrl } from './lib/gibs';
 import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin, MapPinned } from 'lucide-react';
 
@@ -173,6 +174,11 @@ export function App() {
     return () => window.removeEventListener('keydown', onKey);
   });
 
+  const profileData = useMemo(() => ({
+    slices, snapshotDates: data?.snapshotDates, isFallback: !!data?.isFallback, loading: !data,
+    onExplore: (c: string) => { navigate(c === 'BGD' ? 'monsoon' : lastJukebox); setShowHero(false); setTourOpen(false); },
+  }), [slices, data, lastJukebox]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const imageryUrl = imagery && slice && /^\d{4}-\d{2}-\d{2}$/.test(slice.dateLabel) ? gibsUrl('VIIRS_SNPP_CorrectedReflectance_TrueColor', slice.dateLabel, 'jpeg', 2048) : null;
 
   const layersPanel = (
@@ -185,6 +191,7 @@ export function App() {
   const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
   return (
+    <ProfileDataContext.Provider value={profileData}>
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
       <a href={showHero ? '#landing' : '#main'} className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
       {showHero && <Landing fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onExplore={() => pickTrack('atlas')}
@@ -294,6 +301,7 @@ export function App() {
       <DataMethodDialog open={dataOpen} onClose={() => setDataOpen(false)} sstGlobal={data?.sstGlobal} onAbout={track === 'about' && !showHero ? undefined : () => { setDataOpen(false); goAbout(); }} />
       {diagnostics && <DiagnosticsPanel activeDatasetCount={observations.length} currentTimestep={day} totalTimesteps={slices.length} isOpen onToggle={() => setDiagnostics(false)} />}
     </div>
+    </ProfileDataContext.Provider>
   );
 }
 export default App;
