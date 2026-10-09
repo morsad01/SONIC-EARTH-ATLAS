@@ -1,7 +1,7 @@
 # Sonic Earth Atlas — Roadmap v3 (implementation plan)
 
 **Source:** the team's brief in [`roadmap-v3-brief.md`](roadmap-v3-brief.md) ("EarthSound" master prompt), applied to the existing Sonic Earth Atlas codebase.
-**Status:** Phases 0 (audit and plan), 1 (design foundation) and 2 (country selection) done. **Current phase: 3, data registry and country profile.**
+**Status:** Phases 0 (audit and plan), 1 (design foundation), 2 (country selection) and 3 (data registry and country profile) done. **Current phase: 4, Data Jukebox.**
 **Scope:** the whole asked roadmap, Features A–G, Phases 0–7. Where I adapt something to the codebase, the reason is in §3.
 
 ---
@@ -150,7 +150,7 @@ Goal: one token set, the new navigation, the landing page structure with the scr
 Selected state is shown with outline + label + text in the panel, never colour alone.
 **Gate:** a country can be chosen by keyboard only, without WebGL, on the globe, the 2D map and in audio-first mode, and the choice survives a share link.
 
-### Phase 3 — Data registry and country science profile (Features B part 2, F) · branch `feat/data-registry`
+### Phase 3 — Data registry and country science profile (Features B part 2, F) · branch `feat/data-registry` ✅
 
 | File | Change |
 |---|---|
@@ -226,8 +226,8 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | Global navigation works on all views | 1 | ✅ (Explore Earth · Data Jukebox · About the Science; mobile menu) |
 | Country selectable via globe **and** searchable control | 2 | ✅ (globe click, 2D-map click, combobox on globe / map / list views; also `C` on the 2D map's focus point) |
 | Selected country clearly indicated (not colour alone) | 2 | ✅ (outline + “Selected country” card with name, code and point; “· Selected” label on the 2D map) |
-| Only genuinely available datasets listed per region | 3 | ☐ |
-| Source, units, period and limitations visible | 3 | ◐ (Data & Method dialog only) |
+| Only genuinely available datasets listed per region | 3 | ✅ (`availableFor`: gridded layers only with a cell or point inside the border, monsoon only for Bangladesh, global records labelled as context) |
+| Source, units, period and limitations visible | 3 | ✅ (`ProvenanceCard` on every country figure; Data & Method dialog for the Atlas layers) |
 | Timeline selection updates the active data story | 4 | ◐ (A1 / A2 only) |
 | Timeline, chart and audio synchronized | 4–5 | ◐ (A1 / A2 only) |
 | Sonification mapping deterministic and documented | 5 | ◐ (existing tracks yes; series sonifier ☐) |
@@ -237,7 +237,7 @@ Selected state is shown with outline + label + text in the panel, never colour a
 | No horizontal overflow on responsive layouts | 1, 4, 6 | ✅ landing and About checked at 320 px; re-check Jukebox in 4 |
 | Reduced motion respected | 1, 6 | ✅ `--dur-*` zeroed, globe framing jumps, idle spin, clouds and starfield stop; re-check in 6 |
 | WebGL failure doesn't block country exploration | 2 | ✅ (WebGL off: 2D map in the Atlas with the same picker, outline and click selection; checked in Chromium with `--disable-webgl`) |
-| Empty, loading, stale and API-error states usable | 3 | ◐ |
+| Empty, loading, stale and API-error states usable | 3 | ✅ (`DataState`; profile empty state, POWER error + retry, offline sample) |
 | No fabricated data presented as official | all | ✅ today (offline sample is labelled) |
 | Production build and automated tests pass | each | ✅ today |
 
@@ -275,7 +275,7 @@ Results are reported as actually run. Failures are listed, not suppressed.
 | 0 Audit and plan | ✅ Done | — | test 47/47 · lint 2 warnings · build ✅ | This document |
 | 1 Design foundation | ✅ Done | `feat/design-foundation` | test 65/65 (6 files) · lint 0 errors, 11 warnings (`main` has 12 with this oxlint) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright check (Chromium): landing stages 0→1→2, every nav item and collection, old `#v1&track=frames&frame=…&col=40` link, `#v1&track=about&lang=bn`, 320 px with no horizontal scroll, mobile menu focus trap + Esc, WebGL off, header playback chip pause, 0 page errors | See Phase 1 notes below |
 | 2 Country selection | ✅ Done | `feat/country-selection` | test 83/83 (8 files) · lint 0 errors, 11 warnings (same count as Phase 1) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright (Chromium, swiftshader): `#…&c=BGD` restores the selection, keyboard-only type → Enter selects and writes `c=NPL`, globe hover + click selects and fly-to arrives, WebGL off → 2D map + picker + click, list view has one picker, 360 px বাংলা sheet with no horizontal scroll, old `frame`/`col` link untouched, 0 page errors | See Phase 2 notes below |
-| 3 Data registry and profile | ☐ | `feat/data-registry` | | |
+| 3 Data registry and profile | ✅ Done | `feat/data-registry` | test 112/112 (11 files) · lint 0 errors, 11 warnings (same count as Phase 2) · build ✅ (same >500 kB `GlobeCanvas` warning) · Playwright (Chromium): `#…&c=PNG` shows 3 fire cells, strongest 286.91 MW, 4 days, snapshot badge and method; `c=BGD` shows “nothing inside the border” for all three layers, the monsoon line and global context; POWER blocked → error + retry; 0 page errors | See Phase 3 notes below |
 | 4 Data Jukebox | ☐ | `feat/data-jukebox` | | |
 | 5 Series sonification | ☐ | `feat/series-sonification` | | |
 | 6 Polish, a11y, perf | ☐ | `feat/polish-a11y-perf` | | |
@@ -300,7 +300,17 @@ Results are reported as actually run. Failures are listed, not suppressed.
 - Dev dependencies added (planned in §2): `@testing-library/react`, `@testing-library/dom`, `jsdom` (component test uses a per-file `@vitest-environment jsdom`).
 - Not done here: Bengali names cover ~150 common countries, the rest fall back to English in বাংলা mode. No VoiceOver/NVDA pass yet (Phase 6). The Jukebox left column gets the picker in Phase 4.
 
-**Next safe action:** Phase 3. Create `feat/data-registry` from `main` after this PR merges. Start with `src/datasets/registry.ts` (the dataset metadata the picker's selection will query) and `countryCoverage` with its tests, then the adapters.
+**Phase 3 notes**
+- `src/datasets/series.ts`: `DataSeries` as in the plan, plus `cleanValue` (anything non-finite or ≤ −900 becomes `null`), `periodOf`, `getJson`. Adapters in `src/datasets/adapters/`: `gistemp`, `vitalSigns`, `monsoon` (8 division series), `firms`, `precip`, `sst` (loaders plus the source metadata the coverage rows cite), `eic` (provenance records, no numbers), `power` (monthly T2M and PRECTOTCORR 1981–2025, D7) and `common`. Same files and APIs as before.
+- `power.ts`: pure `parsePowerMonthly`, then `fetchPowerMonthly` with a memory + `sessionStorage` cache (every storage call in try/catch), abort, and 2 retries with backoff on network and 5xx errors only (not on 4xx, not on abort). Fewer than 5 valid annual years throws rather than showing a thin series. `lib/power.ts` `fetchPlaceClimate` now reads the annual values from it, so “Hear any place” is unchanged and shares the cache.
+- `datasets/registry.ts`: 8 entries and `availableFor(country | 'global', coverage)`. A gridded layer is listed only when `count > 0` inside the border. POWER monthly is listed for every country (a point on land, the representative point is checked to lie inside). The monsoon is Bangladesh only. Global records are returned as `global-context`.
+- `countries/countryCoverage.ts` (pure, `geoContains` injected so d3-geo stays lazy): fire = distinct 2° cells whose centre is inside, strongest FRP, cells per day; rain = mean of the grid points inside, labelled “mean of N”; SST = cells inside, counted once (the monthly map repeats on each date). No area-weighted averages (D6). Tests cover inside, outside, a bounding box that is not the border (Chile vs Argentina), SST counted once, and an empty country.
+- UI: `components/data-status/ProvenanceCard.tsx` (+ `badge.ts`: **Snapshot (date)** / **Live** / **Global context** / **Sample**, a snapshot never shows Live, a sample always says Sample), `DataState.tsx` (loading / empty / stale / error / offline, icon + text, retry), `countries/CountryProfile.tsx` (rendered under the picker card in `CountryPanel`, so the Atlas side column, the phone sheet and the list view all get it). It shows coverage rows, the plotted range, the latest file stamp, POWER annual-temperature sparkline with a table alternative and two provenance cards, global context, “Explore its sound”, and the empty state. While the offline sample is playing no country figures are computed. App data reaches it through `ProfileDataContext` (`countries/profileContext.ts`), so `AudioFirstMode` needed no new props. EN + বাংলা strings added.
+- `DatasetAdapter.loadDatasets` now goes through the adapters and drops observations with a non-finite value or out-of-range coordinates (none in the bundled files). `src/__tests__/atlasSlices.test.ts` snapshots the slices, written on `main`'s code before the refactor, and still passes. `AdapterResult` gained `snapshotDates`. The data-fixture helper `src/__tests__/fixtures.ts` reads `public/data` through `import.meta.glob`, so no node typings were added.
+- **Deviation:** “Explore its sound” opens the Data Jukebox on the last collection (Bangladesh opens the monsoon). Country stories, and therefore a Jukebox that opens on the country, arrive with Phase 4, and the button note says so. The other “latest source timestamp” fields show the file's `generated` date (the files carry no other stamp).
+- Not done here: the 50m borders are still not requested (110m is enough for the cell-centre test; a cell within ~110 km of a border can fall on either side and the method text says so). No `PlacePanel` refactor to share profile parts beyond the POWER adapter. VoiceOver/NVDA pass is Phase 6.
+
+**Next safe action:** Phase 4. Create `feat/data-jukebox` from `main` after this PR merges. Start with `src/stories/stories.ts` and its integrity test (every story resolves to a registry dataset), then the `useJukebox` reducer with origin-tagged actions and its tests, then the views.
 
 ---
 

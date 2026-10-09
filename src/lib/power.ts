@@ -1,4 +1,5 @@
 import { findCountry } from '../countries/countries';
+import { fetchPowerMonthly } from '../datasets/adapters/power';
 
 /** Live NASA POWER request for any point on Earth (POWER sends CORS headers, no key needed). */
 export interface PlaceClimate {
@@ -10,18 +11,8 @@ export interface PlaceClimate {
 }
 
 export async function fetchPlaceClimate(lat: number, lon: number, signal?: AbortSignal): Promise<PlaceClimate> {
-  const u = `https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,PRECTOTCORR&community=RE&longitude=${lon.toFixed(2)}&latitude=${lat.toFixed(2)}&start=1981&end=2025&format=JSON`;
-  const r = await fetch(u, { signal });
-  if (!r.ok) throw new Error(`NASA POWER answered ${r.status}`);
-  const j = await r.json();
-  const T = j.properties?.parameter?.T2M ?? {}, P = j.properties?.parameter?.PRECTOTCORR ?? {};
-  const years: number[] = [], temp: number[] = [], rain: number[] = [];
-  for (let y = 1981; y <= 2025; y++) {
-    const t = T[`${y}13`], p = P[`${y}13`]; // POWER puts the annual value in month "13"
-    if (typeof t === 'number' && t > -900 && typeof p === 'number' && p > -900) { years.push(y); temp.push(t); rain.push(p); }
-  }
-  if (years.length < 5) throw new Error('NASA POWER returned too few years for this point');
-  return { lat, lon, years, temp, rain };
+  const { annual } = await fetchPowerMonthly(lat, lon, { signal }); // annual values are POWER's month "13"
+  return { lat, lon, years: annual.years, temp: annual.temp, rain: annual.rain };
 }
 
 /** Least-squares slope per decade. */
