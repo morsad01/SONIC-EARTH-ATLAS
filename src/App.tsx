@@ -1,4 +1,4 @@
-import { decodeShare, encodeShare } from './lib/shareLink';
+import { decodeLocation, buildUrl, decodeShare, encodeShare } from './lib/shareLink';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
@@ -37,7 +37,7 @@ const AboutPage = lazy(() => import('./about/AboutPage').then((m) => ({ default:
 type View = '3d-globe' | '2d-map' | 'audio-first';
 export function App() {
   const { t, lang, set } = usePrefs();
-  const [initialShare] = useState(() => decodeShare(window.location.hash, { frames: [], pairs: [] }));
+  const [initialShare] = useState(() => decodeLocation(window.location.pathname, window.location.search, window.location.hash, { frames: [], pairs: [] }));
   const [showHero, setShowHero] = useState(!initialShare?.track);
   const [autoListen, setAutoListen] = useState(false);
   const [track, setTrack] = useState<Track>(initialShare?.track ?? 'atlas');
@@ -85,12 +85,16 @@ export function App() {
   }, [observations]);
 
   useEffect(() => {
-    const curShare = decodeShare(window.location.hash, { frames: [], pairs: [] });
-    const url = window.location.pathname + window.location.search;
+    const curShare = decodeLocation(window.location.pathname, window.location.search, window.location.hash, { frames: [], pairs: [] });
     if (showHero) {
-      if (window.location.hash) history.replaceState(null, '', url);
+      if (window.location.pathname !== '/' || window.location.search || window.location.hash) {
+        history.replaceState(null, '', '/');
+      }
     } else {
-      history.replaceState(null, '', `${url}#${encodeShare({ ...curShare, track, c: cty.id ?? undefined })}`);
+      const nextUrl = buildUrl({ ...curShare, track, c: cty.id ?? undefined });
+      if (window.location.pathname + window.location.search + window.location.hash !== nextUrl) {
+        history.replaceState(null, '', nextUrl);
+      }
     }
   }, [track, showHero, cty.id]);
   // The landing page is laid out for a 90% type scale on desktop (see html.landing-open in index.css)

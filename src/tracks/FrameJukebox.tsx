@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat, BookOpen, Link2 } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
 import { EIC_FRAMES, EIC_STORY } from '../lib/eicFrames';
-import { decodeShare, encodeShare } from '../lib/shareLink';
+import { decodeLocation, buildUrl, decodeShare, encodeShare } from '../lib/shareLink';
 import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, stepMs, timbreWord } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';
@@ -70,7 +70,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
   const { t, lang, narration } = usePrefs();
   // A shared link (#v1&track=frames&...) restores the picture, the comparison and the needle.
   const [share] = useState(() => {
-    const s = decodeShare(window.location.hash, { frames: ALL_FRAMES.map((f) => f.id), pairs: [...PAIRS.map((p) => p.id), 'custom'] });
+    const s = decodeLocation(window.location.pathname, window.location.search, window.location.hash, { frames: ALL_FRAMES.map((f) => f.id), pairs: [...PAIRS.map((p) => p.id), 'custom'] });
     return s?.track === 'frames' ? s : null;
   });
   const pendingCol = useRef<number | null>(share?.col ?? null);

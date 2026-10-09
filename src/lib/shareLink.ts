@@ -44,6 +44,75 @@ export function encodeShare(s: ShareState): string {
   return queryStr ? `${route}?${queryStr}` : route;
 }
 
+export function buildUrl(s: ShareState): string {
+  const routeMap: Record<ShareTrack, string> = {
+    atlas: '/explore',
+    jukebox: '/jukebox',
+    about: '/about',
+    frames: '/frames',
+    monsoon: '/monsoon',
+    pulse: '/pulse',
+  };
+  const route = s.track ? (routeMap[s.track] ?? `/${s.track}`) : '/explore';
+  const p = new URLSearchParams();
+  if (s.pair) { p.set('pair', s.pair); if (s.a) p.set('a', s.a); if (s.b) p.set('b', s.b); }
+  else if (s.frame) p.set('frame', s.frame);
+  if (s.col !== undefined && s.col > 0) p.set('col', String(Math.round(s.col)));
+  if (s.lang) p.set('lang', s.lang);
+  if (s.c && isAlpha3(s.c)) p.set('c', s.c);
+  if (s.story && STORY_RE.test(s.story)) p.set('story', s.story);
+  if (s.t && TIME_RE.test(s.t)) p.set('t', s.t);
+  const queryStr = p.toString();
+  return queryStr ? `${route}?${queryStr}` : route;
+}
+
+/** Reads location (pathname, search and hash). Supports clean HTML5 paths (/explore, /jukebox), hash routes (#explore), and legacy #v1&track=... links. */
+export function decodeLocation(pathname: string, search: string, hash: string, ok: ShareChoices): ShareState | null {
+  // Check hash first for backwards compatibility
+  const hashDecoded = decodeShare(hash, ok);
+  if (hashDecoded) return hashDecoded;
+
+  // Check pathname clean route
+  const cleanPath = pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  const routeToTrack: Record<string, ShareTrack> = {
+    explore: 'atlas',
+    atlas: 'atlas',
+    jukebox: 'jukebox',
+    about: 'about',
+    frames: 'frames',
+    monsoon: 'monsoon',
+    pulse: 'pulse',
+  };
+
+  const track = routeToTrack[cleanPath];
+  if (!track) return null;
+
+  const p = new URLSearchParams(search);
+  const out: ShareState = { track };
+
+  const frame = p.get('frame');
+  if (frame && (ok.frames.length === 0 || ok.frames.includes(frame))) out.frame = frame;
+  const pair = p.get('pair');
+  if (pair && (ok.pairs.length === 0 || ok.pairs.includes(pair))) {
+    out.pair = pair;
+    delete out.frame;
+    const a = p.get('a'), b = p.get('b');
+    if (pair === 'custom' && a && b && (ok.frames.length === 0 || (ok.frames.includes(a) && ok.frames.includes(b)))) { out.a = a; out.b = b; }
+    else if (pair === 'custom') delete out.pair;
+  }
+  const col = Number(p.get('col'));
+  if (p.get('col') !== null && Number.isInteger(col) && col >= 0 && col <= 127) out.col = col;
+  const lang = p.get('lang');
+  if (lang === 'en' || lang === 'bn') out.lang = lang;
+  const c = p.get('c') ?? p.get('country');
+  if (c && isAlpha3(c.toUpperCase())) out.c = c.toUpperCase();
+  const story = p.get('story'), t = p.get('t');
+  if (story && STORY_RE.test(story)) out.story = story;
+  if (t && TIME_RE.test(t)) out.t = t;
+
+  return out;
+}
+
 /** Reads a hash (with or without the leading #). Decodes clean routes (#explore, #jukebox, #about) as well as legacy #v1&track=... links. */
 export function decodeShare(hash: string, ok: ShareChoices): ShareState | null {
   const raw = hash.replace(/^#/, '').trim();
