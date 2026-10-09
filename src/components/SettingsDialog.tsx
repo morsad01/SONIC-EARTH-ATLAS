@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { X } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
+import { Overlay } from './Overlay';
+import { useDialog } from '../lib/useDialog';
 
 interface Props {
   open: boolean;
@@ -33,19 +35,13 @@ const Toggle: React.FC<{ label: string; on: boolean; onClick: () => void; note?:
 export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolume, spatialMode, onToggleSpatial, showDiagnostics, onToggleDiagnostics }) => {
   const p = usePrefs();
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    ref.current?.querySelector<HTMLElement>('button, input')?.focus();
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', k);
-    return () => window.removeEventListener('keydown', k);
-  }, [open, onClose]);
+  useDialog(open, onClose, ref);
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-black/60 flex justify-end" onClick={onClose}>
-      <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm h-full bg-[var(--panel)] border-l border-[var(--line)] p-5 overflow-y-auto">
+    <Overlay><div className="fixed inset-0 z-[70] scrim flex justify-end" onClick={onClose}>
+      <div ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="settings-title" onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm h-full glass-strong rounded-none border-0 border-l p-5 overflow-y-auto">
         <div className="flex items-center justify-between">
           <h2 id="settings-title" className="font-display text-2xl font-bold">{p.t('settings')}</h2>
           <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={p.t('close')}><X className="w-5 h-5" /></button>
@@ -81,6 +77,6 @@ export const SettingsDialog: React.FC<Props> = ({ open, onClose, volume, onVolum
         </dl>
         <p className="mt-6 text-xs text-[var(--ink-3)] leading-relaxed">{p.t('srNote')}</p>
       </div>
-    </div>
+    </div></Overlay>
   );
 };

@@ -154,7 +154,7 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
   const isPicture = isPictureStory(story);
 
   return (
-    <div className="h-full overflow-y-auto overflow-x-hidden scroll-thin">
+    <div className="h-full overflow-y-auto overflow-x-hidden scroll-thin pt-[var(--header-h)]">
       <div className="max-w-[1600px] mx-auto px-3 sm:px-5 pt-4 pb-24 md:pb-6 space-y-4">
         <header className="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -176,11 +176,11 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
           <div data-col="filters" id="jb-filters" ref={drawerBox} className="min-w-0 space-y-4">
             {drawer && <div className="hidden md:flex lg:hidden justify-end"><button type="button" className="btn btn-ghost btn-icon" onClick={() => { setDrawer(false); drawerBtn.current?.focus(); }} aria-label={t('close')}><X className="w-5 h-5" /></button></div>}
             <TimelineFilters filters={filters} years={years} onFilter={(patch) => dispatch({ type: 'setFilter', patch })} onReset={() => dispatch({ type: 'resetFilters' })} countries={countries} />
-            <section className="panel p-3 space-y-2" aria-labelledby="jb-coll">
+            <section className="panel p-3 space-y-2 md:hidden" aria-labelledby="jb-coll"> {/* the header row lists the collections from tablet width up */}
               <h2 id="jb-coll" className="font-display text-base font-bold">{t('collections')}</h2>
               <p className="text-xs text-[var(--ink-3)]">{t('jbCollectionsNote')}</p>
               <ul className="grid gap-1.5">
-                {JUKEBOX_TRACKS.map((tr) => <li key={tr.id}><button type="button" className="btn w-full justify-start" onClick={() => onOpenCollection(tr.id)}><span className="tnum text-[11px] font-semibold text-[var(--brass)]">{tr.code}</span>{t(tr.key)}</button></li>)}
+                {JUKEBOX_TRACKS.map((tr) => <li key={tr.id}><button type="button" className="btn w-full justify-start" onClick={() => onOpenCollection(tr.id)}><span className="tnum text-2xs font-semibold text-[var(--brass)]">{tr.code}</span>{t(tr.key)}</button></li>)}
               </ul>
             </section>
           </div>
@@ -207,7 +207,7 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
       </div>
 
       {story && !isPicture && vt.length > 0 && (
-        <div className="jb-stepbar sticky bottom-0 z-20 border-t border-[var(--line)] bg-[color-mix(in_srgb,var(--abyss)_94%,transparent)] backdrop-blur-md safe-pb">
+        <div className="jb-stepbar sticky bottom-0 z-20 glass-strong rounded-none border-x-0 border-b-0 safe-pb">
           <div className="max-w-[1600px] mx-auto px-3 sm:px-5 pt-2">
             <Transport state={pstate} index={ci} count={vt.length} label={(i) => timeLabel(vt[i], lang)}
               onPlay={play} onPause={() => player.pause()} onStop={() => player.stop()}

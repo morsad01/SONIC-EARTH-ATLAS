@@ -24,7 +24,7 @@ export function ProvenanceCard({ series: s, defaultOpen = false }: { series: Dat
         <dt className="text-[var(--ink-3)]">{t('provSource')}</dt>
         <dd><a href={s.sourceUrl} target="_blank" rel="noreferrer" className="underline inline-flex items-center gap-1">{s.source}<ExternalLink className="w-3 h-3" aria-hidden="true" /><span className="sr-only">{t('provOpenSource')}</span></a></dd>
       </dl>
-      <p className="text-[11px] text-[var(--ink-3)]">{s.attribution}</p>
+      <p className="text-2xs text-[var(--ink-3)]">{s.attribution}</p>
       <button type="button" className="btn btn-ghost min-h-[36px] px-2" aria-expanded={open} aria-controls={id} onClick={() => setOpen((o) => !o)}>
         <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true" />{t('provMethod')}
       </button>

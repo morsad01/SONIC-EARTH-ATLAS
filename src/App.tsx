@@ -10,11 +10,10 @@ import { AudioFirstMode } from './accessibility/AudioFirstMode';
 import { Header } from './components/Header';
 import { sectionOf, type Track } from './lib/nav';
 import { Landing } from './landing/Landing';
-import type { Stage } from './landing/useScrollStage';
-import { GlobeBoundary, GlobeStill } from './components/GlobeBoundary';
-import type { Framing } from './globe/framing';
+import { GlobeBoundary } from './components/GlobeBoundary';
 import { usePlaybackReport } from './lib/playbackContext';
 import { InspectLocationModal } from './components/InspectLocationModal';
+import { MobileSheet } from './atlas/MobileSheet';
 import { DiagnosticsPanel } from './components/DiagnosticsPanel';
 import { SettingsDialog } from './components/SettingsDialog';
 import { DataMethodDialog } from './components/DataMethodDialog';
@@ -28,7 +27,7 @@ import { useCountry } from './countries/useCountry';
 import { CountryPanel } from './countries/CountryPanel';
 import { ProfileDataContext } from './countries/profileContext';
 import { gibsUrl } from './lib/gibs';
-import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, X, MapPin, MapPinned } from 'lucide-react';
+import { Globe, Map as MapIcon, List, Satellite, RotateCw, Layers, AudioLines, MapPin, MapPinned } from 'lucide-react';
 
 const GlobeCanvas = lazy(() => import('./globe/GlobeCanvas').then((m) => ({ default: m.GlobeCanvas })));
 const FrameJukebox = lazy(() => import('./tracks/FrameJukebox').then((m) => ({ default: m.FrameJukebox })));
@@ -38,9 +37,6 @@ const JukeboxView = lazy(() => import('./jukebox/JukeboxView').then((m) => ({ de
 const AboutPage = lazy(() => import('./about/AboutPage').then((m) => ({ default: m.AboutPage })));
 
 type View = '3d-globe' | '2d-map' | 'audio-first';
-const ALL_ON: Record<PhenomenonType, boolean> = { fire: true, precipitation: true, sst: true };
-const STAGE_FRAMING: Framing[] = ['hero', 'split', 'immersive'];
-
 export function App() {
   const { t, lang, set } = usePrefs();
   const [initialShare] = useState(() => decodeShare(window.location.hash, { frames: [], pairs: [] }));
@@ -50,7 +46,6 @@ export function App() {
   const [lastJukebox, setLastJukebox] = useState<Track>(initialShare?.track && sectionOf(initialShare.track) === 'jukebox' ? initialShare.track : 'jukebox');
   // What the Jukebox opens on; `n` remounts it when the landing carousel or a country profile asks for a story.
   const [jbStart, setJbStart] = useState<{ story?: string; t?: string; n: number }>(() => (initialShare?.track === 'jukebox' ? { story: initialShare.story, t: initialShare.t, n: 0 } : { n: 0 }));
-  const [stage, setStage] = useState<Stage>(0);
   const [globeFailed, setGlobeFailed] = useState(false);
   const [view, setView] = useState<View>('3d-globe');
   const [audioReady, setAudioReady] = useState(false);
@@ -85,6 +80,8 @@ export function App() {
   const slices: DatasetTimeSlice[] = useMemo(() => data?.slices ?? [], [data]);
   const slice = slices[day] ?? slices[0];
   const observations = useMemo(() => slice?.observations ?? [], [slice]);
+  // The landing carousel draws the first snapshot's fires on its Earth and plays them in the preview.
+  const landingFire = useMemo(() => slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? [], [slices]);
   const counts = useMemo(() => {
     const c: Record<PhenomenonType, number> = { fire: 0, precipitation: 0, sst: 0 };
     observations.forEach((o) => c[o.phenomenon]++);
@@ -160,9 +157,10 @@ export function App() {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || e.metaKey || e.ctrlKey || e.altKey) return;
-      if (showHero) return;
+      if (document.querySelector('[aria-modal="true"]')) return; // a dialog is open: it owns the keyboard
       const k = e.key.toLowerCase();
       if (k === '?') { setSettingsOpen(true); return; }
+      if (showHero) return;
       if (k === 's') { if (audioReady) soundOff(); else soundOn(); return; }
       if (k === 't') { startTour(); return; }
       if (track !== 'atlas') return;
@@ -204,29 +202,27 @@ export function App() {
     <ProfileDataContext.Provider value={profileData}>
     <div className={`${showHero ? 'hero-open ' : ''}flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden`}>
       <a href={showHero ? '#landing' : '#main'} className="sr-only-focusable absolute z-[80] left-2 top-2 btn btn-brass">{t('skip')}</a>
-      {showHero && <Landing fireObs={slices[0]?.observations.filter((o) => o.phenomenon === 'fire') ?? []} onPick={pickTrack} onExplore={() => pickTrack('atlas')}
-        onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} onAbout={goAbout} onStage={setStage} onTopic={openJukebox} />}
+      {showHero && <Landing fireObs={landingFire} onPick={pickTrack}
+        onTour={startTour} onListen={listenNow} onSilent={() => { setShowHero(false); setTrack('atlas'); }} onAbout={goAbout} onTopic={openJukebox} />}
 
       <Header track={track} onLanding={showHero} onTrack={(tr) => { navigate(tr); setShowHero(false); setTourOpen(false); }} lastJukebox={lastJukebox}
         audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())} onListen={listenNow}
-        onHome={() => { setShowHero(true); setTourOpen(false); setStage(0); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
+        onHome={() => { setShowHero(true); setTourOpen(false); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)} settingsOpen={settingsOpen}
         recording={recording} onRecord={record} />
 
       <main id="main" className="flex-1 relative w-full overflow-hidden">
         {/* First child = the visual canvas (the landing hero shows the globe from here). */}
         <div className="absolute inset-0">
           {track === 'atlas' && !showHero && <h1 className="sr-only">{t('navExplore')}: {t('track1')}</h1>}
-          {(track === 'atlas' || showHero) && view === '3d-globe' && (
-            <GlobeBoundary onFail={() => setGlobeFailed(true)} fallback={showHero
-              ? <GlobeStill label={t('globeStill')} />
-              : <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
+          {track === 'atlas' && !showHero && view === '3d-globe' && (
+            <GlobeBoundary onFail={() => setGlobeFailed(true)} fallback={<Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
                 countries={cty.list} country={cty.country} onSelectCountry={cty.select} />}>
               <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingGlobe')}</div>}>
-                <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
-                  onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
-                  onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
-                  framing={showHero ? STAGE_FRAMING[stage] : 'explore'}
-                  countries={showHero ? undefined : cty.list} country={showHero ? null : cty.country} countryPoint={cty.point} onSelectCountry={showHero ? undefined : cty.select} />
+                <GlobeCanvas observations={observations} enabledPhenomena={enabled} selectedObservation={selected}
+                  onSelectObservation={setSelected} autoRotate={autoRotate} targetFocus={focus} imageryUrl={imageryUrl}
+                  onPickPlace={(p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
+                  framing="explore"
+                  countries={cty.list} country={cty.country} countryPoint={cty.point} onSelectCountry={cty.select} />
               </Suspense>
             </GlobeBoundary>
           )}
@@ -235,7 +231,7 @@ export function App() {
                 countries={cty.list} country={cty.country} onSelectCountry={cty.select} />
           )}
           {track === 'atlas' && !showHero && view === 'audio-first' && (
-            <div className="w-full h-full overflow-y-auto py-6 lg:pl-[340px]">
+            <div className="w-full h-full overflow-y-auto pb-6 pt-[calc(var(--header-h)+1.5rem)] lg:pl-[340px]">
               <AudioFirstMode observations={observations.filter((o) => enabled[o.phenomenon])} currentDateLabel={slice?.dateLabel ?? ''} selectedObservation={selected}
                 onSelectObservation={setSelected} onExitAudioFirst={() => setView('3d-globe')}
                 countries={{ list: cty.list, country: cty.country, point: cty.point, onSelect: cty.select }} />
@@ -259,14 +255,14 @@ export function App() {
               onApply={(layers, d, change, f) => { setEnabled(layers); setDay(Math.min(d, Math.max(0, slices.length - 1))); setHearChange(change); setFocus(f); if (view !== '3d-globe') setView('3d-globe'); }} />
 
             {/* Desktop side column */}
-            <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-3 bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
+            <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-[calc(var(--header-h)+.75rem)] bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
               {view !== 'audio-first' && countryPanel}
               {layersPanel}
               {hearingPanel}
             </div>
 
             {/* View switch and globe options */}
-            <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
+            <div data-ctl="views" className="absolute right-3 top-[calc(var(--header-h)+3.5rem)] lg:top-[calc(var(--header-h)+.75rem)] z-20 flex flex-row lg:flex-col items-start lg:items-end gap-2">
               <div className="panel p-1 flex gap-1" role="group" aria-label={t('viewGroup')}>
                 {([['3d-globe', Globe, 'globe'], ['2d-map', MapIcon, 'map'], ['audio-first', List, 'list']] as const).map(([v, Icon, key]) => (
                   <button key={v} className="btn btn-ghost min-h-[36px] pointer-coarse:min-h-[44px] px-2.5" aria-pressed={view === v} aria-label={t(key)} onClick={() => setView(v)}>
@@ -275,31 +271,28 @@ export function App() {
                 ))}
               </div>
               {view === '3d-globe' && (
-                <div className="panel p-1 flex flex-col gap-1">
+                <div className="panel p-1 flex flex-row lg:flex-col gap-1">
                   <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={imagery} onClick={() => setImagery(!imagery)} title={t('imageryHint')}><Satellite className="w-4 h-4" /><span className="hidden sm:inline">{t('imagery')}</span></button>
-                  <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={autoRotate} onClick={() => setAutoRotate(!autoRotate)} aria-label="Spin the globe"><RotateCw className="w-4 h-4" /><span className="hidden sm:inline">Spin</span></button>
+                  <button className="btn btn-ghost min-h-[36px] px-2.5 justify-start" aria-pressed={autoRotate} onClick={() => setAutoRotate(!autoRotate)} aria-label={t('spinHint')}><RotateCw className="w-4 h-4" /><span className="hidden sm:inline">{t('spin')}</span></button>
                 </div>
               )}
               {view === '3d-globe' && <div className="hidden lg:block w-[300px] max-h-[calc(100dvh-330px)] overflow-y-auto scroll-thin">{placePanel}</div>}
             </div>
 
             {/* Mobile panel buttons */}
-            <div className="lg:hidden absolute left-3 top-3 z-20 flex flex-col gap-2">
-              <button className="btn panel" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
-              <button className="btn panel" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
-              {view !== 'audio-first' && <button className="btn panel" onClick={() => setSheet('country')}><MapPinned className="w-4 h-4" />{t('country')}</button>}
-              <button className="btn panel" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
+            <div data-ctl="bar" className="lg:hidden absolute left-3 right-3 top-[calc(var(--header-h)+.5rem)] z-20 flex gap-2 overflow-x-auto scroll-thin fade-x pe-7">
+              <button className="btn panel shrink-0" onClick={() => setSheet('layers')}><Layers className="w-4 h-4" />{t('layers')}</button>
+              <button className="btn panel shrink-0" onClick={() => setSheet('hearing')}><AudioLines className="w-4 h-4" />{t('nowHearing')}</button>
+              {view !== 'audio-first' && <button className="btn panel shrink-0" onClick={() => setSheet('country')}><MapPinned className="w-4 h-4" />{t('country')}</button>}
+              <button className="btn panel shrink-0" onClick={() => setSheet('place')}><MapPin className="w-4 h-4" />{t('anyPlace')}</button>
             </div>
             {sheet && (
-              <div className="lg:hidden fixed inset-0 z-50 bg-black/60 flex items-end" onClick={() => setSheet(null)}>
-                <div className="w-full max-h-[78dvh] overflow-y-auto bg-[var(--abyss)] rounded-t-2xl p-3 pb-6 border-t border-[var(--line)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-                  <div className="flex justify-end"><button className="btn btn-ghost btn-icon" onClick={() => setSheet(null)} aria-label={t('close')}><X className="w-5 h-5" /></button></div>
-                  {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : sheet === 'country' ? countryPanel : hearingPanel}
-                </div>
-              </div>
+              <MobileSheet onClose={() => setSheet(null)}>
+                {sheet === 'layers' ? layersPanel : sheet === 'place' ? placePanel : sheet === 'country' ? countryPanel : hearingPanel}
+              </MobileSheet>
             )}
 
-            <div className="absolute bottom-2 sm:bottom-3 left-2 right-2 lg:left-[340px] lg:right-3 z-20">
+            <div data-ctl="timeline" className="absolute bottom-2 sm:bottom-3 left-2 right-2 lg:left-[340px] lg:right-3 z-20">
               {globeFailed && view === '3d-globe' && <p role="status" className="panel px-3 py-2 mb-2 text-sm text-[var(--ink-2)] w-fit max-w-full">{t('webglOff')}</p>}
               <TimelineBar slices={slices} index={day} onChange={setDay} playing={playing} onTogglePlay={() => setPlaying(!playing)}
                 hearChange={hearChange} onToggleHearChange={() => setHearChange(!hearChange)} enabled={enabled} />

@@ -36,43 +36,83 @@
   --dur-fast: 150ms;
   --dur-med: 300ms;
   --dur-slow: 600ms;
-  --header-h: 3.5rem;
-  --font-display: 'Bricolage Grotesque', 'IBM Plex Sans', system-ui, sans-serif;
-  --font-body: 'IBM Plex Sans', 'Noto Sans Bengali', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --header-row: 3.5rem; /* the top row of the header; --header-h (set from the real header height) adds the Jukebox collections row */
+  --header-h: var(--header-row);
+  /* Glass surfaces (one recipe; .panel is an alias). Every panel and card is see-through and blurred, so the sky and the Earth show behind it.
+     48% is the lightest tint that keeps --ink-2 at 4.5:1 over a lit ocean pixel (see contrast.test.ts); the blur does the rest. */
+  --glass-bg: color-mix(in srgb, var(--panel) 50%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--panel) 56%, transparent);
+  --glass-border: rgb(255 255 255 / .09);
+  --glass-hi: inset 0 1px 0 rgb(255 255 255 / .06);
+  --glass-shadow: 0 10px 30px -12px rgb(0 0 0 / .55);
+  --glass-blur: 16px;
+  --glass-blur-strong: 24px;
+  --font-display: 'Bricolage Grotesque', 'Bricolage Fallback', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Serif Fallback', Georgia, 'Times New Roman', serif; /* landing carousel titles; বাংলা falls back to the display face below */
+  --font-body: 'IBM Plex Sans', 'Plex Fallback', 'Noto Sans Bengali', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Type scale (1.2-ish ratio). 12 px is the floor in English, 13 px in বাংলা (see html[lang='bn']). Display sizes are fluid. */
+  --fs-2xs: .75rem; --fs-xs: .8125rem; --fs-sm: .875rem; --fs-base: 1rem; --fs-lg: 1.125rem; --fs-xl: 1.25rem; --fs-2xl: 1.5rem;
+  --fs-3xl: clamp(1.75rem, 3.5vw, 2.25rem); --fs-4xl: clamp(2rem, 5vw, 3rem); --fs-hero: clamp(2.5rem, 7.5vw, 5.25rem);
+  --lh-ui: 1.35; --lh-body: 1.6; --lh-head: 1.15;
 }
-html[lang='bn'] { --font-body: 'Noto Sans Bengali', 'IBM Plex Sans', system-ui, sans-serif; --font-display: 'Noto Sans Bengali', 'Bricolage Grotesque', system-ui, sans-serif; }
+/* বাংলা: Noto leads, the floor is 13 px, line heights grow by 0.1 and display tracking is 0 (negative tracking squeezes conjuncts) */
+html[lang='bn'] { --font-serif: 'Noto Sans Bengali', 'Cormorant Garamond', system-ui, sans-serif; --font-body: 'Noto Sans Bengali', 'IBM Plex Sans', 'Plex Fallback', system-ui, sans-serif; --font-display: 'Noto Sans Bengali', 'Bricolage Grotesque', system-ui, sans-serif; --fs-2xs: .8125rem; --lh-ui: 1.45; --lh-body: 1.7; --lh-head: 1.3;
+  --text-xs--line-height: 1.5; --text-sm--line-height: 1.55; --text-base--line-height: 1.7; --text-lg--line-height: 1.6; --text-xl--line-height: 1.45; --text-2xl--line-height: 1.35; }
+
+@theme {
+  --text-2xs: var(--fs-2xs); --text-2xs--line-height: 1.35;
+  --text-xs: var(--fs-xs); --text-xs--line-height: 1.4;
+  --text-sm: var(--fs-sm); --text-sm--line-height: 1.45;
+  --text-base: var(--fs-base); --text-base--line-height: 1.6;
+  --text-lg: var(--fs-lg); --text-lg--line-height: 1.5;
+  --text-xl: var(--fs-xl); --text-xl--line-height: 1.35;
+  --text-2xl: var(--fs-2xl); --text-2xl--line-height: 1.25;
+  --text-3xl: var(--fs-3xl); --text-3xl--line-height: 1.15;
+  --text-4xl: var(--fs-4xl); --text-4xl--line-height: 1.1;
+  --text-hero: var(--fs-hero); --text-hero--line-height: .95;
+  --font-mono: 'IBM Plex Mono', 'Plex Mono Fallback', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
 /* Reduced motion (user setting or OS): every token-driven transition becomes instant */
 html.rm { --dur-fast: 0ms; --dur-med: 0ms; --dur-slow: 0ms; }
 @media (prefers-reduced-motion: reduce) { :root { --dur-fast: 0ms; --dur-med: 0ms; --dur-slow: 0ms; } }
 
 @layer base {
+  html { font-synthesis: none; line-height: var(--lh-body); }
+  h1, h2, h3, h4 { line-height: var(--lh-head); }
+  button, input, select, label { line-height: var(--lh-ui); }
   html, body { margin: 0; padding: 0; width: 100%; max-width: 100vw; height: 100%; overflow-x: hidden !important; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; touch-action: manipulation; }
   *, *::before, *::after { box-sizing: border-box; }
 }
 html, body { font-family: var(--font-body); color: var(--ink); }
-body { background: var(--abyss); }
 .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
-.font-mono { font-family: var(--font-body) !important; font-variant-numeric: tabular-nums; }
+html[lang='bn'] .font-display { letter-spacing: 0; }
+html[lang='bn'] #hero-title { line-height: 1.1; }
+.font-mono, code, kbd, samp { font-variant-numeric: tabular-nums; } /* the family comes from --font-mono (theme) */
 .tnum { font-variant-numeric: tabular-nums; }
 .safe-pb { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
 .safe-pt { padding-top: max(0.75rem, env(safe-area-inset-top)); }
-#space-bg { background: radial-gradient(ellipse at 60% 35%, #0f2a3d 0%, #0a1a28 40%, #060d15 100%) !important; }
-#space-bg::before { opacity: 0.35; }
 
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--abyss); }
 ::-webkit-scrollbar-thumb { background: var(--panel-2); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--line); }
 
-/* While the landing page is open, only the header, the landing layer and the globe show */
-.hero-open > :not(main):not(.hero-layer):not(header):not(.sr-only-focusable),
+/* While the landing page is open, only the header, the landing layer and the globe show (dialogs live in #overlay-root, outside this tree) */
 .hero-open main > :not(:first-child) { visibility: hidden; }
 
 @layer components {
-.panel { background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--line); border-radius: var(--radius-lg); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-.panel-solid { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 40px; padding: 0 .9rem; border-radius: var(--radius-md); border: 1px solid var(--line); background: var(--panel-2); color: var(--ink); font-weight: 500; font-size: .875rem; cursor: pointer; white-space: nowrap; transition: background var(--dur-fast), border-color var(--dur-fast); }
-.btn:hover { border-color: #3b5a72; background: #183248; }
+.glass, .panel { background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi), var(--glass-shadow); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur)) saturate(140%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%); }
+.glass-flat { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi), var(--glass-shadow); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur)) saturate(140%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%); } /* cards: the strong tint with the normal blur */
+.glass-strong { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi), var(--glass-shadow); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%); -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(140%); }
+/* .panel-solid keeps its name for the track pages, but it is glass too now */
+.panel-solid { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); box-shadow: var(--glass-hi); border-radius: var(--radius-lg); backdrop-filter: blur(var(--glass-blur)) saturate(140%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%); }
+/* Behind dialogs and sheets: a light dim, so the glass panel on top still shows the page through its blur */
+.scrim { background: rgb(2 6 14 / .38); }
+@supports not (backdrop-filter: blur(1px)) { .glass, .panel, .glass-strong, .glass-flat, .panel-solid { background: var(--panel); } .scrim { background: rgb(0 0 0 / .6); } }
+@media (max-width: 640px) { :root { --glass-blur: 10px; --glass-blur-strong: 14px; } }
+html.calm { --glass-blur: 10px; --glass-blur-strong: 14px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 40px; padding: 0 .9rem; border-radius: var(--radius-md); border: 1px solid var(--line); background: color-mix(in srgb, var(--panel-2) 62%, transparent); color: var(--ink); font-weight: 500; font-size: var(--fs-sm); line-height: var(--lh-ui); cursor: pointer; white-space: nowrap; transition: background var(--dur-fast), border-color var(--dur-fast); }
+.btn:hover { border-color: #3b5a72; background: color-mix(in srgb, #183248 78%, transparent); }
 .btn[aria-pressed='true'] { border-color: var(--brass); color: var(--brass); }
 .btn-brass { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); font-weight: 600; }
 .btn-brass:hover { background: #f3d58a; border-color: #f3d58a; }
@@ -80,10 +120,10 @@ body { background: var(--abyss); }
 .btn-ghost:hover { background: var(--panel-2); color: var(--ink); }
 .btn-icon { padding: 0; width: 40px; }
 @media (pointer: coarse) { .btn { min-height: 44px; } .btn-icon { width: 44px; } input[type='range'] { min-height: 32px; } }
-.chip { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; border: 1px solid var(--line); color: var(--ink-2); }
-.label { font-size: .8125rem; color: var(--ink-3); }
+.chip { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .55rem; border-radius: 999px; font-size: var(--fs-2xs); line-height: var(--lh-ui); border: 1px solid var(--line); color: var(--ink-2); }
+.label { font-size: var(--fs-xs); color: var(--ink-3); }
 .dot { width: .6rem; height: .6rem; border-radius: 999px; display: inline-block; flex: none; }
-.nav-link { height: 2.25rem; padding: 0 .75rem; border-radius: var(--radius-md); font-size: .875rem; display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; white-space: nowrap; color: var(--ink-2); border: 1px solid transparent; transition: color var(--dur-fast), background var(--dur-fast); }
+.nav-link { height: 2.25rem; padding: 0 .75rem; border-radius: var(--radius-md); font-size: var(--fs-sm); display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; white-space: nowrap; color: var(--ink-2); border: 1px solid transparent; transition: color var(--dur-fast), background var(--dur-fast); }
 .nav-link:hover { color: var(--ink); }
 .nav-link[aria-current='page'] { color: var(--ink); background: var(--panel-2); border-color: var(--line); box-shadow: inset 0 -2px 0 var(--brass); }
 .prose-sea p { line-height: 1.65; color: var(--ink-2); max-width: 72ch; }
@@ -91,14 +131,134 @@ body { background: var(--abyss); }
 }
 :focus-visible { outline: 2px solid var(--brass) !important; outline-offset: 2px; border-radius: 6px; }
 
-/* Landing: scroll-linked stages. Stage changes come from an IntersectionObserver
-   (data-stage on .landing); the reveal uses a scroll-driven animation where supported. */
-.landing-section { min-height: calc(100dvh - var(--header-h)); }
-.landing-copy { transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
-.landing[data-stage='0'] [data-stage-index='1'] .landing-copy,
-.landing[data-stage='0'] [data-stage-index='2'] .landing-copy { opacity: .35; transform: translateY(12px); }
-.landing-scrim { background: linear-gradient(90deg, var(--abyss) 0%, color-mix(in srgb, var(--abyss) 88%, transparent) 45%, transparent 75%); }
-@media (max-width: 767px) { .landing-scrim { background: color-mix(in srgb, var(--abyss) 72%, transparent); } }
+/* Wide tables become one card per row on phones; each cell shows its column name from data-label */
+@media (max-width: 639px) {
+  .stack-table, .stack-table tbody, .stack-table tr, .stack-table th, .stack-table td { display: block; width: 100%; }
+  .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .stack-table tr { padding: .25rem 0; border-bottom: 1px solid var(--line); }
+  .stack-table tr:last-child { border-bottom: 0; }
+  .stack-table td[data-label] { display: grid; gap: .1rem; padding-block: .4rem; }
+  .stack-table td[data-label]::before { content: attr(data-label); font-size: var(--fs-2xs); color: var(--ink-3); }
+}
+.scroll-snap-x { scroll-snap-type: x proximity; scroll-padding-inline: .5rem; }
+.scroll-snap-x > * { scroll-snap-align: start; }
+.fade-x { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+[dir=rtl] .fade-x { -webkit-mask-image: none; mask-image: none; }
+
+/* Glass header: fixed, content scrolls under it; denser once the page has scrolled */
+.site-header { position: fixed; inset-inline: 0; top: 0; background: color-mix(in srgb, var(--abyss) 55%, transparent); border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(14px) saturate(150%); -webkit-backdrop-filter: blur(14px) saturate(150%); transition: background var(--dur-med), box-shadow var(--dur-med); }
+.site-header[data-scrolled='true'] { background: color-mix(in srgb, var(--abyss) 78%, transparent); box-shadow: 0 8px 24px -14px rgb(0 0 0 / .7); }
+@supports not (backdrop-filter: blur(1px)) { .site-header { background: color-mix(in srgb, var(--abyss) 92%, transparent); } }
+html.hc .site-header { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: var(--line); }
+
+/* ===== Landing world carousel (Phase 9): three levels; only transform and opacity move ===== */
+.font-serif { font-family: var(--font-serif); font-weight: 500; letter-spacing: .02em; }
+html[lang='bn'] .font-serif { letter-spacing: 0; font-weight: 600; }
+/* The stage stays stuck for the whole landing page. The spacer after it is the scroll room for the three levels (`--span` screens);
+   the sections below come after it and scroll in over the stage, so the Earth is their backdrop. */
+.world-track { position: relative; }
+.world-spacer { height: calc(max(100dvh, 560px) * var(--span, 3)); }
+.world-stage { position: sticky; top: 0; height: 100dvh; min-height: 560px; overflow: hidden; --S: min(70vmin, 720px); --ease-zoom: cubic-bezier(.65, 0, .35, 1); }
+@media (max-width: 767px) { .world-stage { --S: min(88vw, 58dvh); } }
+.earth { position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; --s: min(70vmin, 720px); background: #04101c; box-shadow: 0 0 0 1px rgb(255 255 255 / .06), 0 0 70px 6px rgb(76 195 255 / .22); }
+@media (max-width: 767px) { .earth { --s: min(88vw, 58dvh); } }
+.earth-map { position: absolute; inset: 0; background-size: 200% 100%; background-repeat: repeat-x; background-position-x: calc(var(--s) * -2 * var(--f)); }
+.earth-shade { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 32% 30%, rgb(255 255 255 / .12) 0, transparent 38%), radial-gradient(circle at 50% 50%, transparent 52%, rgb(3 10 22 / .55) 78%, rgb(2 6 14 / .92) 100%); box-shadow: inset -34px -18px 70px 6px rgb(2 6 14 / .75), inset 10px 6px 30px rgb(150 210 255 / .22); }
+@keyframes earth-spin { to { background-position-x: calc(var(--s) * -2 * (var(--f) + 1)); } }
+.earth[data-spin='true'] .earth-map { animation: earth-spin 150s linear infinite; }
+html.rm .earth .earth-map, html.calm .earth .earth-map { animation: none !important; }
+
+.world-sphere { --tx: 0px; --ty: 0px; --k: .3; --op: 0; position: absolute; left: 50%; top: 50%; width: var(--S); pointer-events: none; opacity: var(--op); transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(var(--k)); transition: transform 800ms var(--ease-out), opacity 500ms var(--ease-in-out); will-change: transform, opacity; }
+.world-stage[data-level='1'] .world-sphere[data-pos='active'] { --ty: 43dvh; --k: 1; --op: 1; }
+@media (max-width: 767px) { .world-stage[data-level='1'] .world-sphere[data-pos='active'] { --ty: 47dvh; --k: .9; } }
+.world-stage[data-level='1'] .world-sphere[data-pos='prev'] { --tx: calc(var(--S) * .06 - 50vw); --ty: 6dvh; --k: .34; --op: .6; }
+.world-stage[data-level='1'] .world-sphere[data-pos='next'] { --tx: calc(50vw - var(--S) * .06); --ty: 6dvh; --k: .34; --op: .6; }
+.world-sphere[data-pos='far-prev'], .world-stage:not([data-level='1']) .world-sphere[data-pos='prev'] { --tx: calc(-50vw - var(--S) * .5); --ty: 6dvh; --k: .5; --op: 0; } /* out of frame: the carousel sweep pushes planets past the edges */
+.world-sphere[data-pos='far-next'], .world-stage:not([data-level='1']) .world-sphere[data-pos='next'] { --tx: calc(50vw + var(--S) * .5); --ty: 6dvh; --k: .5; --op: 0; }
+.world-stage[data-level='2'] .world-sphere[data-pos='active'] { --tx: 25vw; --ty: 3dvh; --k: .92; --op: 1; }
+@media (max-width: 767px) { .world-stage[data-level='2'] .world-sphere[data-pos='active'] { --tx: 0px; --ty: -17dvh; --k: .6; } }
+.world-stage[data-level='3'] .world-sphere[data-pos='active'] { --k: 3.8; --op: 0; transition: transform 1000ms var(--ease-zoom), opacity 500ms var(--ease-in-out) 650ms; }
+html.hc .world-sphere[data-pos='prev'], html.hc .world-sphere[data-pos='next'] { --op: 1; }
+
+.world-gl { position: absolute; inset: 0; pointer-events: none; }
+.world-gl canvas { display: block; }
+.world-stage[data-gl='true'] .world-sphere { visibility: hidden; }
+/* 3D: the anchors jump and WorldScene does the motion itself (easing, sweeps that enter from the right side, the zoom).
+   Level 3 keeps the planet: it zooms until it fills the screen and stays sharp, a clear close view behind the reading card. */
+.world-stage[data-gl='true'] .world-sphere { transition: none; }
+.world-stage[data-gl='true'][data-level='3'] .world-sphere[data-pos='active'] { --op: 1; --tx: 0px; --ty: 0px; --k: 2.3; }
+/* 3D, scroll-scrubbed: the active planet's anchor is interpolated from the scroll (--p1: hero → split view, --p2: split view → inside the atmosphere,
+   --p3: pull back to the backdrop pose, a big planet low on the right, a little dimmer, behind the sections below).
+   WorldScene still eases towards the anchor, so the motion stays smooth between scroll events. */
+.world-stage[data-gl='true'] .world-sphere[data-pos='active'][data-pos] { transition: none;
+  --op: calc(1 - .3 * var(--p3, 0));
+  --tx: calc(25vw * var(--p1, 0) * (1 - var(--p2, 0)) + 30vw * var(--p3, 0));
+  --ty: calc(43dvh - 40dvh * var(--p1, 0) - 3dvh * var(--p2, 0) + 34dvh * var(--p3, 0));
+  --k: calc(1 - .08 * var(--p1, 0) + 1.38 * var(--p2, 0) - .8 * var(--p3, 0)); } /* level 3 at 2.3: just past the screen's diagonal, so the 2048 px map stays sharp */
+@media (max-width: 767px) { .world-stage[data-gl='true'] .world-sphere[data-pos='active'][data-pos] {
+  --tx: calc(22vw * var(--p3, 0));
+  --ty: calc(47dvh - 64dvh * var(--p1, 0) + 17dvh * var(--p2, 0) + 30dvh * var(--p3, 0));
+  --k: calc(.9 - .3 * var(--p1, 0) + 2.2 * var(--p2, 0) - 1.4 * var(--p3, 0)); } }
+/* Without WebGL: the CSS Earth sits in the same backdrop place, faded */
+.world-stage[data-level='4'] .world-sphere[data-pos='active'] { --tx: 30vw; --ty: 34dvh; --k: 1.5; --op: .55; }
+.world-still { position: absolute; inset: 0; z-index: 1; animation: world-fade 700ms var(--ease-in-out) 500ms both; }
+.world-still::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(7 16 25 / .55), transparent 30%, rgb(7 16 25 / .5) 100%); }
+@keyframes world-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Text layers: each level fades as a block; `visibility` flips after the fade, so hidden text is out of the tab order and the reader */
+.lv { position: absolute; opacity: 0; visibility: hidden; translate: 0 14px; transition: opacity 350ms var(--ease-in-out), translate 500ms var(--ease-out), visibility 0s linear 350ms; }
+.lv[data-on='true'] { opacity: 1; visibility: visible; translate: 0 0; transition-delay: 300ms, 300ms, 0s; }
+.world-id { z-index: 2; left: 0; top: calc(var(--header-h) + .75rem); padding-inline: clamp(1.25rem, 5vw, 4rem); display: grid; gap: .35rem; }
+.world-copy { z-index: 2; }
+.lv1 { left: 0; right: 0; top: calc(var(--header-h) + 5.25rem); display: flex; flex-direction: column; align-items: center; text-align: center; padding-inline: 1.25rem; }
+.world-kicker { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .22em; color: var(--ink-2); }
+html[lang='bn'] .world-kicker { letter-spacing: .04em; text-transform: none; }
+.world-name { font-size: clamp(3rem, 11vw, 7rem); line-height: 1; text-transform: uppercase; margin-top: .25rem; }
+html[lang='bn'] .world-name { text-transform: none; line-height: 1.2; }
+.world-title { font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1.05; text-transform: uppercase; margin: .4rem 0 .9rem; }
+html[lang='bn'] .world-title { text-transform: none; line-height: 1.25; }
+.world-metrics { display: flex; flex-wrap: wrap; gap: .75rem 1.75rem; margin-top: 1.1rem; }
+.world-metrics dd:first-of-type { font-size: clamp(1.6rem, 3vw, 2.25rem); line-height: 1.1; }
+.world-metrics > div { max-width: 15rem; }
+.world-rule { width: 3.5rem; height: 2px; border: 0; background: var(--accent); margin: 0 0 1rem; }
+.world-pill { min-height: 48px; padding-inline: 1.75rem; border-radius: 999px; letter-spacing: .12em; text-transform: uppercase; font-size: var(--fs-xs); }
+html[lang='bn'] .world-pill { letter-spacing: 0; text-transform: none; }
+.world-round { min-height: 48px; width: 48px; border-radius: 50%; }
+.lv2 { left: 0; top: var(--header-h); bottom: 0; width: min(100%, 38rem); padding: 3.5rem clamp(1.25rem, 6vw, 6rem) 1.5rem; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+.lv2 .world-title { font-size: clamp(2rem, 4.4vw, 3.6rem); }
+/* split view: prev / next sit under the planet, out of the text column */
+@media (min-width: 768px) { .world-stage[data-level='2'] .world-nav { top: auto; bottom: 1.25rem; } .world-stage[data-level='2'] .world-nav-prev { left: calc(75vw - 12rem); } .world-stage[data-level='2'] .world-nav-next { right: auto; left: calc(75vw + 1rem); } }
+.lv3 { right: clamp(.75rem, 4vw, 4rem); bottom: clamp(.75rem, 4vw, 3rem); width: min(calc(100% - 1.5rem), 34rem); padding: 1.5rem; }
+@media (max-width: 767px) { .lv2 { top: 46dvh; bottom: 0; padding: .5rem 1.25rem 1rem; justify-content: flex-start; } .world-stage[data-level='2'] .world-nav { top: 22dvh; } .lv1 { top: calc(var(--header-h) + 6.5rem); } .world-id p { font-size: var(--fs-2xs); } .world-id img { height: 2rem; } }
+.world-back { z-index: 3; background: color-mix(in srgb, var(--abyss) 60%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); left: clamp(.5rem, 3vw, 3rem); top: calc(var(--header-h) + .75rem); }
+.world-nav { z-index: 3; top: 52%; display: inline-flex; align-items: center; gap: .25rem; min-height: 44px; padding: .25rem .5rem; color: var(--ink-2); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: .2em; cursor: pointer; border-radius: var(--radius-md); background: none; border: 0; }
+.world-nav:hover { color: var(--ink); }
+.world-nav-prev { left: .25rem; } .world-nav-next { right: .25rem; }
+html[lang='bn'] .world-nav { letter-spacing: 0; text-transform: none; }
+@media (max-width: 767px) { .world-nav span { display: none; } .world-nav { top: 60%; } }
+.world-foot { z-index: 3; left: 0; right: 0; bottom: .75rem; display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+.world-dot { width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 1px solid var(--ink-2); background: transparent; cursor: pointer; position: relative; }
+.world-dot::after { content: ''; position: absolute; inset: -16px -4px; } /* a bigger hit area than the dot */
+.world-dot[aria-current='true'] { background: var(--brass); border-color: var(--brass); }
+html.hc .lv1, html.hc .lv2 { background: #000; }
+/* Scroll-scrubbed copy: the text follows the planet. Level 1 lifts away as the Earth starts to move, level 2 slides in from the left as the Earth glides right
+   (and fades before the zoom), the level 3 card rises once the Earth fills the screen. `visibility` still flips with data-on, so hidden text stays out of the tab order. */
+.world-stage .lv1[data-on='true'], .world-stage .world-id[data-on='true'], .world-stage .world-foot[data-on='true'] { --o: clamp(0, calc(1 - var(--p1, 0) * 2.2), 1); opacity: var(--o); translate: 0 calc(-56px * var(--p1, 0)); transition: visibility 0s; }
+.world-stage .lv2[data-on='true'] { --o: min(clamp(0, calc((var(--p1, 0) - .5) * 2.5), 1), clamp(0, calc(1 - var(--p2, 0) * 2.5), 1)); opacity: var(--o); translate: calc(-48px * (1 - var(--o))) 0; transition: visibility 0s; }
+.world-stage .lv3[data-on='true'] { --o: min(clamp(0, calc((var(--p2, 0) - .5) * 2.5), 1), clamp(0, calc(1 - var(--p3, 0) * 2.5), 1)); opacity: var(--o); translate: 0 calc(48px * (1 - var(--o))); transition: visibility 0s; }
+html.rm .world-stage .lv[data-on='true'] { translate: none; }
+@media (max-width: 767px) { .world-stage .lv2[data-on='true'] { translate: 0 calc(32px * (1 - var(--o))); } } /* phones: the copy sits under the planet, so it rises instead */
+
+/* Landing, below the carousel: no solid layer, the starfield shows through; the cards are glass. Titles share the carousel's serif voice. */
+.landing-more { position: relative; z-index: 1; } /* above the pinned stage */
+.land-title { font-family: var(--font-serif); font-weight: 500; font-size: clamp(2rem, 4.4vw, 3.25rem); line-height: 1.05; letter-spacing: .02em; text-transform: uppercase; }
+html[lang='bn'] .land-title { text-transform: none; line-height: 1.25; letter-spacing: 0; font-weight: 600; }
+.world-rule.land-rule { margin: 1.1rem 0 1.25rem; }
+.land-lead { color: var(--ink-2); max-width: 60ch; }
+.how-step { padding: 1.25rem; display: grid; gap: .4rem; align-content: start; }
+.how-num { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1; color: var(--brass); }
+
+/* Landing: the sections below the carousel reveal as they scroll in (scroll-driven animation where supported) */
 @keyframes reveal { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 @supports (animation-timeline: view()) {
   .reveal { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% cover 25%; }
@@ -114,7 +274,7 @@ html.rm .reveal { animation: none !important; }
 @media (min-width: 768px) and (max-width: 1023px) {
   .jb-grid { grid-template-columns: minmax(200px, .8fr) minmax(320px, 1.6fr); }
   .jb-grid > [data-col='filters'] { display: none; }
-  .jb-grid[data-drawer='true'] > [data-col='filters'] { display: block; position: fixed; z-index: 60; top: var(--header-h); bottom: 0; left: 0; width: min(360px, 90vw); overflow-y: auto; padding: var(--space-3); background: var(--abyss); border-right: 1px solid var(--line); }
+  .jb-grid[data-drawer='true'] > [data-col='filters'] { display: block; position: fixed; z-index: 60; top: var(--header-h); bottom: 0; left: 0; width: min(360px, 90vw); overflow-y: auto; padding: var(--space-3); background: var(--glass-bg-strong); border-right: 1px solid var(--glass-border); backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%); }
   .jb-backdrop { position: fixed; inset: var(--header-h) 0 0 0; z-index: 55; background: rgb(0 0 0 / .55); border: 0; }
 }
 @media (min-width: 1024px) { .jb-grid { grid-template-columns: minmax(220px, 1fr) minmax(200px, .8fr) minmax(360px, 1.6fr); } }
@@ -139,9 +299,8 @@ html.rm .topic-stage { animation-name: topic-fade; }
 
 /* High contrast mode */
 html.hc { --panel: #000; --panel-2: #0b0b0b; --line: #f5f5f5; --ink: #fff; --ink-2: #fff; --ink-3: #e5e5e5; --brass: #ffd60a; }
-html.hc .panel { background: #000; backdrop-filter: none; }
-html.hc .text-slate-400, html.hc .text-slate-500, html.hc .text-slate-300 { color: #fff !important; }
-html.hc .landing-scrim { background: #000; }
+html.hc .glass-flat, html.hc .glass, html.hc .glass-strong, html.hc .panel, html.hc .panel-solid { background: #000; backdrop-filter: none; -webkit-backdrop-filter: none; border-color: var(--line); box-shadow: none; }
+html.hc .scrim { background: rgb(0 0 0 / .8); }
 
 /* Reduced motion (user setting or OS) */
 html.rm *, html.rm *::before, html.rm *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }

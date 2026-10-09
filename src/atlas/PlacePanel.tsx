@@ -15,7 +15,7 @@ interface Props { place: { lat: number; lon: number } | null; onPick: (p: { lat:
 
 /** "Hear any place": click the globe or pick a city, then hear 45 years of its NASA POWER climate. The parent keys it by place, so a new place starts fresh. */
 export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
-  const { lang, narration } = usePrefs();
+  const { t, lang, narration } = usePrefs();
   const [data, setData] = useState<PlaceClimate | null>(null);
   const preset = place ? PRESETS.find((p) => Math.abs(p.lat - place.lat) < 0.01 && Math.abs(p.lon - place.lon) < 0.01) : undefined;
   const [name, setName] = useState<string | null>(preset ? (lang === 'bn' ? preset.bn : preset.name) : null);
@@ -76,12 +76,12 @@ export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
           <h2 id="place-title" className="font-display font-semibold text-lg flex items-center gap-1.5"><MapPin className="w-4 h-4 text-[var(--brass)]" />{lang === 'bn' ? 'যেকোনো জায়গা শুনুন' : 'Hear any place'}</h2>
           <p className="text-xs text-[var(--ink-3)]">{lang === 'bn' ? 'গ্লোবে যেকোনো জায়গায় ক্লিক করুন বা একটি শহর বাছুন। নাসা POWER, ১৯৮১–২০২৫।' : 'Click anywhere on the globe or choose a city. NASA POWER, 1981–2025, fetched live.'}</p>
         </div>
-        {place && <button className="btn btn-ghost btn-icon shrink-0" onClick={() => { stop(); onClose(); }} aria-label="Close place"><X className="w-4 h-4" /></button>}
+        {place && <button className="btn btn-ghost btn-icon shrink-0" onClick={() => { stop(); onClose(); }} aria-label={t('closePlace')}><X className="w-4 h-4" /></button>}
       </div>
       <label className="block mt-2">
-        <span className="sr-only">Choose a city</span>
+        <span className="sr-only">{t('chooseCity')}</span>
         <select className="w-full btn justify-start" value="" onChange={(e) => { const p = PRESETS[+e.target.value]; if (p) onPick({ lat: p.lat, lon: p.lon }); }}>
-          <option value="">{lang === 'bn' ? 'একটি শহর বাছুন…' : 'Choose a city…'}</option>
+          <option value="">{t('chooseCity')}…</option>
           {PRESETS.map((p, k) => <option key={p.name} value={k}>{lang === 'bn' ? p.bn : p.name}</option>)}
         </select>
       </label>
@@ -90,7 +90,7 @@ export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
         <div className="mt-3">
           <div className="font-semibold">{name ?? '…'} <span className="text-[var(--ink-3)] font-normal text-sm tnum">{coords}</span></div>
           {!data && !err && <p className="text-sm text-[var(--ink-2)] mt-2 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" />{lang === 'bn' ? 'নাসা POWER থেকে আনা হচ্ছে…' : 'Asking NASA POWER…'}</p>}
-          {err && <p className="text-sm text-amber-200 mt-2">{lang === 'bn' ? 'নাসা POWER থেকে ডেটা আসেনি। ইন্টারনেট সংযোগ দেখুন।' : `NASA POWER did not answer (${err}). Check the internet connection and try again.`}</p>}
+          {err && <p className="text-sm text-[var(--brass)] mt-2">{lang === 'bn' ? 'নাসা POWER থেকে ডেটা আসেনি। ইন্টারনেট সংযোগ দেখুন।' : `NASA POWER did not answer (${err}). Check the internet connection and try again.`}</p>}
           {data && (() => {
             const n = data.years.length, early = data.temp.slice(0, 10), late = data.temp.slice(-10);
             const tr = trendPerDecade(data.years, data.temp);
@@ -103,13 +103,13 @@ export const PlacePanel: React.FC<Props> = ({ place, onPick, onClose }) => {
                   <polyline fill="none" stroke="var(--warm)" strokeWidth={2} points={data.temp.map((t, k) => `${k * bw + bw / 2},${6 + (1 - (t - tMin) / (tMax - tMin || 1)) * 46}`).join(' ')} />
                   {i >= 0 && <line x1={i * bw + bw / 2} x2={i * bw + bw / 2} y1={0} y2={H} stroke="var(--brass)" strokeWidth={1.5} />}
                 </svg>
-                <div className="flex justify-between text-[11px] text-[var(--ink-3)] tnum"><span>{lang === 'bn' ? bnNum(data.years[0]) : data.years[0]}</span><span className="text-[var(--warm)]">— {lang === 'bn' ? 'তাপমাত্রা' : 'temperature'}</span><span className="text-[var(--rain)]">▮ {lang === 'bn' ? 'বৃষ্টি' : 'rain'}</span><span>{lang === 'bn' ? bnNum(data.years[n - 1]) : data.years[n - 1]}</span></div>
+                <div className="flex justify-between text-2xs text-[var(--ink-3)] tnum"><span>{lang === 'bn' ? bnNum(data.years[0]) : data.years[0]}</span><span className="text-[var(--warm)]">— {lang === 'bn' ? 'তাপমাত্রা' : 'temperature'}</span><span className="text-[var(--rain)]">▮ {lang === 'bn' ? 'বৃষ্টি' : 'rain'}</span><span>{lang === 'bn' ? bnNum(data.years[n - 1]) : data.years[n - 1]}</span></div>
                 <dl className="grid grid-cols-2 gap-2 mt-2 text-sm">
-                  <div><dt className="label">{lang === 'bn' ? 'গড় তাপমাত্রা' : 'Average temperature'}</dt><dd className="tnum">{num(avg(early))} → {num(avg(late))} °C</dd><dd className="text-[11px] text-[var(--ink-3)]">{lang === 'bn' ? 'প্রথম ১০ বনাম শেষ ১০ বছর' : 'first vs last 10 years'}</dd></div>
-                  <div><dt className="label">{lang === 'bn' ? 'প্রবণতা' : 'Trend'}</dt><dd className="tnum">{tr >= 0 ? '+' : ''}{num(tr, 2)} °C / {lang === 'bn' ? 'দশক' : 'decade'}</dd><dd className="text-[11px] text-[var(--ink-3)]">{lang === 'bn' ? 'বৃষ্টি গড়' : 'Rain avg'} {num(avg(data.rain) * 365.25, 0)} mm/{lang === 'bn' ? 'বছর' : 'yr'}</dd></div>
+                  <div><dt className="label">{lang === 'bn' ? 'গড় তাপমাত্রা' : 'Average temperature'}</dt><dd className="tnum">{num(avg(early))} → {num(avg(late))} °C</dd><dd className="text-2xs text-[var(--ink-3)]">{lang === 'bn' ? 'প্রথম ১০ বনাম শেষ ১০ বছর' : 'first vs last 10 years'}</dd></div>
+                  <div><dt className="label">{lang === 'bn' ? 'প্রবণতা' : 'Trend'}</dt><dd className="tnum">{tr >= 0 ? '+' : ''}{num(tr, 2)} °C / {lang === 'bn' ? 'দশক' : 'decade'}</dd><dd className="text-2xs text-[var(--ink-3)]">{lang === 'bn' ? 'বৃষ্টি গড়' : 'Rain avg'} {num(avg(data.rain) * 365.25, 0)} mm/{lang === 'bn' ? 'বছর' : 'yr'}</dd></div>
                 </dl>
-                <button onClick={playing ? stop : play} className="btn btn-brass w-full mt-3">{playing ? <><Square className="w-4 h-4" />Stop</> : <><Play className="w-4 h-4" />{lang === 'bn' ? `${bnNum(n)} বছর শুনুন` : `Hear ${n} years`}</>}</button>
-                <p className="text-[11px] text-[var(--ink-3)] mt-2 leading-snug">{lang === 'bn' ? 'উঁচু সুর = এই জায়গার উষ্ণ বছর, বেশি ফোঁটা = ভেজা বছর। নাসা POWER (MERRA-2) মডেল-ভিত্তিক মান, প্রায় ৫০ কিমি এলাকা।' : 'Higher note = a warmer year for this place; more droplets = a wetter year. NASA POWER (MERRA-2) model-based values for a ~50 km cell.'}</p>
+                <button onClick={playing ? stop : play} className="btn btn-brass w-full mt-3">{playing ? <><Square className="w-4 h-4" />{t('stop')}</> : <><Play className="w-4 h-4" />{lang === 'bn' ? `${bnNum(n)} বছর শুনুন` : `Hear ${n} years`}</>}</button>
+                <p className="text-2xs text-[var(--ink-3)] mt-2 leading-snug">{lang === 'bn' ? 'উঁচু সুর = এই জায়গার উষ্ণ বছর, বেশি ফোঁটা = ভেজা বছর। নাসা POWER (MERRA-2) মডেল-ভিত্তিক মান, প্রায় ৫০ কিমি এলাকা।' : 'Higher note = a warmer year for this place; more droplets = a wetter year. NASA POWER (MERRA-2) model-based values for a ~50 km cell.'}</p>
               </>
             );
           })()}

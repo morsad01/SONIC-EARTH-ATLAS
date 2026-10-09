@@ -350,17 +350,22 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
   const meta = mode === 'single' ? (userFile ? { title: userFile.name, what: 'Your image', credit: 'Uploaded by you', url: undefined } : { title: lang === 'bn' ? frame.titleBn : frame.title, what: frame.what, credit: frame.credit, url: frame.sourceUrl }) : null;
 
   return (
-    <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="frames-title">
+    <section className="h-full overflow-y-auto px-4 sm:px-8 pb-6 pt-[calc(var(--header-h)+1.5rem)]" aria-labelledby="frames-title">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-6">
         <div>
           <h1 id="frames-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('framesTitle')}</h1>
           <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{t('framesLead')}</p>
 
-          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Mode">
-            <button type="button" className="btn" aria-pressed={mode === 'single'} onClick={() => chooseMode('single')}>One image</button>
+          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label={t('frMode')}>
+            <button type="button" className="btn" aria-pressed={mode === 'single'} onClick={() => chooseMode('single')}>{t('frOne')}</button>
             <button type="button" className="btn" aria-pressed={mode === 'pair'} onClick={() => chooseMode('pair')}>{t('beforeAfter')}</button>
           </div>
 
+          {legend && status === 'ready' && (
+            <p className="mt-4 -mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--ink-3)]">
+              <span className="chip">{t('frHigh')}</span>{t('frHighNote')}<span className="chip">{t('frLow')}</span>{t('frLowNote')}
+            </p>
+          )}
           <div ref={frameBox} className="mt-4 relative rounded-xl overflow-hidden border border-[var(--line)] bg-black cursor-crosshair touch-pan-y select-none"
             onPointerDown={onFrameDown} onPointerMove={onFrameMove} onPointerUp={onFrameUp} onPointerCancel={() => { drag.current = null; }}>
             {mode === 'pair' && <div className="absolute left-2 top-2 z-10 chip bg-black/70">◀ {pair.a.title}</div>}
@@ -372,16 +377,11 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
               </div>
             )}
             {legend && status === 'ready' && (
-              <div className="absolute inset-0 pointer-events-none text-[11px] leading-none text-white/90" aria-hidden="true">
-                <div className="absolute left-1.5 top-1.5 bottom-1.5 flex flex-col items-center justify-between">
-                  <span className="chip bg-black/70">▲ high</span>
-                  <span className="w-[2px] flex-1 my-1 bg-gradient-to-b from-white/80 to-white/10" />
-                  <span className="chip bg-black/70">▼ low</span>
-                </div>
+              <div className="absolute inset-0 pointer-events-none text-2xs leading-none text-white/90" aria-hidden="true">
                 <div className="absolute right-1.5 bottom-1.5 hidden sm:flex flex-wrap gap-1 justify-end max-w-[70%]">
-                  <span className="chip bg-black/70">brighter = louder</span>
-                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#ff7a1a' }} />warm = buzzy</span>
-                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#2f7fd8' }} />cool = soft</span>
+                  <span className="chip bg-black/70">{t('frBright')}</span>
+                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#ff7a1a' }} />{t('frWarm')}</span>
+                  <span className="chip bg-black/70"><i className="inline-block w-2 h-2 rounded-full mr-1 align-middle" style={{ background: '#2f7fd8' }} />{t('frCool')}</span>
                 </div>
               </div>
             )}
@@ -402,7 +402,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button onClick={playing ? (story !== null ? endStory : stop) : start} disabled={status !== 'ready'} className="btn btn-brass min-w-[120px] disabled:opacity-50">
-              {playing ? <><Square className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> {t('play')}</>}
+              {playing ? <><Square className="w-4 h-4" /> {t('stop')}</> : <><Play className="w-4 h-4" /> {t('play')}</>}
             </button>
             {mode === 'single' && (
               <label className="btn cursor-pointer">
@@ -477,10 +477,10 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
               <li>{t('hearScrub')}</li>
             </ul>
           </details>
-          {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">See it on earth.gov</a></>}</p>}
+          {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">{t('srcLine', { c: meta.credit })}</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">{t('frSeeEarthGov')}</a></>}</p>}
         </div>
 
-        <section className="space-y-3" aria-label="Choose an image">
+        <section className="space-y-3" aria-label={t('frChoose')}>
           {mode === 'single' ? (
             <>
               <div className="label">{t('eicGroup')}</div>
@@ -493,7 +493,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
                   </button>
                 ))}
               </div>
-              <div className="label pt-2">Live from NASA GIBS, same week as the Atlas data</div>
+              <div className="label pt-2">{t('frLive')}</div>
               <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
                 {FRAMES.map((f) => (
                   <button key={f.id} onClick={() => pickFrame(f.id)} aria-pressed={!userFile && frameId === f.id}
@@ -506,7 +506,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             </>
           ) : (
             <>
-              <div className="label">Then and now</div>
+              <div className="label">{t('frThen')}</div>
               {PAIRS.map((p) => (
                 <button key={p.id} onClick={() => setPairId(p.id)} aria-pressed={pairId === p.id}
                   className={`w-full text-left rounded-lg border p-3 text-sm cursor-pointer ${pairId === p.id ? 'border-[var(--brass)] bg-[var(--panel-2)]' : 'border-[var(--line)] hover:border-[#3b5a72]'}`}>{p.label}</button>
@@ -529,7 +529,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             </>
           )}
           <div className="panel-solid p-3 text-sm text-[var(--ink-2)] leading-relaxed">
-            <div className="font-semibold text-[var(--ink)] mb-1">How the image becomes sound</div>
+            <div className="font-semibold text-[var(--ink)] mb-1">{t('frHow')}</div>
             The image is a world map, so the needle travels west to east around the planet. Each of 12 bands is one pitch, north highest.
             Brighter pixels are louder. Red and orange pixels sound brighter and buzzier; blue and dark ones stay soft.
             This is sonification of the picture, so it tells you where the image is bright, not a measured value.

@@ -38,7 +38,7 @@ export function CountryPicker({ list, selected, onSelect }: { list: Country[]; s
           onMouseDown={(e) => e.preventDefault()} onClick={() => { setQ(''); inputRef.current?.focus(); }}><X className="w-4 h-4" /></button>}
       </div>
       <ul id={listId} role="listbox" aria-label={t('country')} hidden={!showList}
-        className="absolute z-30 left-0 right-0 mt-1 max-h-60 overflow-y-auto scroll-thin rounded-lg bg-[var(--panel)] border border-[var(--line)] shadow-2xl">
+        className="absolute z-30 left-0 right-0 mt-1 max-h-60 overflow-y-auto scroll-thin glass-strong rounded-lg shadow-2xl">
         {showList && results.map((c, i) => (
           <li key={c.id} id={`${uid}-o-${c.id}`} role="option" aria-selected={selected?.id === c.id}
             ref={(el) => { if (el && i === idx) el.scrollIntoView?.({ block: 'nearest' }); }}

@@ -6,7 +6,7 @@ import { REPO_URL, SOURCE_LINKS } from '../lib/nav';
 export const Footer: React.FC<{ onAbout?: () => void }> = ({ onAbout }) => {
   const { t } = usePrefs();
   return (
-    <footer className="border-t border-[var(--line)] bg-[var(--abyss)] text-sm">
+    <footer className="glass rounded-none border-x-0 border-b-0 text-sm">
       <div className="max-w-6xl mx-auto px-5 sm:px-10 py-8 grid gap-6 md:grid-cols-[1.4fr_1fr]">
         <div>
           <p className="flex items-start gap-2 text-[var(--ink)] font-medium"><AudioLines className="w-4 h-4 mt-0.5 shrink-0 text-[var(--accent)]" />{t('footerSonification')}</p>
