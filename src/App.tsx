@@ -197,7 +197,7 @@ export function App() {
       audioReady={audioReady} onOpenData={() => setDataOpen(true)} />
   );
   const countryPanel = <CountryPanel list={cty.list} country={cty.country} point={cty.point} onSelect={cty.select} />;
-  const placePanel = <PlacePanel place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
+  const placePanel = <PlacePanel key={place ? `${place.lat},${place.lon}` : 'none'} place={place} onPick={(p) => { setPlace(p); setFocus(p); window.setTimeout(() => setFocus(null), 2500); }} onClose={() => setPlace(null)} />;
   const hearingPanel = <HearingPanel observations={observations} enabled={enabled} audioReady={audioReady} onSelect={(o) => { setSelected(o); SonificationEngine.getInstance().playObservation(o); }} />;
 
   return (
@@ -215,12 +215,13 @@ export function App() {
       <main id="main" className="flex-1 relative w-full overflow-hidden">
         {/* First child = the visual canvas (the landing hero shows the globe from here). */}
         <div className="absolute inset-0">
+          {track === 'atlas' && !showHero && <h1 className="sr-only">{t('navExplore')}: {t('track1')}</h1>}
           {(track === 'atlas' || showHero) && view === '3d-globe' && (
             <GlobeBoundary onFail={() => setGlobeFailed(true)} fallback={showHero
               ? <GlobeStill label={t('globeStill')} />
               : <Accessible2DMap observations={observations} enabledPhenomena={enabled} selectedObservation={selected} onSelectObservation={setSelected}
                 countries={cty.list} country={cty.country} onSelectCountry={cty.select} />}>
-              <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">Loading globe…</div>}>
+              <Suspense fallback={<div className="absolute inset-0 grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingGlobe')}</div>}>
                 <GlobeCanvas observations={observations} enabledPhenomena={showHero ? ALL_ON : enabled} selectedObservation={selected}
                   onSelectObservation={setSelected} autoRotate={autoRotate || showHero} targetFocus={focus} imageryUrl={imageryUrl}
                   onPickPlace={showHero ? undefined : (p) => { setPlace(p); if (window.innerWidth < 1024) setSheet('place'); }} pickedPlace={place}
@@ -241,7 +242,7 @@ export function App() {
             </div>
           )}
           {track !== 'atlas' && !showHero && (
-            <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">Loading…</div>}>
+            <Suspense fallback={<div className="h-full grid place-items-center text-sm text-[var(--ink-3)]">{t('loadingView')}</div>}>
               {track === 'frames' && <FrameJukebox autoPlay={autoListen} onAutoPlayed={() => setAutoListen(false)} onPlay={() => { if (!audioReady) soundOn(); }} />}
               {track === 'monsoon' && <BangladeshMonsoon />}
               {track === 'pulse' && <VitalSigns />}
@@ -266,10 +267,10 @@ export function App() {
 
             {/* View switch and globe options */}
             <div className="absolute right-3 top-3 z-20 flex flex-col items-end gap-2">
-              <div className="panel p-1 flex gap-1" role="group" aria-label="View">
+              <div className="panel p-1 flex gap-1" role="group" aria-label={t('viewGroup')}>
                 {([['3d-globe', Globe, 'globe'], ['2d-map', MapIcon, 'map'], ['audio-first', List, 'list']] as const).map(([v, Icon, key]) => (
-                  <button key={v} className="btn btn-ghost min-h-[36px] px-2.5" aria-pressed={view === v} onClick={() => setView(v)}>
-                    <Icon className="w-4 h-4" /><span className="hidden sm:inline">{t(key)}</span>
+                  <button key={v} className="btn btn-ghost min-h-[36px] pointer-coarse:min-h-[44px] px-2.5" aria-pressed={view === v} aria-label={t(key)} onClick={() => setView(v)}>
+                    <Icon className="w-4 h-4" aria-hidden="true" /><span className="hidden sm:inline" aria-hidden="true">{t(key)}</span>
                   </button>
                 ))}
               </div>

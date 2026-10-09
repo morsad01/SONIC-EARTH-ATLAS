@@ -28,6 +28,23 @@ describe('colour contrast (WCAG AA, 4.5:1 for text)', () => {
       it(`--${fg} on --${bg}`, () => expect(ratio(token(fg), token(bg))).toBeGreaterThanOrEqual(4.5));
     }
   }
+  // Data colours are also used as text (legend, units, the sound-error line), so they get the text threshold.
+  for (const fg of ['fire', 'rain', 'warm', 'cold']) {
+    for (const bg of backgrounds) {
+      it(`data colour --${fg} on --${bg}`, () => expect(ratio(token(fg), token(bg))).toBeGreaterThanOrEqual(4.5));
+    }
+  }
+});
+
+describe('high contrast mode (WCAG AAA, 7:1)', () => {
+  const hc = Object.fromEntries([...(css.match(/html\.hc \{([^}]*)\}/)?.[1] ?? '').matchAll(/--([\w-]+):\s*#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})\b/g)].map((m) => [m[1], `#${m[2].length === 3 ? [...m[2]].map((c) => c + c).join('') : m[2]}`]));
+  const hcToken = (n: string) => hc[n] ?? token(n);
+  it('overrides the text and surface tokens', () => { for (const k of ['panel', 'panel-2', 'ink', 'ink-2', 'ink-3', 'brass', 'line']) expect(hc[k]).toBeTruthy(); });
+  for (const fg of ['ink', 'ink-2', 'ink-3', 'brass', 'line']) {
+    for (const bg of ['panel', 'panel-2']) {
+      it(`--${fg} on --${bg}`, () => expect(ratio(hcToken(fg), hcToken(bg))).toBeGreaterThanOrEqual(7));
+    }
+  }
 });
 
 describe('design tokens', () => {

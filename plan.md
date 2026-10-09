@@ -4,12 +4,16 @@ The full plan, risks and progress log live in [`docs/roadmap-v3.md`](docs/roadma
 
 ## Current phase
 
-**Phase 4 — Data Jukebox: done.** Story registry (global, Bangladesh, per-country), one origin-tagged reducer, synchronized timeline / chart / caption, horizontal story row, landing topic carousel, `story` + `t` share keys. Checks: test 139/139, lint 0 errors (11 old warnings), build ✅.
+**Phase 7 — Testing and submission readiness: done (in-repo part).** Playwright smoke (13 tests: every view at 320 px, navigation, keyboard country search + share link, Jukebox timeline + Play/Pause, old share links, WebGL off) and axe scans (14: seven views × desktop / phone in বাংলা + high contrast + reduced motion), all offline and repeatable; `test:e2e` / `test:a11y` scripts; CI `e2e` job (allowed to fail at first); README, PROJECT_SUMMARY, JUDGE_QA and DEMO_SCRIPT refreshed. Checks: lint 0 warnings, test 184/184, build ✅, e2e 13/13, a11y 14/14.
 
-## Next roadmap
+All roadmap phases (0–7) are done. Phases 5, 6 and 7 are local commits only: GitHub push is refused (403) in this session, so they are shipped as a zip.
 
-| Phase | Goal | Status |
+## Next roadmap (team-owned)
+
+| Step | Goal | Status |
 |---|---|---|
-| 5 Series sonification | Pure mapping + playback state machine, `SeriesPlayer` (lookahead scheduler, node counter), `PlayerControls`, `MappingLegend`, A/B compare; replaces Jukebox step-through | Next |
-| 6 Polish, a11y, perf | Motion via `--dur-*`, VoiceOver/NVDA pass, contrast of new tokens, 200% zoom, split `GlobeCanvas`, fix remaining lint warnings | ☐ |
-| 7 Testing and submission | Playwright + axe, README / JUDGE_QA / DEMO_SCRIPT refresh, demo rehearsal on production | ☐ |
+| Push + PR | Reconnect GitHub, push `claude/trusting-feynman-bc564j`, open the PR for Phases 5–7, green CI incl. the new `e2e` job | ☐ |
+| Production check | Merge, then open the Vercel site in incognito with the links in the `DEMO_SCRIPT.md` checklist | ☐ |
+| Screen reader | VoiceOver + Safari and NVDA + Firefox: country search, Jukebox player, “What you hear” legend | ☐ |
+| User test | Quotes for `JUDGE_QA` Q6 and the video | ☐ |
+| Submit | Record the 3:45 video (`DEMO_SCRIPT.md`), submit on the Space Apps platform | ☐ |

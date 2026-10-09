@@ -56,7 +56,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   countryPoint = null,
   onSelectCountry,
 }) => {
-  const { reduceMotion, lang, t } = usePrefs();
+  const { reduceMotion, calmBackground, lang, t } = usePrefs();
   const flyRef = useRef<{ lat: number; lon: number; until: number } | null>(null);
   const selOutlineRef = useRef<THREE.Group | null>(null);
   const hoverOutlineRef = useRef<THREE.Group | null>(null);
@@ -92,6 +92,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const selectedObservationRef = useRef(selectedObservation);
   const framingRef = useRef(framing);
   const reduceRef = useRef(reduceMotion);
+  const calmRef = useRef(calmBackground);
   const frameRef = useRef(framingTarget(framing, 1.6)); // eased toward every frame
   // Keep the latest props where the animation loop and event handlers can read them.
   useLayoutEffect(() => {
@@ -100,6 +101,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     selectedObservationRef.current = selectedObservation;
     framingRef.current = framing;
     reduceRef.current = reduceMotion;
+    calmRef.current = calmBackground;
   });
 
   useEffect(() => {
@@ -182,13 +184,22 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const earthTexture = load(`earth_atmos_${texSize}.jpg`, true);
     const earthMaterial = new THREE.MeshPhongMaterial({
       map: earthTexture,
-      specularMap: load(`earth_specular_${texSize}.jpg`),
-      normalMap: load(`earth_normal_${texSize}.jpg`),
       normalScale: new THREE.Vector2(0.85, 0.85),
       specular: new THREE.Color(0x4a6a8a),
       shininess: 22,
     });
     earthMatRef.current = earthMaterial;
+    // Specular and relief maps only shade the surface: fetch them after the first frames, when the browser is idle.
+    const extras: THREE.Texture[] = [];
+    const idle = typeof window.requestIdleCallback === 'function'; // missing in older Safari
+    const later = idle ? window.requestIdleCallback(() => addDetail(), { timeout: 1500 }) : window.setTimeout(() => addDetail(), 600);
+    let gone = false;
+    function addDetail() {
+      if (gone) return;
+      const spec = load(`earth_specular_${texSize}.jpg`), normal = load(`earth_normal_${texSize}.jpg`);
+      extras.push(spec, normal);
+      earthMaterial.specularMap = spec; earthMaterial.normalMap = normal; earthMaterial.needsUpdate = true;
+    }
     baseMapRef.current = earthTexture;
     const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
     globeGroup.add(earthMesh);
@@ -266,9 +277,9 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      const reduce = reduceRef.current;
+      const reduce = reduceRef.current, calm = reduce || calmRef.current;
       // Revolving cloud layer rotation (non-essential, off with reduced motion)
-      if (cloudMeshRef.current && !reduce) {
+      if (cloudMeshRef.current && !calm) {
         cloudMeshRef.current.rotation.y += 0.00045;
       }
 
@@ -294,7 +305,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         globeGroupRef.current.rotation.x += (targetX - globeGroupRef.current.rotation.x) * kf;
         if (fly && Math.abs(diffY) < 0.004 && Math.abs(targetX - globeGroupRef.current.rotation.x) < 0.004) flyRef.current = null;
       } else if (autoRotateRef.current && !isDraggingRef.current && globeGroupRef.current) {
-        globeGroupRef.current.rotation.y += idleSpin(framingRef.current, reduce);
+        globeGroupRef.current.rotation.y += idleSpin(framingRef.current, calm);
       }
 
       // Synchronize visual acoustic emission beacons on Earth surface with Web Audio active voices
@@ -345,6 +356,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      gone = true;
+      if (idle) window.cancelIdleCallback(later); else window.clearTimeout(later);
       window.removeEventListener('resize', handleResize);
       if (rendererRef.current && rendererRef.current.domElement) {
         container.removeChild(rendererRef.current.domElement);
@@ -355,6 +368,9 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       earthGeometry.dispose();
       earthMaterial.dispose();
       earthTexture.dispose();
+      extras.forEach((x) => x.dispose());
+      pin.geometry.dispose();
+      (pin.material as THREE.Material).dispose();
       cloudGeometry.dispose();
       cloudMaterial.dispose();
       cloudTexture.dispose();

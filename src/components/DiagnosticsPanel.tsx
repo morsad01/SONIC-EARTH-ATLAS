@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SonificationEngine } from '../audio/sonificationEngine';
+import { seriesDiagnostics } from '../sonification/series/diagnostics';
 import { Cpu, Terminal } from 'lucide-react';
 
 interface DiagnosticsPanelProps {
@@ -18,6 +19,7 @@ export const DiagnosticsPanel: React.FC<DiagnosticsPanelProps> = ({
   onToggle,
 }) => {
   const [fps, setFps] = useState(60);
+  const [series, setSeries] = useState(seriesDiagnostics);
   const [audioDiag, setAudioDiag] = useState({
     activeVoicesCount: 0,
     maxVoices: 12,
@@ -40,6 +42,7 @@ export const DiagnosticsPanel: React.FC<DiagnosticsPanelProps> = ({
         frameCount = 0;
         lastTime = now;
         setAudioDiag(SonificationEngine.getInstance().getDiagnostics());
+        setSeries(seriesDiagnostics());
       }
       animId = requestAnimationFrame(loop);
     };
@@ -81,6 +84,14 @@ export const DiagnosticsPanel: React.FC<DiagnosticsPanelProps> = ({
               <span className="text-cyan-300 font-bold">
                 {audioDiag.activeVoicesCount} / {audioDiag.maxVoices} (Voice Pool Budgeted)
               </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Series Player:</span>
+              <span className={series.state === 'playing' ? 'text-emerald-400 font-semibold' : 'text-slate-200'}>{series.state.toUpperCase()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Series Audio Nodes:</span>
+              <span className="text-cyan-300 font-bold" data-series-nodes>{series.nodes}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Spatial Routing:</span>

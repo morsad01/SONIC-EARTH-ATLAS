@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
+    "test:e2e": "playwright test smoke no-webgl",
+    "test:a11y": "playwright test a11y",
     "preview": "vite preview",
     "fetch:firms": "node scripts/fetch-firms.mjs",
     "fetch:precip": "node scripts/fetch-precip.mjs",
@@ -22,6 +24,8 @@
     "three": "^0.186.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
     "@types/d3-geo": "^3.1.1",
@@ -42,5 +46,8 @@
     "vite": "^8.3.0",
     "vitest": "^5.0.3",
     "world-atlas": "^2.0.2"
+  },
+  "overrides": {
+    "playwright-core": "1.56.1"
   }
 }

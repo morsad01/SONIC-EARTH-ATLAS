@@ -118,6 +118,13 @@ html.rm .reveal { animation: none !important; }
   .jb-backdrop { position: fixed; inset: var(--header-h) 0 0 0; z-index: 55; background: rgb(0 0 0 / .55); border: 0; }
 }
 @media (min-width: 1024px) { .jb-grid { grid-template-columns: minmax(220px, 1fr) minmax(200px, .8fr) minmax(360px, 1.6fr); } }
+.lift { transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), background-color var(--dur-fast); }
+.lift:hover { transform: translateY(-2px); }
+html.rm .lift:hover { transform: none; }
+@media (prefers-reduced-motion: reduce) { .lift:hover { transform: none; } }
+.tl-marker { transition: transform var(--dur-med) var(--ease-out), background-color var(--dur-fast); }
+[aria-current='true'] > .tl-marker { transform: scale(1.2); }
+.jb-range { accent-color: var(--brass); min-height: 40px; }
 .story-row { scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scroll-padding-inline: var(--space-2); }
 .story-card { scroll-snap-align: center; width: min(78vw, 240px); }
 @media (min-width: 1024px) { .story-card { width: 260px; } }

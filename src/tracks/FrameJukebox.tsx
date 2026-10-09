@@ -116,21 +116,29 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
     ? { id: 'custom', label: '', a: ALL_FRAMES.find((f) => f.id === customA)!, b: ALL_FRAMES.find((f) => f.id === customB)! }
     : PAIRS.find((p) => p.id === pairId)!, [pairId, customA, customB]);
 
-  const stop = useCallback(() => {
+  /** Timers and audio only; `stop` also flips the playing flag. */
+  const silence = useCallback(() => {
     if (timer.current) window.clearInterval(timer.current);
     timer.current = null;
     if (probeTimer.current) window.clearTimeout(probeTimer.current);
     probeTimer.current = null;
     disposeBank(banks.current.a); disposeBank(banks.current.b);
     banks.current = { a: null, b: null };
-    setPlaying(false);
   }, []);
+  const stop = useCallback(() => { silence(); setPlaying(false); }, [silence]);
   usePlaybackReport('frames', t('track2'), playing, stop);
 
-  // Load images whenever the selection changes.
+  // A new selection resets the view during render (not in an effect); the effect below silences the audio and loads the images.
+  const selKey = `${mode}|${frameId}|${pairId}|${customA}|${customB}`;
+  const [prevSel, setPrevSel] = useState<{ key: string; file: File | null }>({ key: selKey, file: userFile });
+  if (prevSel.key !== selKey || prevSel.file !== userFile) {
+    setPrevSel({ key: selKey, file: userFile });
+    setPlaying(false); setStatus('loading'); setCol(0); setRegionState(null); setReadout(''); setSrText(''); setHeard(null);
+  }
+
   useEffect(() => {
     let cancelled = false;
-    stop(); setStatus('loading'); setCol(0); colRef.current = 0; setRegion(null); setReadout(''); setSrText(''); setHeard(null);
+    silence(); colRef.current = 0; regionRef.current = null;
     const paint = (target: HTMLCanvasElement | null, src: HTMLCanvasElement) => {
       if (!target) return;
       target.width = src.width; target.height = src.height;
@@ -160,7 +168,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
       }
     })();
     return () => { cancelled = true; };
-  }, [mode, frameId, pairId, userFile, frame, pair, stop]);
+  }, [mode, frameId, pairId, userFile, frame, pair, silence]);
 
   useEffect(() => () => stop(), [stop]);
 
@@ -345,12 +353,12 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
     <section className="h-full overflow-y-auto px-4 sm:px-8 py-6" aria-labelledby="frames-title">
       <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_300px] gap-6">
         <div>
-          <h2 id="frames-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('framesTitle')}</h2>
+          <h1 id="frames-title" className="font-display text-3xl sm:text-4xl font-extrabold">{t('framesTitle')}</h1>
           <p className="mt-2 max-w-[68ch] text-[var(--ink-2)]">{t('framesLead')}</p>
 
-          <div className="mt-5 flex flex-wrap gap-2" role="tablist" aria-label="Mode">
-            <button role="tab" aria-selected={mode === 'single'} className="btn" aria-pressed={mode === 'single'} onClick={() => chooseMode('single')}>One image</button>
-            <button role="tab" aria-selected={mode === 'pair'} className="btn" aria-pressed={mode === 'pair'} onClick={() => chooseMode('pair')}>{t('beforeAfter')}</button>
+          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Mode">
+            <button type="button" className="btn" aria-pressed={mode === 'single'} onClick={() => chooseMode('single')}>One image</button>
+            <button type="button" className="btn" aria-pressed={mode === 'pair'} onClick={() => chooseMode('pair')}>{t('beforeAfter')}</button>
           </div>
 
           <div ref={frameBox} className="mt-4 relative rounded-xl overflow-hidden border border-[var(--line)] bg-black cursor-crosshair touch-pan-y select-none"
@@ -472,7 +480,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
           {meta && <p className="mt-3 text-sm text-[var(--ink-2)] max-w-[70ch]"><strong className="text-[var(--ink)]">{meta.title}.</strong> {meta.what} <span className="text-[var(--ink-3)]">Source: {meta.credit}.</span>{meta.url && <> <a href={meta.url} target="_blank" rel="noreferrer" className="underline text-[var(--brass)]">See it on earth.gov</a></>}</p>}
         </div>
 
-        <aside className="space-y-3" aria-label="Choose an image">
+        <section className="space-y-3" aria-label="Choose an image">
           {mode === 'single' ? (
             <>
               <div className="label">{t('eicGroup')}</div>
@@ -527,7 +535,7 @@ export const FrameJukebox: React.FC<JukeboxProps> = ({ autoPlay, onAutoPlayed, o
             This is sonification of the picture, so it tells you where the image is bright, not a measured value.
             On Earth Information Center charts, the titles, axis labels and legends are muted so the sound follows the data. Other text inside a picture can still make sound.
           </div>
-        </aside>
+        </section>
       </div>
     </section>
   );

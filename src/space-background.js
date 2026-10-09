@@ -10,9 +10,9 @@ function setupSpaceBackground() {
   }
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  // Cheap 2D canvas. It stops (one static frame) under reduced motion and while the tab is hidden.
+  // Cheap 2D canvas. It stops (one static frame) under reduced motion, with "pause background motion" and while the tab is hidden.
   const mq = matchMedia('(prefers-reduced-motion: reduce)');
-  const still = () => mq.matches || document.documentElement.classList.contains('rm');
+  const still = () => mq.matches || document.documentElement.classList.contains('rm') || document.documentElement.classList.contains('calm');
   let w, h, stars = [], raf = 0, reduce = still();
 
   const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
