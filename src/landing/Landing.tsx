@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react';
-import { Compass, Globe2, Headphones, Play } from 'lucide-react';
+import { ArrowDown, Compass, Globe2, Headphones, Play } from 'lucide-react';
 import type { EarthObservation } from '../types/dataset';
 import { usePrefs } from '../lib/prefs';
 import { TRACKS, type Track } from '../lib/nav';
@@ -49,8 +49,8 @@ export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen,
   const [sylhet, setSylhet] = useState<number[]>([]);
   const [temps, setTemps] = useState<number[]>([]);
   useEffect(() => {
-    fetch('/data/bangladesh_monsoon.json').then((r) => r.json()).then((j) => setSylhet(j.cities.find((c: { name: string }) => c.name === 'Sylhet')?.p2026 ?? [])).catch(() => {});
-    fetch('/data/gistemp_global.json').then((r) => r.json()).then((j) => setTemps(j.series.map((p: { anomaly: number }) => p.anomaly))).catch(() => {});
+    fetch('/data/bangladesh_monsoon.json').then((r) => r.json()).then((j) => setSylhet(j.cities.find((c: { name: string }) => c.name === 'Sylhet')?.p2026 ?? [])).catch(() => { });
+    fetch('/data/gistemp_global.json').then((r) => r.json()).then((j) => setTemps(j.series.map((p: { anomaly: number }) => p.anomaly))).catch(() => { });
   }, []);
   const fireWave = [...fireObs].sort((a, b) => a.longitude - b.longitude).map((o) => o.value);
   const visual: Record<(typeof TRACKS)[number]['id'], React.ReactNode> = {
@@ -81,6 +81,7 @@ export const Landing: React.FC<Props> = ({ fireObs, onPick, onExplore, onListen,
             </div>
             <p className="mt-3 text-sm text-[var(--ink-3)] flex items-start gap-2"><Headphones className="w-4 h-4 mt-0.5 shrink-0" />{t('heroHeadphones')} {t('heroNote')}</p>
           </div>
+          <button className="btn btn-ghost self-start" onClick={() => scrollTo('landing-split')}><ArrowDown className="w-4 h-4" />{t('scrollHint')}</button>
         </div>
       </section>
 

@@ -4,7 +4,6 @@ import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';
 import { AudioContextManager } from './audio/audioContext';
 import { SonificationEngine } from './audio/sonificationEngine';
-import { recordOutput } from './audio/recorder';
 import { Accessible2DMap } from './map/Accessible2DMap';
 import { AudioFirstMode } from './accessibility/AudioFirstMode';
 import { Header } from './components/Header';
@@ -71,7 +70,6 @@ export function App() {
   const [dataOpen, setDataOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [diagnostics, setDiagnostics] = useState(false);
-  const [recording, setRecording] = useState<string | null>(null);
   const [sheet, setSheet] = useState<'layers' | 'hearing' | 'place' | 'country' | null>(null);
   const [place, setPlace] = useState<{ lat: number; lon: number } | null>(null);
   const cty = useCountry(initialShare?.c);
@@ -148,13 +146,6 @@ export function App() {
     setTourOpen(true);
   };
 
-  const record = async () => {
-    if (!audioReady) await soundOn();
-    const name = await recordOutput(30, (s) => setRecording(t('recording', { s })));
-    setRecording(name ? t('recordSaved', { name }) : null);
-    window.setTimeout(() => setRecording(null), 2500);
-  };
-
   // Keyboard shortcuts (ignored while typing in a field).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -209,8 +200,7 @@ export function App() {
 
       <Header track={track} onLanding={showHero} onTrack={(tr) => { navigate(tr); setShowHero(false); setTourOpen(false); }} lastJukebox={lastJukebox}
         audioReady={audioReady} onToggleAudio={() => (audioReady ? soundOff() : soundOn())} onListen={listenNow}
-        onHome={() => { setShowHero(true); setTourOpen(false); setStage(0); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)}
-        recording={recording} onRecord={record} />
+        onHome={() => { setShowHero(true); setTourOpen(false); setStage(0); }} onTour={startTour} onData={() => setDataOpen(true)} onSettings={() => setSettingsOpen(true)} />
 
       <main id="main" className="flex-1 relative w-full overflow-hidden">
         {/* First child = the visual canvas (the landing hero shows the globe from here). */}

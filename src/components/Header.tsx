@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Volume2, VolumeX, Settings, Database, Circle, Compass, Menu, X, Pause, Play } from 'lucide-react';
+import { Volume2, VolumeX, Settings, Database, Compass, Menu, X, Pause, Play } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { usePlayback } from '../lib/playbackContext';
 import { JUKEBOX_TRACKS, sectionOf, type Section, type Track } from '../lib/nav';
@@ -20,11 +20,9 @@ interface Props {
   onTour: () => void;
   onData: () => void;
   onSettings: () => void;
-  recording: string | null;
-  onRecord: () => void;
 }
 
-export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox, audioReady, onToggleAudio, onHome, onListen, onTour, onData, onSettings, recording, onRecord }) => {
+export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox, audioReady, onToggleAudio, onHome, onListen, onTour, onData, onSettings }) => {
   const { t } = usePrefs();
   const { active, pause } = usePlayback();
   const [menu, setMenu] = useState(false);
@@ -88,10 +86,6 @@ export const Header: React.FC<Props> = ({ track, onLanding, onTrack, lastJukebox
           {!active && <button className="btn btn-brass hidden md:inline-flex" onClick={onListen}><Play className="w-4 h-4" />{t('listenNow')}</button>}
           <button className="btn btn-ghost hidden md:inline-flex" onClick={onTour} aria-label={t('tour')}><Compass className="w-4 h-4" /><span className="hidden 2xl:inline">{t('tour')}</span></button>
           <button className="btn btn-ghost btn-icon" onClick={onData} aria-label={t('data')} title={t('data')}><Database className="w-4 h-4" /></button>
-          <button className="btn btn-ghost hidden sm:inline-flex" onClick={onRecord} disabled={!!recording || !audioReady} title={audioReady ? t('record') : t('soundOn')}>
-            <Circle className={`w-3.5 h-3.5 ${recording ? 'fill-rose-500 text-rose-500 animate-pulse' : 'text-rose-400'}`} />
-            <span className={`${recording ? 'inline' : 'hidden 2xl:inline'} tnum`}>{recording ?? t('record')}</span>
-          </button>
           <button className="btn btn-ghost btn-icon" onClick={onSettings} aria-label={t('settings')}><Settings className="w-4.5 h-4.5" /></button>
           <button className="btn" onClick={onToggleAudio} aria-pressed={audioReady} title={`${audioReady ? t('soundOn') : t('soundOff')} (S)`} aria-label={audioReady ? t('soundOn') : t('soundOff')}>
             {audioReady ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
