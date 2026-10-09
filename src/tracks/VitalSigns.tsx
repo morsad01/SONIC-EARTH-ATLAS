@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Play, Square, Loader2, Upload } from 'lucide-react';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';
+import { usePlaybackReport } from '../lib/playbackContext';
 
 interface Pt { year: number; value: number }
 interface Series { id: string; unit: string; source: string; points: Pt[]; baseline?: number }
@@ -32,7 +33,7 @@ function parseCsv(text: string): Pt[] {
 }
 
 export const VitalSigns: React.FC = () => {
-  const { lang, narration } = usePrefs();
+  const { t, lang, narration } = usePrefs();
   const [data, setData] = useState<Record<string, Series> | null>(null);
   const [tab, setTab] = useState<Tab>('temp');
   const [own, setOwn] = useState<{ name: string; points: Pt[] } | null>(null);
@@ -66,6 +67,7 @@ export const VitalSigns: React.FC = () => {
     drone.current = null;
     setPlaying(false);
   };
+  usePlaybackReport('pulse', t('track4'), playing, stop);
   useEffect(() => () => stop(), []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { stop(); setI(-1); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
 

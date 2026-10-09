@@ -5,11 +5,14 @@ import './space-background.css'
 import './space-background.js'
 import App from './App.tsx'
 import { PrefsProvider } from './lib/prefs'
+import { PlaybackProvider } from './lib/playbackContext'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <PrefsProvider>
-      <App />
+      <PlaybackProvider>
+        <App />
+      </PlaybackProvider>
     </PrefsProvider>
   </StrictMode>,
 )

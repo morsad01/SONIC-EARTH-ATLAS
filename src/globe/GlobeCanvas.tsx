@@ -2,6 +2,8 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import type { EarthObservation, PhenomenonType } from '../types/dataset';
 import { SonificationEngine } from '../audio/sonificationEngine';
+import { usePrefs } from '../lib/prefs';
+import { framingTarget, idleSpin, type Framing } from './framing';
 
 interface GlobeCanvasProps {
   observations: EarthObservation[];
@@ -13,6 +15,7 @@ interface GlobeCanvasProps {
   imageryUrl?: string | null;
   onPickPlace?: (p: { lat: number; lon: number }) => void;
   pickedPlace?: { lat: number; lon: number } | null;
+  framing?: Framing;
 }
 
 export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
@@ -25,7 +28,9 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   imageryUrl = null,
   onPickPlace,
   pickedPlace = null,
+  framing = 'explore',
 }) => {
+  const { reduceMotion } = usePrefs();
   const earthMeshRef = useRef<THREE.Mesh | null>(null);
   const pinRef = useRef<THREE.Mesh | null>(null);
   const downPosRef = useRef({ x: 0, y: 0 });
@@ -52,11 +57,16 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
   const autoRotateRef = useRef(autoRotate);
   const targetFocusRef = useRef(targetFocus);
   const selectedObservationRef = useRef(selectedObservation);
+  const framingRef = useRef(framing);
+  const reduceRef = useRef(reduceMotion);
+  const frameRef = useRef(framingTarget(framing, 1.6)); // eased toward every frame
   // Keep the latest props where the animation loop and event handlers can read them.
   useLayoutEffect(() => {
     autoRotateRef.current = autoRotate;
     targetFocusRef.current = targetFocus;
     selectedObservationRef.current = selectedObservation;
+    framingRef.current = framing;
+    reduceRef.current = reduceMotion;
   });
 
   useEffect(() => {
@@ -70,7 +80,8 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0, width / height < 0.8 ? 10.5 : 7.2);
+    frameRef.current = framingTarget(framingRef.current, width / height);
+    camera.position.set(0, 0, frameRef.current.z);
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -122,6 +133,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const globeGroup = new THREE.Group();
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
+    globeGroup.position.set(frameRef.current.x, frameRef.current.y, 0);
 
     // Realistic Earth Sphere (100% Opaque, Solid Earth surface)
     const earthRadius = 2.0;
@@ -221,10 +233,17 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
-      // Revolving cloud layer rotation
-      if (cloudMeshRef.current) {
+      const reduce = reduceRef.current;
+      // Revolving cloud layer rotation (non-essential, off with reduced motion)
+      if (cloudMeshRef.current && !reduce) {
         cloudMeshRef.current.rotation.y += 0.00045;
       }
+
+      // Ease the framing (landing stages / Atlas). Reduced motion jumps.
+      const ft = frameRef.current, k = reduce ? 1 : 0.06;
+      globeGroup.position.x += (ft.x - globeGroup.position.x) * k;
+      globeGroup.position.y += (ft.y - globeGroup.position.y) * k;
+      camera.position.z += (ft.z - camera.position.z) * k;
 
       // Smooth camera interpolation toward guided demo target region
       if (targetFocusRef.current && !isDraggingRef.current && globeGroupRef.current) {
@@ -236,10 +255,11 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
         if (diffY > Math.PI) diffY -= Math.PI * 2;
         if (diffY < -Math.PI) diffY += Math.PI * 2;
 
-        globeGroupRef.current.rotation.y += diffY * 0.045;
-        globeGroupRef.current.rotation.x += (targetX - globeGroupRef.current.rotation.x) * 0.045;
+        const kf = reduce ? 1 : 0.045;
+        globeGroupRef.current.rotation.y += diffY * kf;
+        globeGroupRef.current.rotation.x += (targetX - globeGroupRef.current.rotation.x) * kf;
       } else if (autoRotateRef.current && !isDraggingRef.current && globeGroupRef.current) {
-        globeGroupRef.current.rotation.y += 0.0015;
+        globeGroupRef.current.rotation.y += idleSpin(framingRef.current, reduce);
       }
 
       // Synchronize visual acoustic emission beacons on Earth surface with Web Audio active voices
@@ -282,6 +302,7 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       const h = containerRef.current.clientHeight;
       cameraRef.current.aspect = w / h;
       cameraRef.current.updateProjectionMatrix();
+      frameRef.current = framingTarget(framingRef.current, w / h);
       rendererRef.current.setSize(w, h);
     };
 
@@ -306,6 +327,13 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
       starMaterial.dispose();
     };
   }, []);
+
+  // --- New framing: set the target; the loop eases toward it ---
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !el.clientHeight) return;
+    frameRef.current = framingTarget(framing, el.clientWidth / el.clientHeight);
+  }, [framing]);
 
   // --- Pin position for the picked place ---
   useEffect(() => {
@@ -511,7 +539,9 @@ export const GlobeCanvas: React.FC<GlobeCanvasProps> = ({
     e.preventDefault();
     if (!cameraRef.current) return;
     const zoomFactor = e.deltaY * 0.003;
-    cameraRef.current.position.z = Math.max(3.6, Math.min(9.0, cameraRef.current.position.z + zoomFactor));
+    const z = Math.max(3.6, Math.min(Math.max(9.0, frameRef.current.z), frameRef.current.z + zoomFactor));
+    frameRef.current = { ...frameRef.current, z };
+    cameraRef.current.position.z = z;
   };
 
   return (

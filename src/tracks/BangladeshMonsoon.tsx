@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Play, Square, Loader2 } from 'lucide-react';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';
+import { usePlaybackReport } from '../lib/playbackContext';
 
 interface City { name: string; nameBn: string; lat: number; lon: number; p2026: number[]; p2025: number[]; climP: number[] }
 interface Monsoon { dates2026: string[]; dates2025: string[]; cities: City[]; outline: [number, number][][]; source: string }
@@ -53,6 +54,7 @@ export const BangladeshMonsoon: React.FC = () => {
     setPlaying(false);
   };
 
+  usePlaybackReport('monsoon', t('track3'), playing, stop);
   const start = async () => {
     if (!data) return;
     const ctx = await AudioContextManager.init();

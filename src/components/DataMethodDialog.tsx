@@ -1,14 +1,16 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { NORMALIZATION_SPECS } from '../sonification/normalizer';
+import { usePrefs } from '../lib/prefs';
 
-interface Props { open: boolean; onClose: () => void; sstGlobal?: { areaWeightedMeanAnomalyC: number; fractionWarmerThanNormal: number } }
+interface Props { open: boolean; onClose: () => void; onAbout?: () => void; sstGlobal?: { areaWeightedMeanAnomalyC: number; fractionWarmerThanNormal: number } }
 
 const Row: React.FC<{ k: string; children: React.ReactNode }> = ({ k, children }) => (
   <div className="grid sm:grid-cols-[150px_1fr] gap-1 sm:gap-4 py-2 border-t border-[var(--line)]"><dt className="label">{k}</dt><dd className="text-sm leading-relaxed">{children}</dd></div>
 );
 
-export const DataMethodDialog: React.FC<Props> = ({ open, onClose, sstGlobal }) => {
+export const DataMethodDialog: React.FC<Props> = ({ open, onClose, onAbout, sstGlobal }) => {
+  const { t } = usePrefs();
   useEffect(() => {
     if (!open) return;
     const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -24,6 +26,7 @@ export const DataMethodDialog: React.FC<Props> = ({ open, onClose, sstGlobal }) 
           <div>
             <h2 id="data-title" className="font-display text-3xl font-extrabold">Data and method</h2>
             <p className="mt-2 text-[var(--ink-2)] max-w-[70ch]">Everything you hear comes from public NASA sources (plus the NOAA CO₂ and NSIDC sea-ice records that NASA itself uses on its Vital Signs pages). Raw extracts and the scripts that turn them into the app's files are in the repository (<code>scripts/raw/</code>, <code>scripts/build-snapshots.mjs</code>). No value was typed in by hand or smoothed.</p>
+            {onAbout && <button className="btn mt-3" onClick={onAbout}>{t('readAbout')}</button>}
           </div>
           <button className="btn btn-ghost btn-icon shrink-0" onClick={onClose} aria-label="Close"><X className="w-5 h-5" /></button>
         </div>
