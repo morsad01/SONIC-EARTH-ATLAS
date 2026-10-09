@@ -23,7 +23,7 @@ export const LayersPanel: React.FC<Props> = ({ enabled, onToggle, counts, status
     <div className="panel p-3 space-y-2" role="group" aria-label={t('layers')}>
       <div className="flex items-center justify-between px-1">
         <h2 className="font-display font-semibold text-lg">{t('layers')}</h2>
-        <span className={`chip ${isFallback ? 'border-amber-400/60 text-amber-200' : 'border-emerald-400/40 text-emerald-200'}`}>
+        <span className={`chip ${isFallback ? 'border-[var(--brass)] text-[var(--brass)]' : 'border-[var(--teal)] text-[var(--teal)]'}`}>
           <span className="dot" style={{ background: isFallback ? '#fbbf24' : '#34d399' }} />{isFallback ? 'Sample' : t('realData')}
         </span>
       </div>
@@ -48,7 +48,7 @@ export const LayersPanel: React.FC<Props> = ({ enabled, onToggle, counts, status
                 <Volume2 className="w-4 h-4" />
               </button>
             </div>
-            {st?.loaded && <p className="text-[11px] leading-snug text-[var(--ink-3)] mt-1.5 pl-12">{st.sourceName}. {st.infoText}.</p>}
+            {st?.loaded && <p className="text-2xs leading-snug text-[var(--ink-3)] mt-1.5 pl-12">{st.sourceName}. {st.infoText}.</p>}
           </div>
         );
       })}

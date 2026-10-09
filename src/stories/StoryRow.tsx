@@ -1,4 +1,5 @@
 import { memo, useEffect, useRef } from 'react';
+import { ImgOr } from '../components/ImgOr';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { EIC_FRAMES } from '../lib/eicFrames';
@@ -48,21 +49,21 @@ export const StoryRow = memo(function StoryRow({ stories, activeId, onSelect, sp
         </div>
       </div>
       {!stories.length ? <p className="text-sm text-[var(--ink-3)]">{t('jbNoStories')}</p> : (
-        <ul ref={row} className="story-row flex gap-3 overflow-x-auto pb-2 scroll-thin" aria-label={t('jbStories')}>
+        <ul ref={row} className="story-row fade-x flex gap-3 overflow-x-auto pb-2 pe-6 scroll-thin" aria-label={t('jbStories')}>
           {stories.map((s, i) => {
             const active = s.id === activeId, frame = s.frameId ? EIC_FRAMES.find((f) => f.id === s.frameId) : null;
             return (
               <li key={s.id} className="story-card shrink-0">
                 <button ref={(el) => { if (el) cards.current.set(s.id, el); else cards.current.delete(s.id); }} type="button" tabIndex={i === activeIdx ? 0 : -1}
                   aria-pressed={active} onClick={() => onSelect(s.id)} onKeyDown={(e) => onKey(e, i)}
-                  className={`w-full h-full text-left rounded-xl border p-3 flex flex-col gap-2 cursor-pointer lift ${active ? 'border-[var(--brass)] bg-[var(--panel-2)] shadow-[inset_0_-3px_0_var(--brass)]' : 'border-[var(--line)] bg-[color-mix(in_srgb,var(--panel)_85%,transparent)]'}`}>
-                  <div className="flex flex-wrap gap-1 text-[11px]">
+                  className={`w-full h-full text-left rounded-xl border p-3 flex flex-col gap-2 cursor-pointer lift ${active ? 'border-[var(--brass)] bg-[var(--panel-2)] shadow-[inset_0_-3px_0_var(--brass)]' : 'glass-flat'}`}>
+                  <div className="flex flex-wrap gap-1 text-2xs">
                     <span className="chip">{t(topicKey(s.topic))}</span>
                     <span className="chip">{regionLabel(s, lang, t)}</span>
                     {s.isSample && <span className="chip border-[var(--warm)]">{t('provSample')}</span>}
                     {active && <span className="chip border-[var(--brass)] text-[var(--brass)]">{t('jbNowShowing')}</span>}
                   </div>
-                  {frame ? <img src={frame.src} alt="" loading="lazy" className="w-full h-10 object-cover rounded opacity-90" /> : <Spark points={sparks[s.id]} />}
+                  {frame ? <ImgOr src={frame.src} alt="" loading="lazy" className="w-full h-10 object-cover rounded opacity-90" /> : <Spark points={sparks[s.id]} />}
                   <span className="font-semibold leading-snug text-sm">{lang === 'bn' ? s.titleBn : s.title}</span>
                   <span className="text-xs text-[var(--ink-3)] tnum mt-auto">{s.visual === 'eic' ? t('jbPicture') : s.period}</span>
                 </button>

@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const TourBar: React.FC<Props> = ({ open, onClose, onApply }) => {
-  const { lang, narration } = usePrefs();
+  const { t, lang, narration } = usePrefs();
   // Step and time in the step move together; the ticker advances both, so no effect has to reset them.
   const [pos, setPos] = useState({ i: 0, elapsed: 0 });
   const [paused, setPaused] = useState(false);
@@ -38,14 +38,14 @@ export const TourBar: React.FC<Props> = ({ open, onClose, onApply }) => {
   if (!open || done) return null;
   const s = TOUR[i];
   return (
-    <div className="absolute left-1/2 -translate-x-1/2 top-3 z-30 w-[min(720px,calc(100%-24px))] panel p-3 sm:p-4 shadow-2xl" role="region" aria-label="Guided tour">
+    <div className="absolute left-1/2 -translate-x-1/2 top-[calc(var(--header-h)+.75rem)] z-30 w-[min(720px,calc(100%-24px))] glass-pop p-3 sm:p-4" role="region" aria-label={t('tourRegion')}>
       <div className="flex items-start gap-3">
         <span className="tnum text-xs font-semibold rounded-full border border-[var(--brass)] text-[var(--brass)] px-2 py-0.5 mt-0.5 shrink-0">{i + 1}/{TOUR.length}</span>
-        <p className="flex-1 text-[15px] leading-snug" aria-live="polite">{lang === 'bn' ? s.bn : s.en}</p>
+        <p className="flex-1 text-base leading-snug" aria-live="polite">{lang === 'bn' ? s.bn : s.en}</p>
         <div className="flex gap-1 shrink-0">
           <button className="btn btn-ghost btn-icon" onClick={() => setPaused(!paused)} aria-label={paused ? 'Resume tour' : 'Pause tour'}>{paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}</button>
-          <button className="btn btn-ghost btn-icon" onClick={() => setPos({ i: i + 1, elapsed: 0 })} aria-label="Next step"><SkipForward className="w-4 h-4" /></button>
-          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label="End tour"><X className="w-4 h-4" /></button>
+          <button className="btn btn-ghost btn-icon" onClick={() => setPos({ i: i + 1, elapsed: 0 })} aria-label={t('tourNext')}><SkipForward className="w-4 h-4" /></button>
+          <button className="btn btn-ghost btn-icon" onClick={onClose} aria-label={t('tourEnd')}><X className="w-4 h-4" /></button>
         </div>
       </div>
       <div className="mt-2 h-1 rounded bg-[var(--line)] overflow-hidden"><div className="h-full bg-[var(--brass)]" style={{ width: `${Math.min(100, (elapsed / s.ms) * 100)}%` }} /></div>

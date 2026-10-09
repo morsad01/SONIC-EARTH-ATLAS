@@ -4,7 +4,7 @@ Record at 1920×1080 with system audio. Wear headphones while recording and say 
 
 | Time | Screen | Say |
 |---|---|---|
-| 0:00–0:25 | Landing page, scroll once: the globe moves from the hero into the split view | "Sonic Earth Atlas turns NASA Earth data into sound you can explore. Every sound is generated live from real observations. Nothing is pre-recorded." |
+| 0:00–0:25 | Landing page: Get started, the Earth glides right, Learn more zooms into the NASA picture | "Sonic Earth Atlas turns NASA Earth data into sound you can explore. Every sound is generated live from real observations. Nothing is pre-recorded." |
 | 0:25–0:55 | **Explore the globe**, type "Bangladesh" in the country search with the keyboard, press Enter | "Pick any country by clicking or by typing. The globe flies there and outlines the border. The profile lists only what we really have: here, no fire cell or rain point falls inside the border this week, and it says so instead of inventing one. It has the monsoon story and 45 years of NASA POWER at a labelled point." |
 | 0:55–1:20 | Press **Explore its sound**: the Data Jukebox opens on the country's temperature story | "The Data Jukebox puts each story on one timeline. Every value shows its source, unit, period and method." |
 | 1:20–2:05 | Choose **Global temperature since 1880**, set Filters to 1951–1980, tick **Compare two periods**, B = 1996–2025, A left / B right, press **Play** | "Same mapping in both ears. 1951–1980 plays around B3 to E4. The last thirty years sit around G4 to E5, almost an octave higher. That is the warming you just heard." |

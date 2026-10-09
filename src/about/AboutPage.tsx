@@ -31,9 +31,9 @@ const H2: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children 
 export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod }) => {
   const { t, lang } = usePrefs();
   return (
-    <div className="h-full overflow-y-auto">
+    <div className="h-full overflow-y-auto pt-[var(--header-h)]">
       <article className="prose-sea max-w-5xl mx-auto px-5 sm:px-10 py-10" aria-labelledby="about-title">
-        <h1 id="about-title" className="font-display font-extrabold text-[clamp(2rem,6vw,3.5rem)] leading-tight">{t('aboutTitle')}</h1>
+        <h1 id="about-title" className="font-display font-extrabold text-4xl leading-tight">{t('aboutTitle')}</h1>
         <p className="mt-3 text-lg">{t('aboutLead')}</p>
 
         <section aria-labelledby="a-how">
@@ -54,7 +54,7 @@ export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod
           <H2 id="a-map">{t('aboutMappingTitle')}</H2>
           <p>{t('aboutMappingLead')}</p>
           <div className="mt-4 overflow-x-auto panel-solid">
-            <table className="w-full min-w-[720px] text-sm text-left align-top">
+            <table className="stack-table w-full sm:min-w-[720px] text-sm text-left align-top">
               <thead className="text-[var(--ink-3)]">
                 <tr>{(['colLayer', 'colVariable', 'colResolution', 'colToNumber', 'colToSound'] as const).map((c) => <th key={c} scope="col" className="font-medium p-3 border-b border-[var(--line)]">{t(c)}</th>)}</tr>
               </thead>
@@ -63,11 +63,11 @@ export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod
                   const m = DATASET_CATALOG[l.id];
                   return (
                     <tr key={l.id} className="border-b border-[var(--line)] last:border-0 align-top">
-                      <th scope="row" className="p-3 font-semibold whitespace-nowrap"><span className="dot mr-2" style={{ background: l.color }} aria-hidden="true" />{t(l.name)}</th>
-                      <td className="p-3">{m.variableName}, {m.unit}<div className="label mt-1"><a className="link" href={m.sourceUrl} target="_blank" rel="noreferrer">{m.provider}</a></div></td>
-                      <td className="p-3">{m.spatialResolution}<div className="label mt-1">{m.temporalResolution}</div></td>
-                      <td className="p-3"><code className="text-xs break-words">{m.normalizationFormula}</code></td>
-                      <td className="p-3 text-[var(--ink-2)]">{m.audioFormula}</td>
+                      <th scope="row" className="p-3 font-semibold sm:whitespace-nowrap"><span className="dot mr-2" style={{ background: l.color }} aria-hidden="true" />{t(l.name)}</th>
+                      <td data-label={t('colVariable')} className="p-3">{m.variableName}, {m.unit}<div className="label mt-1"><a className="link" href={m.sourceUrl} target="_blank" rel="noreferrer">{m.provider}</a></div></td>
+                      <td data-label={t('colResolution')} className="p-3">{m.spatialResolution}<div className="label mt-1">{m.temporalResolution}</div></td>
+                      <td data-label={t('colToNumber')} className="p-3"><code className="text-xs break-words">{m.normalizationFormula}</code></td>
+                      <td data-label={t('colToSound')} className="p-3 text-[var(--ink-2)]">{m.audioFormula}</td>
                     </tr>
                   );
                 })}
@@ -77,7 +77,7 @@ export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod
           <h3 className="font-display text-lg font-semibold mt-6">{t('aboutSeriesTitle')}</h3>
           <p className="mt-1">{t('aboutSeriesLead')}</p>
           <div className="mt-3 overflow-x-auto panel-solid" tabIndex={0} role="region" aria-label={t('aboutSeriesTitle')}>
-            <table className="w-full min-w-[640px] text-sm text-left align-top">
+            <table className="stack-table w-full sm:min-w-[640px] text-sm text-left align-top">
               <thead className="text-[var(--ink-3)]">
                 <tr>{(['colSeries', 'colRange', 'colBaseline', 'colToSound'] as const).map((c) => <th key={c} scope="col" className="font-medium p-3 border-b border-[var(--line)]">{t(c)}</th>)}</tr>
               </thead>
@@ -85,9 +85,9 @@ export const AboutPage: React.FC<{ onOpenMethod: () => void }> = ({ onOpenMethod
                 {Object.values(SPECS).map((sp) => (
                   <tr key={sp.id} className="border-b border-[var(--line)] last:border-0 align-top">
                     <th scope="row" className="p-3 font-semibold">{lang === 'bn' ? sp.label.bn : sp.label.en}</th>
-                    <td className="p-3 tnum whitespace-nowrap">{sp.ref[0]} – {sp.ref[1]} {sp.unit}{sp.curve === 'sqrt' && <div className="label mt-1">{t('aboutSqrt')}</div>}</td>
-                    <td className="p-3">{sp.baseline === null ? '—' : sp.baselineLabel ?? `${sp.baseline} ${sp.unit}`}</td>
-                    <td className="p-3 text-[var(--ink-2)]">{lang === 'bn' ? sp.legend.bn : sp.legend.en}</td>
+                    <td data-label={t('colRange')} className="p-3 tnum sm:whitespace-nowrap">{sp.ref[0]} – {sp.ref[1]} {sp.unit}{sp.curve === 'sqrt' && <div className="label mt-1">{t('aboutSqrt')}</div>}</td>
+                    <td data-label={t('colBaseline')} className="p-3">{sp.baseline === null ? '—' : sp.baselineLabel ?? `${sp.baseline} ${sp.unit}`}</td>
+                    <td data-label={t('colToSound')} className="p-3 text-[var(--ink-2)]">{lang === 'bn' ? sp.legend.bn : sp.legend.en}</td>
                   </tr>))}
               </tbody>
             </table>

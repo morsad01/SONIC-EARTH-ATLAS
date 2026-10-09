@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "test": "vitest run",
-    "test:e2e": "playwright test smoke no-webgl",
+    "test:e2e": "playwright test smoke no-webgl carousel",
     "test:a11y": "playwright test a11y",
     "preview": "vite preview",
     "fetch:firms": "node scripts/fetch-firms.mjs",

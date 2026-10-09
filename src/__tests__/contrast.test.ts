@@ -58,3 +58,18 @@ describe('design tokens', () => {
     for (const d of new Set(durs)) expect(rm).toContain(`${d}: 0ms`);
   });
 });
+
+describe('glass surfaces (composited over the backdrop)', () => {
+  const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const mix = (top: string, a: number, under: string) => `#${hex(top).map((v, i) => Math.round(v * a + hex(under)[i] * (1 - a)).toString(16).padStart(2, '0')).join('')}`;
+  const alpha = (name: string) => Number(css.match(new RegExp(`--${name}:\\s*color-mix\\(in srgb, var\\(--panel\\) (\\d+)%`))?.[1]) / 100;
+  // Under the glass: deep space, and a lit ocean pixel of the globe as a bright case.
+  for (const under of ['#071019', '#5a7a9a']) {
+    for (const g of ['glass-bg', 'glass-bg-strong']) {
+      for (const fg of ['ink', 'ink-2']) {
+        it(`--${fg} on --${g} over ${under}`, () => expect(ratio(token(fg), mix(token('panel'), alpha(g), under))).toBeGreaterThanOrEqual(4.5));
+      }
+    }
+  }
+  it('--ink-3 on the strong glass over deep space', () => expect(ratio(token('ink-3'), mix(token('panel'), alpha('glass-bg-strong'), '#071019'))).toBeGreaterThanOrEqual(4.5));
+});
