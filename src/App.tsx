@@ -245,7 +245,7 @@ export function App() {
               onApply={(layers, d, change, f) => { setEnabled(layers); setDay(Math.min(d, Math.max(0, slices.length - 1))); setHearChange(change); setFocus(f); if (view !== '3d-globe') setView('3d-globe'); }} />
 
             {/* Desktop side column */}
-            <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-[calc(var(--header-h)+.75rem)] bottom-[118px] w-[320px] overflow-y-auto scroll-thin z-20 pb-1">
+            <div className="hidden lg:flex flex-col gap-3 absolute left-3 top-[calc(var(--header-h)+.75rem)] bottom-[75px] w-[340px] max-h-[calc(100vh-var(--header-h)-5.25rem)] overflow-y-auto scroll-thin z-20 pb-4">
               {view !== 'audio-first' && countryPanel}
               {layersPanel}
               {hearingPanel}

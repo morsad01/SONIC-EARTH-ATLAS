@@ -16,9 +16,9 @@ export function ProvenanceCard({ series: s, defaultOpen = false }: { series: Dat
         <h3 className="font-semibold text-[var(--ink)]">{s.variable}</h3>
         <span className="chip" style={b === 'live' ? { borderColor: 'var(--accent)' } : undefined}>{badge}</span>
       </div>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-[var(--ink-2)]">
-        <dt className="text-[var(--ink-3)]">{t('provUnit')}</dt><dd>{s.unit}</dd>
-        <dt className="text-[var(--ink-3)]">{t('provPeriod')}</dt><dd className="tnum">{s.period}</dd>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-xs text-[var(--ink-2)] min-w-0">
+        <dt className="text-[var(--ink-3)]">{t('provUnit')}</dt><dd className="break-words">{s.unit}</dd>
+        <dt className="text-[var(--ink-3)]">{t('provPeriod')}</dt><dd className="tnum break-words">{s.period}</dd>
         <dt className="text-[var(--ink-3)]">{t('provSpatial')}</dt><dd>{s.spatialResolution}</dd>
         <dt className="text-[var(--ink-3)]">{t('provTemporal')}</dt><dd>{s.temporalResolution}</dd>
         <dt className="text-[var(--ink-3)]">{t('provSource')}</dt>
