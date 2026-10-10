@@ -40,9 +40,15 @@ export const BangladeshMonsoon: React.FC = () => {
   const [day, setDay] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [focus, setFocus] = useState('Sylhet');
+  const [playScope, setPlayScope] = useState<'focus' | 'all'>('focus');
   const [showGuide, setShowGuide] = useState(false);
   const timer = useRef<number | null>(null);
   const out = useRef<GainNode | null>(null);
+  const focusRef = useRef(focus);
+  const playScopeRef = useRef(playScope);
+
+  useEffect(() => { focusRef.current = focus; }, [focus]);
+  useEffect(() => { playScopeRef.current = playScope; }, [playScope]);
 
   useEffect(() => {
     fetch('/data/bangladesh_monsoon.json')
@@ -96,7 +102,13 @@ export const BangladeshMonsoon: React.FC = () => {
     let d = day >= dates.length - 1 ? 0 : day;
     const tick = () => {
       const now = ctx.currentTime;
-      for (const c of data.cities) {
+      const curFocus = focusRef.current;
+      const curScope = playScopeRef.current;
+      const targetCities = curScope === 'focus'
+        ? data.cities.filter((c) => c.name === curFocus)
+        : data.cities;
+
+      for (const c of targetCities) {
         const mm = series(c)[d];
         if (!(mm > 0.5)) continue;
         const drops = Math.min(10, Math.round(Math.sqrt(mm) * 1.4));
@@ -119,8 +131,10 @@ export const BangladeshMonsoon: React.FC = () => {
       }
       setDay(d);
       if (d % 30 === 0 && narration) {
-        const top = [...data.cities].sort((a, b) => series(b)[d] - series(a)[d])[0];
-        speak(`${fmtDate(dates[d])}: ${cityName(top)} ${num(series(top)[d])} ${lang === 'bn' ? 'মিলিমিটার' : 'millimetres'}`, lang);
+        const narratedCity = curScope === 'focus'
+          ? (data.cities.find((c) => c.name === curFocus) ?? data.cities[0])
+          : [...data.cities].sort((a, b) => series(b)[d] - series(a)[d])[0];
+        speak(`${fmtDate(dates[d])}: ${cityName(narratedCity)} ${num(series(narratedCity)[d])} ${lang === 'bn' ? 'মিলিমিটার' : 'millimetres'}`, lang);
       }
       d++;
       if (d >= dates.length) stop();
@@ -193,18 +207,43 @@ export const BangladeshMonsoon: React.FC = () => {
         {/* Control Bar & Timeline Scrubber */}
         <div className="panel p-4 flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={playing ? stop : start}
-                className="btn btn-brass min-w-[130px] min-h-[44px] text-base font-semibold shadow-md"
+                className="btn btn-brass min-w-[140px] min-h-[44px] text-base font-semibold shadow-md"
               >
                 {playing ? (
                   <><Square className="w-4 h-4 fill-current" /> {t('stop')}</>
                 ) : (
-                  <><Play className="w-4 h-4 fill-current" /> {t('play')} {lang === 'bn' ? bnNum(year) : year}</>
+                  <><Play className="w-4 h-4 fill-current" /> {t('play')} {lang === 'bn' ? bnNum(year) : year} {playScope === 'focus' ? `(${cityName(fc)})` : (lang === 'bn' ? '(সব)' : '(All)')}</>
                 )}
               </button>
 
+              {/* Playback Scope Toggle (Focused City vs All Divisions) */}
+              <div className="flex rounded-lg border border-[var(--line)] p-0.5 bg-[var(--panel-2)]" role="group" aria-label="Audio Playback Scope">
+                <button
+                  type="button"
+                  className={`btn btn-ghost min-h-[36px] px-3 text-xs font-semibold flex items-center gap-1.5 ${playScope === 'focus' ? 'bg-[var(--brass)] text-[var(--brass-ink)] shadow-sm' : 'text-[var(--ink-2)]'}`}
+                  aria-pressed={playScope === 'focus'}
+                  onClick={() => setPlayScope('focus')}
+                  title={lang === 'bn' ? `শুধুমাত্র ${cityName(fc)} এর শব্দ শুনুন` : `Play audio for ${cityName(fc)} only`}
+                >
+                  <span>🎯</span>
+                  <span>{lang === 'bn' ? `${cityName(fc)} (শুধুমাত্র)` : `${cityName(fc)} Only`}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`btn btn-ghost min-h-[36px] px-3 text-xs font-semibold flex items-center gap-1.5 ${playScope === 'all' ? 'bg-[var(--brass)] text-[var(--brass-ink)] shadow-sm' : 'text-[var(--ink-2)]'}`}
+                  aria-pressed={playScope === 'all'}
+                  onClick={() => setPlayScope('all')}
+                  title={lang === 'bn' ? 'সকল ৮টি বিভাগের সমন্বিত শব্দ শুনুন' : 'Play spatial audio for all 8 divisions'}
+                >
+                  <span>🌐</span>
+                  <span>{lang === 'bn' ? 'সকল ৮ বিভাগ' : 'All 8 Divisions'}</span>
+                </button>
+              </div>
+
+              {/* Year Toggle */}
               <div className="flex rounded-lg border border-[var(--line)] p-0.5 bg-[var(--panel-2)]" role="group" aria-label={t('year')}>
                 {[2026, 2025].map((y) => (
                   <button
