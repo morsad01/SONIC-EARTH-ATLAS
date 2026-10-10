@@ -321,16 +321,16 @@ export const BangladeshMonsoon: React.FC = () => {
 
             <div className="relative rounded-xl overflow-hidden bg-[#0d1c28] border border-[var(--line)] p-2">
               {/* Compass Direction Badges for Audio Orientation */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 text-[10px] text-cyan-300 font-mono px-2 py-0.5 rounded border border-cyan-800/50 z-10">
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-black/60 text-2xs text-cyan-300 font-mono px-2 py-0.5 rounded border border-cyan-800/50 z-10">
                 N ↑ {lang === 'bn' ? 'উঁচু সুর' : 'High Pitch'}
               </div>
-              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-[10px] text-cyan-300 font-mono px-2 py-0.5 rounded border border-cyan-800/50 z-10">
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-2xs text-cyan-300 font-mono px-2 py-0.5 rounded border border-cyan-800/50 z-10">
                 S ↓ {lang === 'bn' ? 'নিচু সুর' : 'Low Pitch'}
               </div>
-              <div className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/60 text-[10px] text-cyan-300 font-mono px-1.5 py-1 rounded border border-cyan-800/50 z-10">
+              <div className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/60 text-2xs text-cyan-300 font-mono px-1.5 py-1 rounded border border-cyan-800/50 z-10">
                 W ← {lang === 'bn' ? 'বাম কান' : 'Left Ear'}
               </div>
-              <div className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/60 text-[10px] text-cyan-300 font-mono px-1.5 py-1 rounded border border-cyan-800/50 z-10">
+              <div className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/60 text-2xs text-cyan-300 font-mono px-1.5 py-1 rounded border border-cyan-800/50 z-10">
                 E → {lang === 'bn' ? 'ডান কান' : 'Right Ear'}
               </div>
 
@@ -419,7 +419,7 @@ export const BangladeshMonsoon: React.FC = () => {
                   <h2 className="font-display text-xl font-bold flex items-center gap-2">
                     <span>{t('bdRainTitle', { city: cityName(fc), year: lang === 'bn' ? bnNum(year) : year })}</span>
                     {rankIndex === 0 && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--brass)] text-[var(--brass-ink)] font-bold flex items-center gap-1">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--brass)] text-[var(--brass-ink)] font-semibold flex items-center gap-1">
                         <Award className="w-3 h-3" /> #1 {lang === 'bn' ? 'সর্বোচ্চ বৃষ্টিপাত' : 'Wettest'}
                       </span>
                     )}
@@ -503,7 +503,7 @@ export const BangladeshMonsoon: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-sm">{cityName(s.c)}</span>
                         {idx === 0 && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--brass)] text-[var(--brass-ink)] font-bold">
+                          <span className="text-2xs px-1.5 py-0.5 rounded bg-[var(--brass)] text-[var(--brass-ink)] font-semibold">
                             #1
                           </span>
                         )}
@@ -526,7 +526,7 @@ export const BangladeshMonsoon: React.FC = () => {
                           />
                         </div>
                       </div>
-                      <div className="text-[11px] text-[var(--ink-3)] mt-2 tnum border-t border-[var(--line)] pt-1.5">
+                      <div className="text-2xs text-[var(--ink-3)] mt-2 tnum border-t border-[var(--line)] pt-1.5">
                         {t('bdYear', { year: lang === 'bn' ? bnNum(2025) : 2025, mm: num(s.t25) })}
                       </div>
                     </button>

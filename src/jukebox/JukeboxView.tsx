@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { decodeLocation, buildUrl } from '../lib/shareLink';
+import { decodeLocation, buildUrl, encodeShare, type ShareState } from '../lib/shareLink';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { usePlaybackReport } from '../lib/playbackContext';
@@ -92,14 +92,17 @@ export function JukeboxView({ countries, initialStory, initialT, onOpenCollectio
     return () => { on = false; };
   }, [stories, powerReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Story and cursor go into the share hash, other keys are kept.
+  // Story and cursor go into both history replaceState and hash for complete compatibility.
   useEffect(() => {
     const curShare = decodeLocation(window.location.pathname, window.location.search, window.location.hash, { frames: [], pairs: [] });
     if (curShare?.track && curShare.track !== 'jukebox') return;
-    const nextUrl = buildUrl({ ...curShare, track: 'jukebox', story: s.storyId ?? undefined, t: s.cursor ?? undefined });
+    const nextShare: ShareState = { ...curShare, track: 'jukebox', story: s.storyId ?? undefined, t: s.cursor ?? undefined };
+    const nextUrl = buildUrl(nextShare);
+    const nextHash = '#' + encodeShare(nextShare);
     if (window.location.pathname + window.location.search !== nextUrl) {
       history.replaceState(null, '', nextUrl);
     }
+    window.location.hash = nextHash;
   }, [s.storyId, s.cursor]);
 
   // Series player: loads what the chart shows (and period B when comparing); it reports cursor moves with origin 'playback'.
