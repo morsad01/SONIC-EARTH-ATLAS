@@ -1,4 +1,4 @@
-import { decodeLocation, buildUrl, decodeShare, encodeShare } from './lib/shareLink';
+import { decodeLocation, buildUrl, encodeShare } from './lib/shareLink';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import type { EarthObservation, PhenomenonType, DatasetTimeSlice } from './types/dataset';
 import { DatasetAdapter, type AdapterResult } from './datasets/adapter';

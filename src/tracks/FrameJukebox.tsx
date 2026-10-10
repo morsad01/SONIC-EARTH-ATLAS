@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Play, Square, ImagePlus, Loader2, AlertTriangle, Repeat, BookOpen, Link2 } from 'lucide-react';
 import { FRAMES, gibsUrl, loadFileCanvases, loadFrameCanvases, type NasaFrame } from '../lib/gibs';
 import { EIC_FRAMES, EIC_STORY } from '../lib/eicFrames';
-import { decodeLocation, buildUrl, decodeShare, encodeShare } from '../lib/shareLink';
+import { decodeLocation, encodeShare } from '../lib/shareLink';
 import { activeColumns, colAt, nextColumn, noteName, orderRange, rowAt, stepMs, timbreWord } from '../lib/frameSweep';
 import { AudioContextManager } from '../audio/audioContext';
 import { usePrefs, speak } from '../lib/prefs';

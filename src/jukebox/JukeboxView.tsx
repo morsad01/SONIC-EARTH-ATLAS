@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { decodeLocation, buildUrl, decodeShare, encodeShare } from '../lib/shareLink';
+import { decodeLocation, buildUrl } from '../lib/shareLink';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { usePrefs } from '../lib/prefs';
 import { usePlaybackReport } from '../lib/playbackContext';
