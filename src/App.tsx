@@ -91,9 +91,15 @@ export function App() {
         history.replaceState(null, '', '/');
       }
     } else {
-      const nextUrl = buildUrl({ ...curShare, track, c: cty.id ?? undefined });
-      if (window.location.pathname + window.location.search + window.location.hash !== nextUrl) {
-        history.replaceState(null, '', nextUrl);
+      const isLegacyHash = window.location.hash && window.location.hash.includes('v1&');
+      if (isLegacyHash) {
+        const nextHash = encodeShare({ ...curShare, track, c: cty.id ?? undefined });
+        if (window.location.hash !== nextHash) history.replaceState(null, '', nextHash);
+      } else {
+        const nextUrl = buildUrl({ ...curShare, track, c: cty.id ?? undefined });
+        if (window.location.pathname + window.location.search + window.location.hash !== nextUrl) {
+          history.replaceState(null, '', nextUrl);
+        }
       }
     }
   }, [track, showHero, cty.id]);

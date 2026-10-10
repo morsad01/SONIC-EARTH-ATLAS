@@ -76,10 +76,20 @@ export const WorldCarousel: React.FC<Props> = ({ data, onOpen, onTour, onListen,
       stage.style.setProperty('--p3', c(p - 2));
       setLevel(levelAt(p));
     };
-    if (start.level > 1) sc.scrollTop += el.getBoundingClientRect().top - sc.getBoundingClientRect().top + levelScroll(start.level) * (stage.clientHeight || 1); // ?level= demo link
+    if (start.level > 1) {
+      const scrollOffset = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + levelScroll(start.level) * (stage.clientHeight || 1);
+      sc.scrollTop += scrollOffset;
+      const targetP = levelScroll(start.level);
+      const c = (v: number) => Math.max(0, Math.min(1, v)).toFixed(4);
+      stage.style.setProperty('--p1', c(targetP));
+      stage.style.setProperty('--p2', c(targetP - 1));
+      stage.style.setProperty('--p3', c(targetP - 2));
+      setLevel(start.level);
+    } else {
+      update();
+    }
     let raf = 0;
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); };
-    update();
     sc.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     return () => { sc.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); cancelAnimationFrame(raf); };
